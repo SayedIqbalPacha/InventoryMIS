@@ -33,7 +33,7 @@ exports.getCategory = catchAsync(async (req, res,next) => {
             [id]
         );
          
-        console.log(rows);
+        // console.log(rows);
 
         if (rows.length === 0) {
 
@@ -75,8 +75,6 @@ exports.createCategory = catchAsync(async (req, res,next) => {
             ]
 
         );
-
-
         res.status(201).json({
 
             status: 'success',
@@ -105,7 +103,6 @@ exports.updateCategory = catchAsync(async (req, res,next) => {
             `UPDATE catagory 
              SET catagory_name=?, catagory_description=? 
              WHERE catagory_id=?`,
-
             [
                 catagory_name,
                 catagory_description,
