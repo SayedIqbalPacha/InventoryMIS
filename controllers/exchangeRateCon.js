@@ -1,234 +1,411 @@
-const db = require('../config/db');
+// const db = require('../config/db');
 
+
+
+// // GET ALL
+
+// exports.getAllExchangeRates = async (req, res) => {
+
+//     try {
+
+//         const [rows] = await db.query(
+//             'SELECT * FROM exchange_rate'
+//         );
+
+//         res.status(200).json({
+//             status: 'success',
+//             results: rows.length,
+//             data: rows
+//         });
+
+//     } catch (err) {
+
+//         res.status(500).json({
+//             status: 'error',
+//             message: err.message
+//         });
+
+//     }
+
+// };
+
+
+
+// // GET ONE
+
+// exports.getExchangeRate = async (req, res) => {
+
+//     try {
+
+//         const id = req.params.id;
+
+//         const [rows] = await db.query(
+//             'SELECT * FROM exchange_rate WHERE rate_id = ?',
+//             [id]
+//         );
+
+//         if (rows.length === 0) {
+
+//             return res.status(404).json({
+
+//                 status: 'fail',
+
+//                 message: 'Exchange rate not found'
+
+//             });
+
+//         }
+
+//         res.status(200).json({
+
+//             status: 'success',
+
+//             data: rows[0]
+
+//         });
+
+//     } catch (err) {
+
+//         res.status(500).json({
+
+//             status: 'error',
+
+//             message: err.message
+
+//         });
+
+//     }
+
+// };
+
+
+
+// // CREATE
+
+// exports.createExchangeRate = async (req, res) => {
+
+//     try {
+
+//         const {
+
+//             from_currency_id,
+//             to_currency_id,
+//             exchange_rate,
+//             effective_date
+
+//         } = req.body;
+
+//         const [result] = await db.query(
+
+//             `INSERT INTO exchange_rate
+//             (from_currency_id, to_currency_id, exchange_rate, effective_date)
+//             VALUES (?, ?, ?, ?)`,
+
+//             [
+//                 from_currency_id,
+//                 to_currency_id,
+//                 exchange_rate,
+//                 effective_date
+//             ]
+
+//         );
+
+//         res.status(201).json({
+
+//             status: 'success',
+
+//             insertedId: result.insertId
+
+//         });
+
+//     } catch (err) {
+
+//         res.status(500).json({
+
+//             status: 'error',
+
+//             message: err.message
+
+//         });
+
+//     }
+
+// };
+
+
+
+// // UPDATE
+
+// exports.updateExchangeRate = async (req, res) => {
+
+//     try {
+
+//         const id = req.params.id;
+
+//         const {
+
+//             from_currency_id,
+//             to_currency_id,
+//             exchange_rate,
+//             effective_date
+
+//         } = req.body;
+
+//         await db.query(
+
+//             `UPDATE exchange_rate
+//             SET
+//             from_currency_id = ?,
+//             to_currency_id = ?,
+//             exchange_rate = ?,
+//             effective_date = ?
+//             WHERE rate_id = ?`,
+
+//             [
+//                 from_currency_id,
+//                 to_currency_id,
+//                 exchange_rate,
+//                 effective_date,
+//                 id
+//             ]
+
+//         );
+
+//         res.status(200).json({
+
+//             status: 'success',
+
+//             message: 'Exchange rate updated successfully'
+
+//         });
+
+//     } catch (err) {
+
+//         res.status(500).json({
+
+//             status: 'error',
+
+//             message: err.message
+
+//         });
+
+//     }
+
+// };
+
+
+
+// // DELETE
+
+// exports.deleteExchangeRate = async (req, res) => {
+
+//     try {
+
+//         const id = req.params.id;
+
+//         await db.query(
+
+//             'DELETE FROM exchange_rate WHERE rate_id = ?',
+
+//             [id]
+
+//         );
+
+//         res.status(204).json({
+
+//             status: 'success',
+
+//             data: null
+
+//         });
+
+//     } catch (err) {
+
+//         res.status(500).json({
+
+//             status: 'error',
+
+//             message: err.message
+
+//         });
+
+//     }
+
+// };
+
+const db = require('../config/db');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 
 // GET ALL
 
-exports.getAllExchangeRates = async (req, res) => {
+exports.getAllExchangeRates = catchAsync(async (req, res,next) => {
 
-    try {
+    const [rows] = await db.query(
+        'SELECT * FROM exchange_rate'
+    );
 
-        const [rows] = await db.query(
-            'SELECT * FROM exchange_rate'
-        );
+    res.status(200).json({
+        status: 'success',
+        results: rows.length,
+        data: rows
+    });
 
-        res.status(200).json({
-            status: 'success',
-            results: rows.length,
-            data: rows
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-            status: 'error',
-            message: err.message
-        });
-
-    }
-
-};
-
+});
 
 
 // GET ONE
 
-exports.getExchangeRate = async (req, res) => {
+exports.getExchangeRate = catchAsync(async (req, res,next) => {
 
-    try {
+    const id = req.params.id;
 
-        const id = req.params.id;
+  
 
-        const [rows] = await db.query(
-            'SELECT * FROM exchange_rate WHERE rate_id = ?',
-            [id]
-        );
-
-        if (rows.length === 0) {
-
-            return res.status(404).json({
-
-                status: 'fail',
-
-                message: 'Exchange rate not found'
-
-            });
-
+    const [rows] = await db.query(
+        'SELECT * FROM exchange_rate WHERE rate_id = ?',
+        [id]
+    );
+  
+      if (!/^\d+$/.test(id)) {
+        return next(new AppError('Invalid exchange rate ID', 400));
         }
 
-        res.status(200).json({
+    if (rows.length === 0) {
 
-            status: 'success',
-
-            data: rows[0]
-
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-
-            status: 'error',
-
-            message: err.message
-
-        });
+        return next(new AppError('Exchange rate not found',404));
 
     }
 
-};
+    res.status(200).json({
 
+        status: 'success',
+
+        data: rows[0]
+
+    });
+
+});
 
 
 // CREATE
 
-exports.createExchangeRate = async (req, res) => {
+exports.createExchangeRate = catchAsync(async (req, res,next) => {
 
-    try {
+    const {
 
-        const {
+        from_currency_id,
+        to_currency_id,
+        exchange_rate,
+        effective_date
 
+    } = req.body;
+
+    const [result] = await db.query(
+
+        `INSERT INTO exchange_rate
+        (from_currency_id, to_currency_id, exchange_rate, effective_date)
+        VALUES (?, ?, ?, ?)`,
+
+        [
             from_currency_id,
             to_currency_id,
             exchange_rate,
             effective_date
+        ]
 
-        } = req.body;
+    );
 
-        const [result] = await db.query(
+    res.status(201).json({
 
-            `INSERT INTO exchange_rate
-            (from_currency_id, to_currency_id, exchange_rate, effective_date)
-            VALUES (?, ?, ?, ?)`,
+        status: 'success',
 
-            [
-                from_currency_id,
-                to_currency_id,
-                exchange_rate,
-                effective_date
-            ]
+        insertedId: result.insertId
 
-        );
+    });
 
-        res.status(201).json({
-
-            status: 'success',
-
-            insertedId: result.insertId
-
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-
-            status: 'error',
-
-            message: err.message
-
-        });
-
-    }
-
-};
-
+});
 
 
 // UPDATE
 
-exports.updateExchangeRate = async (req, res) => {
+exports.updateExchangeRate = catchAsync(async (req, res,next) => {
 
-    try {
+    const id = req.params.id;
 
-        const id = req.params.id;
+    const {
 
-        const {
+        from_currency_id,
+        to_currency_id,
+        exchange_rate,
+        effective_date
 
+    } = req.body;
+
+    const [result] = await db.query(
+
+        `UPDATE exchange_rate
+        SET
+        from_currency_id = ?,
+        to_currency_id = ?,
+        exchange_rate = ?,
+        effective_date = ?
+        WHERE rate_id = ?`,
+
+        [
             from_currency_id,
             to_currency_id,
             exchange_rate,
-            effective_date
+            effective_date,
+            id
+        ]
 
-        } = req.body;
+    );
 
-        await db.query(
+    if(!result.affectedRows){
 
-            `UPDATE exchange_rate
-            SET
-            from_currency_id = ?,
-            to_currency_id = ?,
-            exchange_rate = ?,
-            effective_date = ?
-            WHERE rate_id = ?`,
-
-            [
-                from_currency_id,
-                to_currency_id,
-                exchange_rate,
-                effective_date,
-                id
-            ]
-
-        );
-
-        res.status(200).json({
-
-            status: 'success',
-
-            message: 'Exchange rate updated successfully'
-
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-
-            status: 'error',
-
-            message: err.message
-
-        });
+        return next(new AppError('Exchange rate not founded',404));
 
     }
 
-};
+    res.status(200).json({
 
+        status: 'success',
+
+        message: 'Exchange rate updated successfully'
+
+    });
+
+});
 
 
 // DELETE
 
-exports.deleteExchangeRate = async (req, res) => {
+exports.deleteExchangeRate = catchAsync(async (req, res,next) => {
 
-    try {
+    const id = req.params.id;
 
-        const id = req.params.id;
+    const [result] = await db.query(
 
-        await db.query(
+        'DELETE FROM exchange_rate WHERE rate_id = ?',
 
-            'DELETE FROM exchange_rate WHERE rate_id = ?',
+        [id]
 
-            [id]
+    );
 
-        );
+    if(!result.affectedRows){
 
-        res.status(204).json({
-
-            status: 'success',
-
-            data: null
-
-        });
-
-    } catch (err) {
-
-        res.status(500).json({
-
-            status: 'error',
-
-            message: err.message
-
-        });
+        return next(new AppError('Exchange rate not founded',404));
 
     }
 
-};
+    res.status(204).json({
+
+        status: 'success',
+
+        data: null
+
+    });
+
+});
