@@ -13,7 +13,7 @@ const index = require('./index');
 // dotenv.config({path:'./config.env'});
 
 // console.log(process.env);
-const port  = process.env.PORT || 3000 ;
+const port  = process.env.PORT || 9000 ;
 
 const server = index.listen(port,()=>{
     console.log(`file runs on port ${port}`);

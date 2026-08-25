@@ -1,4 +1,6 @@
-const env =  require('dotenv').config();
+const env =  require('dotenv')
+env.config({ path: './config.env' });
+
 const fs = require('fs');
 const express = require('express');
 const app = express();
@@ -24,6 +26,8 @@ const salesDetailsRot = require('./routes/salesDetailsRot');
 const unitRot = require('./routes/unitRot');
 const vendorRot = require('./routes/vendorRot');
 const vendorPaymentRot = require('./routes/vendorPaymentRot');
+const authRot = require('./routes/authRot');
+const users = require('./routes/userRot');
 // Use Routes3
 app.use('/api/v1/catagories', catagoryRot);
 app.use('/api/v1/customer', customerRot);
@@ -38,7 +42,8 @@ app.use('/api/v1/salesDetails',salesDetailsRot);
 app.use('/api/v1/unit',unitRot);
 app.use('/api/v1/vendor',vendorRot);
 app.use('/api/v1/vendorPayment',vendorPaymentRot);
-
+app.use('/api/v1/users',users);
+app.use('/api/v1/auth',authRot);
 
 app.all('*',(req,res,next)=>{
     // res.status(404).json({
