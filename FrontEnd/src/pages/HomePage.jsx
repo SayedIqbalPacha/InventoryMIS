@@ -1,9 +1,65 @@
-import { useNavigate } from "react-router-dom";
+import {SalesTable} from "@/component/RecentSalesTable";
+import { SalesPurchase } from "@/component/SalesPurchaseChart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function Homepage(){
-   const navigate = useNavigate();
     return(
-        <div onClick={()=>{navigate("login")}} className="w-20 h-20 bg-amber-400">HomePage</div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
+            
+            <div className="bg-primary-foreground p-4 rounded-lg">
+             <Card>
+                <CardHeader>
+                    <CardTitle>Total Customers</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-3xl font-bold">125</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-primary-foreground p-4 rounded-lg">
+              <Card>
+                <CardHeader>
+                    <CardTitle>Total Items</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-3xl font-bold">400</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-primary-foreground p-4 rounded-lg">
+                <Card>
+                <CardHeader>
+                    <CardTitle>Total Sales</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-3xl font-bold">90000$</p>
+                </CardContent>
+              </Card>
+            </div>
+
+
+            <div className="bg-primary-foreground p-4 rounded-lg">
+                <Card>
+                <CardHeader>
+                    <CardTitle>Total Profit</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-3xl font-bold">20000$</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-primary-foreground p-4 rounded-lg">
+                <SalesPurchase />
+            </div> 
+
+            <div className="bg-primary-foreground p-4 rounded-lg">
+                <SalesTable />
+            </div>
+            
+        </div>
     )
 }
 export default Homepage;

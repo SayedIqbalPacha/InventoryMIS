@@ -33,14 +33,9 @@ import {
 
 const mainItems = [
   {
-    title: "HomePage",
-    icon: House,
-    link:"/",
-  },
-  {
     title: "Dashboard",
     icon: LayoutDashboard,
-     link:"/dashboard",
+     link:"/",
   },
   {
     title: "Items",

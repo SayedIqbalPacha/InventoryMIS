@@ -28,6 +28,12 @@ const vendorRot = require('./routes/vendorRot');
 const vendorPaymentRot = require('./routes/vendorPaymentRot');
 const authRot = require('./routes/authRot');
 const usersRot = require('./routes/userRot');
+const cors = require("cors");
+
+app.use(cors({
+  origin: "http://localhost:5173"
+}));
+
 // Use Routes3
 app.use('/api/v1/catagories', catagoryRot);
 app.use('/api/v1/customer', customerRot);

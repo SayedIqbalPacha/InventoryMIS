@@ -11,10 +11,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { logout } from "@/services/auth"
+import { useNavigate } from "react-router-dom"
+
 
 export default function NavBar(){
+        const navigate = useNavigate();
+
+        function handleLogout(){
+            logout()
+            navigate("/Login")
+        }
+
     return(
-        <nav className="sticky top-0 z-50  flex items-center justify-between px-2  py-2">
+        <nav className="sticky top-0 z-50  flex items-center justify-between px-2  py-2 bg-neutral-900">
             {/* left */}
 
                 <SidebarTrigger />
@@ -23,7 +33,7 @@ export default function NavBar(){
                 <ModeToggle />
 
                 <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger>
                     <Avatar className="ml-4">
                      <AvatarImage src="https://github.com/shadcn.png" />
                      <AvatarFallback>CN</AvatarFallback>
@@ -38,7 +48,8 @@ export default function NavBar(){
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                     <DropdownMenuItem>Team</DropdownMenuItem>
-                    <DropdownMenuItem>Logout</DropdownMenuItem>
+
+                    <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
                 </DropdownMenu>

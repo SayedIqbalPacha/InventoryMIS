@@ -21,7 +21,7 @@ const chartConfig = {
   },
 };
 
-export function ChartBase() {
+export function SalesPurchase() {
   return (
     <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
       <BarChart accessibilityLayer data={chartData}>

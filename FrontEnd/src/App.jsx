@@ -4,7 +4,6 @@ import Catagory from "./pages/Catagory"
 import NotFound from "./pages/NotFound"
 import Currency from "./pages/Currency"
 import Customer from "./pages/Customer"
-import Dashboard from "./pages/Dashboard"
 import Items from "./pages/Items"
 import Login from "./pages/Login"
 import Purchase from "./pages/Purchase"
@@ -29,7 +28,7 @@ function App(){
           <Routes>
 
             <Route path="/login" element={<Login />} />
-            <Route path="signup" element={<Signup />} />
+            <Route path="/signup" element={<Signup />} />
               <Route element={<AppLayout />}>
 
               <Route index element={<Homepage />} />
@@ -37,7 +36,6 @@ function App(){
               <Route path="catagory/:id"  element={<Catagory />} />
               <Route path="currency" element={<Currency />} />
               <Route path="customer" element={<Customer/>} />
-              <Route path="dashboard" element={<Dashboard />} />
               <Route path="items" element={<Items />} />
               <Route path="purchase" element={<Purchase />} />
               <Route path="reports" element={<Reports />} />

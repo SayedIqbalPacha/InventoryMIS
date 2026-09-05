@@ -175,10 +175,18 @@ exports.login = catchAsync(async (req, res, next) => {
 
     // SEND RESPONSE
 
-    res.status(200).json({
-        status: 'success',
-        token
-    });
+   res.status(200).json({
+    status: 'success',
+    token,
+    
+    data: {
+        user_id: user.user_id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        active: user.active
+    }
+});
 
 });
 
