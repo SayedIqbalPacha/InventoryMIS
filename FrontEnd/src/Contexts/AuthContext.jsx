@@ -1,0 +1,1 @@
+// here we use a reducer and a context to check if the user is loged in or not 
