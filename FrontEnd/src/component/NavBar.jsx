@@ -10,17 +10,19 @@ import {
  
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { logout } from "@/services/auth"
-import { useNavigate } from "react-router-dom"
 
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { useNavigate } from "react-router-dom"
+import {useAuth} from "@/contexts/AuthContext"
+import { Group, LogOut, Settings, User, Users } from "lucide-react"
 
 export default function NavBar(){
-        const navigate = useNavigate();
+     const navigate = useNavigate();
+    const {logout} = useAuth();
 
         function handleLogout(){
-            logout()
-            navigate("/Login")
+            logout();
+            navigate("/login",{replace:true})
         }
 
     return(
@@ -42,14 +44,14 @@ export default function NavBar(){
                 <DropdownMenuContent>
                     <DropdownMenuGroup>
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Setting</DropdownMenuItem>
+                    <DropdownMenuItem><User /> Profile</DropdownMenuItem>
+                    <DropdownMenuItem><Settings /> Setting</DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                    <DropdownMenuItem>Team</DropdownMenuItem>
+                    <DropdownMenuItem><Users /> Team</DropdownMenuItem>
 
-                    <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}><LogOut /> Logout</DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
                 </DropdownMenu>

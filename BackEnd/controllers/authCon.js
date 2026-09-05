@@ -227,8 +227,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     }
 
     const user = rows[0];
+    
   // 4. CHECK IF USER IS ACTIVE
-
     if (!user.active) {
         return next(
             new AppError('Your account is inactive. Please contact support.', 401));

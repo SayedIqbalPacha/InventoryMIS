@@ -17,21 +17,40 @@ import Vendor from "./pages/Vendor"
 
 import { ThemeProvider } from "@/components/ThemProvider"
 import AppLayout from "@/pages/AppLayout"
+import HomeRedirect from "@/component/HomeRedirect"
+import PublicRoute from "@/component/PublicRoute"
+import ProtectedRoute from "@/component/ProtectedRoute"
 
+import {AuthProvider} from "@/contexts/AuthContext"
 
 function App(){
   return(
     
     <div>
-      <ThemeProvider>
-    
+    <ThemeProvider>
+    <AuthProvider>
           <Routes>
 
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-              <Route element={<AppLayout />}>
+            {/* HOME */}
+        <Route path="/" element={<HomeRedirect />}/>
 
-              <Route index element={<Homepage />} />
+
+            {/* PUBLIC ROUTES */}
+        <Route element={<PublicRoute />}>
+
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/signup" element={<Signup />}/>
+
+          <Route path="/forgot-password" element={<div>Forgot Password</div>}/>
+
+        </Route>
+
+        {/* PROTECTED ROUTES */}
+        <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+
+              <Route path="/dashboard" element={<Homepage />} />
               <Route path="catagory" element={<Catagory />} />
               <Route path="catagory/:id"  element={<Catagory />} />
               <Route path="currency" element={<Currency />} />
@@ -44,10 +63,12 @@ function App(){
               <Route path="users" element={<Users />} />
               <Route path="vendor" element={<Vendor />} />
 
-              </Route>
+        </Route>
+        </Route>
               <Route path="*" element={<NotFound />} />
           </Routes>
-      </ThemeProvider>
+    </AuthProvider>
+    </ThemeProvider>
       
     </div>
   )

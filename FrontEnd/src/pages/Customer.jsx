@@ -17,6 +17,8 @@ import {
   deleteCustomer,
 } from "@/services/Customer";
 
+import {useAuth} from "@/contexts/AuthContext";
+
 import CustomerForm from "@/component/CustomerForm";
 
 import GeneralTable from "@/component/GeneralTable";
@@ -311,41 +313,17 @@ export default function CustomerPage() {
   // ROLE
   // --------------------------------------------------
 
-  /*
-   * Change "user" below to wherever your
-   * authentication system actually stores
-   * the logged-in user.
-   */
 
-  let currentUser = null;
+  const {user} = useAuth();
+  const role = user?.role;
 
-  try {
-
-    currentUser =
-      JSON.parse(
-        localStorage.getItem("user")
-      );
-
-  } catch {
-
-    currentUser = null;
-
-  }
+  const canCreate = ["user", "manager", "admin"].includes(role);
 
 
-  const role = currentUser?.role;
+  const canUpdate = ["manager", "admin"].includes(role);
 
 
-  const canCreate =
-    ["user", "manager", "admin"].includes(role);
-
-
-  const canUpdate =
-    ["manager", "admin"].includes(role);
-
-
-  const canDelete =
-    role === "admin";
+  const canDelete = role === "admin";
 
 
   // --------------------------------------------------

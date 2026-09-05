@@ -1,11 +1,10 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { login } from "@/services/auth";
 
 import { Button } from "@/components/ui/button";
 
@@ -28,7 +27,6 @@ import { Label } from "@/components/ui/label";
 // --------------------------------------------------
 
 const loginSchema = z.object({
-
   email: z
     .string()
     .trim()
@@ -38,7 +36,6 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(1, "Please provide your password"),
-
 });
 
 
@@ -50,8 +47,10 @@ export function LoginSignup() {
 
   const navigate = useNavigate();
 
-  const [serverError, setServerError] = useState("");
+  // GET LOGIN FUNCTION FROM AUTH CONTEXT
+  const { login } = useAuth();
 
+  const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
 
 
@@ -60,7 +59,6 @@ export function LoginSignup() {
   // ------------------------------------------------
 
   const form = useForm({
-
     resolver: zodResolver(loginSchema),
 
     defaultValues: {
@@ -68,6 +66,7 @@ export function LoginSignup() {
       password: "",
     },
 
+    mode: "onBlur",
   });
 
 
@@ -80,44 +79,25 @@ export function LoginSignup() {
     try {
 
       setLoading(true);
-
       setServerError("");
 
       form.clearErrors();
 
 
-      // CALL BACKEND
-
-      const response = await login(data.email,data.password);
-
-
-      // SAVE JWT
-
-      localStorage.setItem("token", response.token);
+      // LOGIN THROUGH AUTH CONTEXT
+      await login(data.email, data.password);
 
 
-      /*
-       * Your backend currently needs to return
-       * user information as well if you want
-       * the frontend to know the role immediately.
-       */
+      // LOGIN SUCCESS
+      navigate("/dashboard", {
+        replace: true,
+      });
 
-      if (response.data) {
-
-        localStorage.setItem("user",JSON.stringify(response.data));
-
-      }
-
-
-      // REDIRECT
-
-      navigate("/");
 
     } catch (error) {
 
       setServerError(
-        error.message ||
-        "Unable to login."
+        error.message || "Unable to login."
       );
 
     } finally {
@@ -125,7 +105,6 @@ export function LoginSignup() {
       setLoading(false);
 
     }
-
   }
 
 
@@ -170,11 +149,15 @@ export function LoginSignup() {
       {/* FORM */}
       {/* ======================================== */}
 
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+      >
 
         <CardContent>
 
           <div className="flex flex-col gap-6">
+
 
             {/* EMAIL */}
 
@@ -223,13 +206,14 @@ export function LoginSignup() {
                 </Label>
 
                 <Link
-                  to="#"
+                  to="/forgot-password"
                   className="ml-auto text-sm underline-offset-4 hover:underline"
                 >
                   Forgot your password?
                 </Link>
 
               </div>
+
 
               <Input
                 id="password"
@@ -248,8 +232,7 @@ export function LoginSignup() {
                 <p className="text-sm text-destructive">
 
                   {
-                    form.formState.errors.password
-                      .message
+                    form.formState.errors.password.message
                   }
 
                 </p>
@@ -263,7 +246,7 @@ export function LoginSignup() {
 
             {serverError && (
 
-              <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 my-2 text-sm text-destructive">
 
                 {serverError}
 

@@ -35,7 +35,7 @@ const mainItems = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
-     link:"/",
+     link:"/dashboard",
   },
   {
     title: "Items",
