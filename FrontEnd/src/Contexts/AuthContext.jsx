@@ -47,6 +47,7 @@ export function AuthProvider({ children }) {
 
 
   // LOGIN
+  // useCallback is used to memoize the function and prevent unnecessary re-renders react will not create a new instance of the function on every render, which can cause performance issues and unnecessary re-renders of child components that depend on this function.
   const login = useCallback(async (email, password) => {
     const data = await loginRequest(email, password);
 
@@ -60,6 +61,7 @@ export function AuthProvider({ children }) {
 
 
   // SIGNUP
+
   const signup = useCallback(async (userData) => {
     const data = await signupRequest(userData);
 
@@ -134,8 +136,8 @@ export function AuthProvider({ children }) {
 
 
   // CONTEXT VALUE
-  const value = useMemo(
-    () => ({
+  // useMemo is used to remember the calculated value of the context and only recompute it when the dependencies change. This can help to optimize performance by preventing unnecessary re-renders of components that consume the context.
+  const value = useMemo(() => ({
       user,
       token,
       loading,

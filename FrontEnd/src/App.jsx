@@ -13,7 +13,7 @@ import Signup from "./pages/Signup"
 import Units from "./pages/Units"
 import Users from "./pages/Users"
 import Vendor from "./pages/Vendor"
-
+import ForgotPassword from "./pages/ForgotPassword"
 
 import { ThemeProvider } from "@/components/ThemProvider"
 import AppLayout from "@/pages/AppLayout"
@@ -22,6 +22,7 @@ import PublicRoute from "@/component/PublicRoute"
 import ProtectedRoute from "@/component/ProtectedRoute"
 
 import {AuthProvider} from "@/contexts/AuthContext"
+import PasswordReset from "@/pages/PasswordReset"
 
 function App(){
   return(
@@ -42,8 +43,9 @@ function App(){
 
           <Route path="/signup" element={<Signup />}/>
 
-          <Route path="/forgot-password" element={<div>Forgot Password</div>}/>
+          <Route path="/forgot-password" element={<ForgotPassword />}/>
 
+          <Route path="/reset-password/:token" element={<PasswordReset />}/>
         </Route>
 
         {/* PROTECTED ROUTES */}

@@ -11,9 +11,7 @@ async function handleResponse(response) {
   }
 
   if (!response.ok) {
-    const error = new Error(
-      data?.message || "Something went wrong"
-    );
+    const error = new Error(data?.message || "Something went wrong");
 
     error.status = response.status;
     error.data = data;
@@ -151,6 +149,7 @@ export function getCurrentUser() {
   }
 
   try {
+    // this change the user from json string to object
     return JSON.parse(user);
   } catch {
     return null;

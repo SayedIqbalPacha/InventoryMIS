@@ -2,10 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function HomeRedirect() {
-  const {
-    isAuthenticated,
-    loading,
-  } = useAuth();
+  const {isAuthenticated,loading,} = useAuth();
 
 
   if (loading) {

@@ -340,7 +340,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
 
 // 3) send it users email the generated token
-const resetURL = `${req.protocol}://${req.get('host')}/api/v1/auth/resetPassword/${resetToken}`;
+//we change it because of frontend const resetURL = `${req.protocol}://${req.get('host')}/api/v1/auth/resetPassword/${resetToken}`;
+const resetURL =`http://localhost:5173/reset-password/${resetToken}`;
 // req.protocol  → http
 // req.get('host') → localhost:9000
 // resetToken → your random token
@@ -365,7 +366,8 @@ await transporter.sendMail({
 
         res.status(200).json({
             status: 'success',
-            message: 'Reset token sent to email'
+            message: 'Reset token sent to email',
+            token:resetToken
         });
     });
 

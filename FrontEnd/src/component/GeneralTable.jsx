@@ -12,7 +12,7 @@ export default function GeneralTable({columns,data,actions,getRowId,}) {
 
   return (
 
-    <div className=" w-full overflow-auto rounded-md border scrollbar-thin h-[calc(100vh-350px)]">
+    <div className=" w-full overflow-auto rounded-md border scrollbar-thin h-[calc(100vh-250px)]">
 
       <Table className="min-w-[800px]">
 
