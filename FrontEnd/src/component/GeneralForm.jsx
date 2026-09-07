@@ -155,9 +155,9 @@ export default function GeneralForm({form,fields,onSubmit,children,}) {
 
         ))}
 
-               {children}
 
       </FieldGroup>
+               {children}
 
     </form>
   );

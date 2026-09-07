@@ -182,9 +182,7 @@ exports.getAllVendors = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         results: rows.length,
-        data: {
-            vendors: rows
-        }
+        data: rows
     });
 
 });
@@ -215,9 +213,8 @@ exports.getVendor = catchAsync(async (req, res, next) => {
 
         status: 'success',
 
-        data: {
-            vendor: rows[0]
-        }
+        data:rows[0]
+        
 
     });
 
@@ -230,8 +227,6 @@ exports.createVendor = catchAsync(async (req, res, next) => {
 
     const {
         vendor_name,
-        contact_person,
-        phone,
         email,
         address
     } = req.body;
@@ -250,14 +245,6 @@ exports.createVendor = catchAsync(async (req, res, next) => {
         return next(new AppError('Vendor name must be a string', 400));
     }
 
-    if (contact_person !== undefined && typeof contact_person !== 'string') {
-        return next(new AppError('Contact person must be a string', 400));
-    }
-
-    if (phone !== undefined && typeof phone !== 'string') {
-        return next(new AppError('Phone must be a string', 400));
-    }
-
     if (email !== undefined && typeof email !== 'string') {
         return next(new AppError('Email must be a string', 400));
     }
@@ -270,13 +257,11 @@ exports.createVendor = catchAsync(async (req, res, next) => {
     const [result] = await db.query(
 
         `INSERT INTO vendor
-        (vendor_name, contact_person, phone, email, address)
-        VALUES (?, ?, ?, ?, ?)`,
+        (vendor_name, email, address)
+        VALUES (?, ?, ?)`,
 
         [
             vendor_name,
-            contact_person,
-            phone,
             email,
             address
         ]
@@ -304,8 +289,6 @@ exports.updateVendor = catchAsync(async (req, res, next) => {
 
     const {
         vendor_name,
-        contact_person,
-        phone,
         email,
         address
     } = req.body;
@@ -338,14 +321,6 @@ exports.updateVendor = catchAsync(async (req, res, next) => {
         return next(new AppError('Vendor name must be a string', 400));
     }
 
-    if (contact_person !== undefined && typeof contact_person !== 'string') {
-        return next(new AppError('Contact person must be a string', 400));
-    }
-
-    if (phone !== undefined && typeof phone !== 'string') {
-        return next(new AppError('Phone must be a string', 400));
-    }
-
     if (email !== undefined && typeof email !== 'string') {
         return next(new AppError('Email must be a string', 400));
     }
@@ -359,16 +334,12 @@ exports.updateVendor = catchAsync(async (req, res, next) => {
 
         `UPDATE vendor
         SET vendor_name = COALESCE(?, vendor_name),
-            contact_person = COALESCE(?, contact_person),
-            phone = COALESCE(?, phone),
             email = COALESCE(?, email),
             address = COALESCE(?, address)
         WHERE vendor_id = ?`,
 
         [
             vendor_name ?? null,
-            contact_person ?? null,
-            phone ?? null,
             email ?? null,
             address ?? null,
             id

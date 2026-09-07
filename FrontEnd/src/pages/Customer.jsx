@@ -1,13 +1,3 @@
-
-// function CustomerPage(){
-//     return(
-//         <div>
-//             CustomerPage
-//         </div>
-//     )
-// }
-// export default CustomerPage;
-
 import { useEffect, useState } from "react";
 
 import {

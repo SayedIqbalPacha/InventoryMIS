@@ -1,1 +1,0 @@
-//here we will put all our app inside this to protect routes
