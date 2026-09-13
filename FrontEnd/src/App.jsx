@@ -23,6 +23,9 @@ import ProtectedRoute from "@/component/ProtectedRoute"
 
 import {AuthProvider} from "@/contexts/AuthContext"
 import PasswordReset from "@/pages/PasswordReset"
+import CustomerPaymentPage from "@/pages/CustomerPayment"
+import VendorPaymentPage from "@/pages/VendorPayment"
+import ExchangeRatePage from "@/pages/ExchangeRate"
 
 function App(){
   return(
@@ -57,6 +60,7 @@ function App(){
               <Route path="catagory/:id"  element={<Catagory />} />
               <Route path="currency" element={<Currency />} />
               <Route path="customer" element={<Customer/>} />
+              <Route path="customerPayment" element={<CustomerPaymentPage />} />
               <Route path="items" element={<Items />} />
               <Route path="purchase" element={<Purchase />} />
               <Route path="reports" element={<Reports />} />
@@ -64,6 +68,8 @@ function App(){
               <Route path="units" element={<Units />} />
               <Route path="users" element={<Users />} />
               <Route path="vendor" element={<Vendor />} />
+              <Route path="vendorPayment" element={<VendorPaymentPage />} />
+              <Route path="exchange-rates" element={<ExchangeRatePage />} />
 
         </Route>
         </Route>

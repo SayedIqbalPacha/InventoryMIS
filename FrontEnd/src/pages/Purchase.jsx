@@ -9,6 +9,14 @@ import {
 
 import { getCurrency } from "@/services/Currency";
 import { getVendors } from "@/services/Vendor";
+import { getItems } from "@/services/Items";
+
+import {
+  getPurchaseDetails,
+  createPurchaseDetail,
+  updatePurchaseDetail,
+  deletePurchaseDetail,
+} from "@/services/PurchaseDetails";
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -35,13 +43,21 @@ import {
 
 export default function PurchasePage() {
 
+
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
 
   const [purchases, setPurchases] = useState([]);
+
+  const [purchaseDetails, setPurchaseDetails] =
+    useState([]);
+
   const [currencies, setCurrencies] = useState([]);
+
   const [vendors, setVendors] = useState([]);
+
+  const [items, setItems] = useState([]);
 
 
   // --------------------------------------------------
@@ -49,8 +65,12 @@ export default function PurchasePage() {
   // --------------------------------------------------
 
   const [loading, setLoading] = useState(true);
-  const [formLoading, setFormLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [formLoading, setFormLoading] =
+    useState(false);
+
+  const [deleteLoading, setDeleteLoading] =
+    useState(false);
 
 
   // --------------------------------------------------
@@ -71,15 +91,20 @@ export default function PurchasePage() {
   // FORM
   // --------------------------------------------------
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [selectedPurchase, setSelectedPurchase] = useState(null);
+  const [formOpen, setFormOpen] =
+    useState(false);
+
+  const [selectedPurchase, setSelectedPurchase] =
+    useState(null);
 
 
   // --------------------------------------------------
   // DELETE
   // --------------------------------------------------
 
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] =
+    useState(false);
+
   const [purchaseToDelete, setPurchaseToDelete] =
     useState(null);
 
@@ -95,14 +120,25 @@ export default function PurchasePage() {
       setLoading(true);
       setError("");
 
+
       const [
         purchasesResponse,
         currenciesResponse,
         vendorsResponse,
+        itemsResponse,
+        purchaseDetailsResponse,
       ] = await Promise.all([
+
         getPurchases(),
+
         getCurrency(),
+
         getVendors(),
+
+        getItems(),
+
+        getPurchaseDetails(),
+
       ]);
 
 
@@ -116,6 +152,14 @@ export default function PurchasePage() {
 
       setVendors(
         vendorsResponse?.data || []
+      );
+
+      setItems(
+        itemsResponse?.data || []
+      );
+
+      setPurchaseDetails(
+        purchaseDetailsResponse?.data || []
       );
 
     } catch (err) {
@@ -149,34 +193,205 @@ export default function PurchasePage() {
   // CREATE / UPDATE
   // --------------------------------------------------
 
-  async function handlePurchaseSubmit(data) {
+  async function handlePurchaseSubmit({
+    purchaseData,
+    details,
+  }) {
 
     try {
 
       setFormLoading(true);
       setError("");
 
-      if (selectedPurchase) {
 
-        await updatePurchase(
-          selectedPurchase.purchase_id,
-          data
-        );
+      // ==================================================
+      // CREATE PURCHASE
+      // ==================================================
 
-      } else {
+      if (!selectedPurchase) {
 
-        await createPurchase(data);
+       const response = await createPurchase(purchaseData);
+
+          const purchaseId =
+            response?.insertedId ??
+            response?.insertId ??
+            response?.data?.insertedId ??
+            response?.data?.insertId;
+
+          if (!purchaseId) {
+            throw new Error(
+              "Purchase was created, but purchase ID was not returned."
+            );
+          }
+        // -----------------------------------------------
+        // CREATE PURCHASE DETAILS
+        // -----------------------------------------------
+
+        for (const detail of details) {
+
+          await createPurchaseDetail({
+
+            purchase_id:
+              Number(purchaseId),
+
+            item_id:
+              Number(detail.item_id),
+
+            quantity:
+              Number(detail.quantity),
+
+            unit_price:
+              Number(detail.unit_price),
+
+          });
+
+        }
 
       }
 
+
+      // ==================================================
+      // UPDATE PURCHASE
+      // ==================================================
+
+      else {
+
+        const purchaseId =
+          selectedPurchase.purchase_id;
+
+
+        // -----------------------------------------------
+        // UPDATE PURCHASE HEADER
+        // -----------------------------------------------
+
+        await updatePurchase(
+          purchaseId,
+          purchaseData
+        );
+
+
+        // -----------------------------------------------
+        // OLD DETAILS
+        // -----------------------------------------------
+
+        const oldDetails =
+          purchaseDetails.filter(
+            (detail) =>
+              Number(detail.purchase_id) ===
+              Number(purchaseId)
+          );
+
+
+        // -----------------------------------------------
+        // CURRENT DETAIL IDS
+        // -----------------------------------------------
+
+        const currentDetailIds =
+          details
+            .filter(
+              (detail) =>
+                detail.detail_id
+            )
+            .map(
+              (detail) =>
+                Number(detail.detail_id)
+            );
+
+
+        // -----------------------------------------------
+        // DELETE REMOVED DETAILS
+        // -----------------------------------------------
+
+        for (const oldDetail of oldDetails) {
+
+          const stillExists =
+            currentDetailIds.includes(
+              Number(oldDetail.detail_id)
+            );
+
+
+          if (!stillExists) {
+
+            await deletePurchaseDetail(
+              oldDetail.detail_id
+            );
+
+          }
+
+        }
+
+
+        // -----------------------------------------------
+        // UPDATE / CREATE DETAILS
+        // -----------------------------------------------
+
+        for (const detail of details) {
+
+
+          // Existing detail
+          if (detail.detail_id) {
+
+            await updatePurchaseDetail(
+
+              detail.detail_id,
+
+              {
+                item_id:
+                  Number(detail.item_id),
+
+                quantity:
+                  Number(detail.quantity),
+
+                unit_price:
+                  Number(detail.unit_price),
+              }
+
+            );
+
+          }
+
+
+          // New detail
+          else {
+
+            await createPurchaseDetail({
+
+              purchase_id:
+                Number(purchaseId),
+
+              item_id:
+                Number(detail.item_id),
+
+              quantity:
+                Number(detail.quantity),
+
+              unit_price:
+                Number(detail.unit_price),
+
+            });
+
+          }
+
+        }
+
+      }
+
+
+      // -----------------------------------------------
+      // RELOAD
+      // -----------------------------------------------
+
       await loadData();
 
+
+      // -----------------------------------------------
+      // CLOSE FORM
+      // -----------------------------------------------
+
       setFormOpen(false);
+
       setSelectedPurchase(null);
 
-    } catch (err) {
-
-      throw err;
 
     } finally {
 
@@ -194,6 +409,7 @@ export default function PurchasePage() {
   function handleEdit(purchase) {
 
     setSelectedPurchase(purchase);
+
     setFormOpen(true);
 
   }
@@ -206,13 +422,14 @@ export default function PurchasePage() {
   function handleDeleteClick(purchase) {
 
     setPurchaseToDelete(purchase);
+
     setDeleteOpen(true);
 
   }
 
 
   // --------------------------------------------------
-  // DELETE
+  // DELETE PURCHASE
   // --------------------------------------------------
 
   async function handleDelete() {
@@ -221,18 +438,54 @@ export default function PurchasePage() {
       return;
     }
 
+
     try {
 
       setDeleteLoading(true);
       setError("");
 
+
+      // -----------------------------------------------
+      // DELETE DETAILS FIRST
+      // -----------------------------------------------
+
+      const detailsToDelete =
+        purchaseDetails.filter(
+          (detail) =>
+            Number(detail.purchase_id) ===
+            Number(
+              purchaseToDelete.purchase_id
+            )
+        );
+
+
+      for (const detail of detailsToDelete) {
+
+        await deletePurchaseDetail(
+          detail.detail_id
+        );
+
+      }
+
+
+      // -----------------------------------------------
+      // DELETE PURCHASE HEADER
+      // -----------------------------------------------
+
       await deletePurchase(
         purchaseToDelete.purchase_id
       );
 
+
+      // -----------------------------------------------
+      // RELOAD
+      // -----------------------------------------------
+
       await loadData();
 
+
       setDeleteOpen(false);
+
       setPurchaseToDelete(null);
 
     } catch (err) {
@@ -255,120 +508,161 @@ export default function PurchasePage() {
   // LOOKUP MAPS
   // --------------------------------------------------
 
-  const currencyMap = Object.fromEntries(
+  const currencyMap =
+    Object.fromEntries(
 
-    currencies.map((currency) => [
+      currencies.map(
+        (currency) => [
 
-      currency.currency_id,
+          currency.currency_id,
 
-      currency.currency_code,
+          currency.currency_code,
 
-    ])
+        ]
+      )
 
-  );
+    );
 
 
-  const vendorMap = Object.fromEntries(
+  const vendorMap =
+    Object.fromEntries(
 
-    vendors.map((vendor) => [
+      vendors.map(
+        (vendor) => [
 
-      vendor.vendor_id,
+          vendor.vendor_id,
 
-      vendor.vendor_name,
+          vendor.vendor_name,
 
-    ])
+        ]
+      )
 
-  );
+    );
+
+
+  // --------------------------------------------------
+  // PREPARE ITEM COUNTS
+  // --------------------------------------------------
+
+  const purchaseItemCountMap =
+    purchaseDetails.reduce(
+      (map, detail) => {
+
+        const purchaseId =
+          Number(detail.purchase_id);
+
+        map[purchaseId] =
+          (map[purchaseId] || 0) + 1;
+
+        return map;
+
+      },
+      {}
+    );
 
 
   // --------------------------------------------------
   // PREPARE TABLE DATA
   // --------------------------------------------------
 
-  const tablePurchases = purchases.map((purchase) => ({
+  const tablePurchases =
+    purchases.map((purchase) => ({
 
-    ...purchase,
+      ...purchase,
 
 
-  purchase_date_display:
-    purchase.purchase_date
-      ? new Date(purchase.purchase_date)
-          .toISOString()
-          .split("T")[0]
-      : "-",
+      purchase_date_display:
+        purchase.purchase_date
+          ? new Date(
+              purchase.purchase_date
+            )
+              .toISOString()
+              .split("T")[0]
+          : "-",
 
-    currency_code_display:
-      currencyMap[purchase.currency_id] || "-",
 
-    vendor_name_display:
-      vendorMap[purchase.vendor_id] || "-",
+      currency_code_display:
+        currencyMap[purchase.currency_id] ||
+        "-",
 
-  }));
+
+      vendor_name_display:
+        vendorMap[purchase.vendor_id] ||
+        "-",
+
+
+      item_count_display:
+        purchaseItemCountMap[
+          Number(purchase.purchase_id)
+        ] || 0,
+
+    }));
 
 
   // --------------------------------------------------
   // SEARCH
   // --------------------------------------------------
 
-  const searchValue = search
-    .toLowerCase()
-    .trim();
+  const searchValue =
+    search.toLowerCase().trim();
 
 
   const filteredPurchases =
-    tablePurchases.filter((purchase) => {
+    tablePurchases.filter(
+      (purchase) => {
 
-      return (
+        return (
 
-        String(
-          purchase.purchase_id || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
+          String(
+            purchase.purchase_id || ""
+          )
+            .toLowerCase()
+            .includes(searchValue)
 
-        ||
+          ||
 
-        String(
-          purchase.currency_code_display || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
+          String(
+            purchase.currency_code_display || ""
+          )
+            .toLowerCase()
+            .includes(searchValue)
 
-        ||
+          ||
 
-        String(
-          purchase.vendor_name_display || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
+          String(
+            purchase.vendor_name_display || ""
+          )
+            .toLowerCase()
+            .includes(searchValue)
 
-        ||
+          ||
 
-        String(
-          purchase.purchase_date || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
+          String(
+            purchase.purchase_date_display || ""
+          )
+            .toLowerCase()
+            .includes(searchValue)
 
-        ||
+          ||
 
-        String(
-          purchase.total_amount || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
+          String(
+            purchase.total_amount || ""
+          )
+            .toLowerCase()
+            .includes(searchValue)
 
-        ||
+          ||
 
-        String(
-          purchase.status || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
+          String(
+            purchase.status || ""
+          )
+            .toLowerCase()
+            .includes(searchValue)
 
-      );
+        );
 
-    });
+      }
+    );
 
 
   // --------------------------------------------------
@@ -398,6 +692,11 @@ export default function PurchasePage() {
     },
 
     {
+      key: "item_count_display",
+      label: "Items",
+    },
+
+    {
       key: "total_amount",
       label: "Total Amount",
     },
@@ -414,22 +713,26 @@ export default function PurchasePage() {
   // ROLE
   // --------------------------------------------------
 
-  const { user } = useAuth();
+  const { user } =
+    useAuth();
 
-  const role = user?.role;
-
-
-  const canCreate = [
-    "user",
-    "manager",
-    "admin",
-  ].includes(role);
+  const role =
+    user?.role;
 
 
-  const canUpdate = [
-    "manager",
-    "admin",
-  ].includes(role);
+  const canCreate =
+    [
+      "user",
+      "manager",
+      "admin",
+    ].includes(role);
+
+
+  const canUpdate =
+    [
+      "manager",
+      "admin",
+    ].includes(role);
 
 
   const canDelete =
@@ -459,7 +762,9 @@ export default function PurchasePage() {
             onClick={() => {
 
               setSelectedPurchase(null);
+
               setFormOpen(true);
+
               setError("");
 
             }}
@@ -476,7 +781,7 @@ export default function PurchasePage() {
 
       {error && (
 
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 sm:p-4 text-sm text-destructive">
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
 
           {error}
 
@@ -547,7 +852,9 @@ export default function PurchasePage() {
                     variant="destructive"
                     size="sm"
                     onClick={() =>
-                      handleDeleteClick(purchase)
+                      handleDeleteClick(
+                        purchase
+                      )
                     }
                   >
                     Delete
@@ -574,13 +881,23 @@ export default function PurchasePage() {
           setFormOpen(open);
 
           if (!open) {
+
             setSelectedPurchase(null);
+
           }
 
         }}
       >
 
-        <DialogContent className="w-[calc(100%-2rem)] max-w-[750px] sm:w-full">
+        <DialogContent
+          className="
+            w-[calc(100%-2rem)]
+            max-w-5xl
+            max-h-[90vh]
+            overflow-y-auto
+            sm:w-full
+          "
+        >
 
           <DialogHeader>
 
@@ -595,8 +912,8 @@ export default function PurchasePage() {
             <DialogDescription>
 
               {selectedPurchase
-                ? "Update purchase information."
-                : "Enter purchase information."}
+                ? "Update purchase information and its items."
+                : "Enter purchase information and add its items."}
 
             </DialogDescription>
 
@@ -604,11 +921,35 @@ export default function PurchasePage() {
 
 
           <PurchaseForm
-            purchase={selectedPurchase}
-            currencies={currencies}
-            vendors={vendors}
-            onSubmit={handlePurchaseSubmit}
-            loading={formLoading}
+
+            purchase={
+              selectedPurchase
+            }
+
+            currencies={
+              currencies
+            }
+
+            vendors={
+              vendors
+            }
+
+            items={
+              items
+            }
+
+            purchaseDetails={
+              purchaseDetails
+            }
+
+            onSubmit={
+              handlePurchaseSubmit
+            }
+
+            loading={
+              formLoading
+            }
+
           />
 
         </DialogContent>
@@ -619,12 +960,31 @@ export default function PurchasePage() {
       {/* DELETE */}
 
       <DeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        onConfirm={handleDelete}
-        loading={deleteLoading}
-        name={`Purchase #${purchaseToDelete?.purchase_id ?? ""}`}
+
+        open={
+          deleteOpen
+        }
+
+        onOpenChange={
+          setDeleteOpen
+        }
+
+        onConfirm={
+          handleDelete
+        }
+
+        loading={
+          deleteLoading
+        }
+
+        name={
+          `Purchase #${
+            purchaseToDelete?.purchase_id ?? ""
+          }`
+        }
+
         tableName="Purchase"
+
       />
 
     </div>
@@ -632,4 +992,3 @@ export default function PurchasePage() {
   );
 
 }
-

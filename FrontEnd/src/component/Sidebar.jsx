@@ -13,6 +13,9 @@ import {
   House,
   SquaresUniteIcon,
   UserIcon,
+  HandCoins,
+  CircleDollarSign,
+  ChartCandlestick,
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
@@ -52,6 +55,7 @@ const mainItems = [
     icon: Users,
      link:"/customer",
   },
+ 
   {
     title: "Vendors",
     icon: Truck,
@@ -85,6 +89,21 @@ const transactionItems = [
     title: "Currency",
     icon: DollarSign,
     link:"/currency"
+  },
+  {
+    title: "Exchange Rates",
+    icon: ChartCandlestick,
+    link:"/exchange-rates"
+  },
+   {
+    title: "Customer Payments",
+    icon: HandCoins,
+     link:"/customerPayment",
+  },
+   {
+    title: "Vendor Payment",
+    icon: CircleDollarSign,
+     link:"/vendorPayment",
   },
   {
     title: "Reports",

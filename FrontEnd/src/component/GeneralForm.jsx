@@ -20,22 +20,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-
-export default function GeneralForm({form,fields,onSubmit,children,}) {
-
+export default function GeneralForm({ form, fields, onSubmit, children }) {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
-
       <FieldGroup className="grid grid-cols-1 gap-4 md:grid-cols-2">
-
         {fields.map((fieldConfig) => (
-
           <Controller
             key={fieldConfig.name}
             name={fieldConfig.name}
             control={form.control}
-   
-              //this function is provided by controller to connect our ui components like input to react hook form
+
+            //this function is provided by controller to connect our ui components like input to react hook form
             render={({ field, fieldState }) => (
               // field.value
               // field.onChange
@@ -47,14 +42,10 @@ export default function GeneralForm({form,fields,onSubmit,children,}) {
               // fieldState.invalid
               // fieldState.isTouched
 
-              <Field
-                data-invalid={fieldState.invalid}
-              >
-
+              <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>
                   {fieldConfig.label}
                 </FieldLabel>
-
 
                 {/* INPUT */}
 
@@ -62,18 +53,11 @@ export default function GeneralForm({form,fields,onSubmit,children,}) {
                   <Input
                     {...field}
                     id={field.name}
-                    type={
-                      fieldConfig.inputType || "text"
-                    }
-                    placeholder={
-                      fieldConfig.placeholder
-                    }
-                    aria-invalid={
-                      fieldState.invalid
-                    }
+                    type={fieldConfig.inputType || "text"}
+                    placeholder={fieldConfig.placeholder}
+                    aria-invalid={fieldState.invalid}
                   />
                 )}
-
 
                 {/* TEXTAREA */}
 
@@ -81,15 +65,10 @@ export default function GeneralForm({form,fields,onSubmit,children,}) {
                   <Textarea
                     {...field}
                     id={field.name}
-                    placeholder={
-                      fieldConfig.placeholder
-                    }
-                    aria-invalid={
-                      fieldState.invalid
-                    }
+                    placeholder={fieldConfig.placeholder}
+                    aria-invalid={fieldState.invalid}
                   />
                 )}
-
 
                 {/* SELECT */}
 
@@ -98,67 +77,40 @@ export default function GeneralForm({form,fields,onSubmit,children,}) {
                     value={field.value ?? ""}
                     onValueChange={field.onChange}
                   >
-
                     <SelectTrigger
                       id={field.name}
-                      aria-invalid={
-                        fieldState.invalid
-                      }
+                      aria-invalid={fieldState.invalid}
                     >
-                      <SelectValue
-                        placeholder={
-                          fieldConfig.placeholder
-                        }
-                      />
+                      <SelectValue placeholder={fieldConfig.placeholder} />
                     </SelectTrigger>
 
                     <SelectContent>
-
-                      {fieldConfig.options?.map(
-                        (option) => (
-                          <SelectItem
-                            key={option.value}
-                            value={option.value}
-                          >
-                            {option.label}
-                          </SelectItem>
-                        )
-                      )}
-
+                      {fieldConfig.options?.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
-
                   </Select>
                 )}
-
 
                 {/* DESCRIPTION */}
 
                 {fieldConfig.description && (
-                  <FieldDescription>
-                    {fieldConfig.description}
-                  </FieldDescription>
+                  <FieldDescription>{fieldConfig.description}</FieldDescription>
                 )}
-
 
                 {/* ERROR */}
 
                 {fieldState.invalid && (
-                  <FieldError
-                    errors={[fieldState.error]}
-                  />
+                  <FieldError errors={[fieldState.error]} />
                 )}
-
               </Field>
-
             )}
           />
-
         ))}
-
-
       </FieldGroup>
-               {children}
-
+      {children}
     </form>
   );
 }
