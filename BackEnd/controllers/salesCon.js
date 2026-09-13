@@ -24,7 +24,6 @@
 //     }
 // };
 
-
 // // Get Single Sale
 // exports.getSale = async (req, res) => {
 //     try {
@@ -48,7 +47,6 @@
 
 //     }
 // };
-
 
 // // Create Sale
 // exports.createSale = async (req, res) => {
@@ -87,7 +85,6 @@
 //     }
 
 // };
-
 
 // // Update Sale
 // exports.updateSale = async (req, res) => {
@@ -130,7 +127,6 @@
 
 // };
 
-
 // // Delete Sale
 // exports.deleteSale = async (req, res) => {
 
@@ -161,239 +157,173 @@ const db = require('../config/db');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
-
 // Get All Sales
 
 exports.getAllSales = catchAsync(async (req, res, next) => {
+  const [rows] = await db.query('SELECT * FROM sales');
 
-    const [rows] = await db.query(
-        'SELECT * FROM sales'
-    );
-
-    res.status(200).json({
-        status: 'success',
-        results: rows.length,
-        data: rows
-    });
-
+  res.status(200).json({
+    status: 'success',
+    results: rows.length,
+    data: rows,
+  });
 });
-
 
 // Get Single Sale
 
 exports.getSale = catchAsync(async (req, res, next) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  if (!/^\d+$/.test(id)) {
+    return next(new AppError('Invalid sale ID', 400));
+  }
 
-    if (!/^\d+$/.test(id)) {
-        return next(new AppError('Invalid sale ID', 400));
-    }
+  const [rows] = await db.query('SELECT * FROM sales WHERE sales_id = ?', [id]);
 
-    const [rows] = await db.query(
-        'SELECT * FROM sales WHERE sales_id = ?',
-        [id]
-    );
+  if (rows.length === 0) {
+    return next(new AppError('Sale not found', 404));
+  }
 
-    if (rows.length === 0) {
+  res.status(200).json({
+    status: 'success',
 
-        return next(new AppError('Sale not found', 404));
-
-    }
-
-    res.status(200).json({
-
-        status: 'success',
-
-        data: rows[0]
-
-    });
-
+    data: rows[0],
+  });
 });
-
 
 // Create Sale
 
 exports.createSale = catchAsync(async (req, res, next) => {
+  const { customer_id, sales_date, currency_id } = req.body;
 
-    const {
-        customer_id,
-        sales_date,
-        currency_id
-    } = req.body;
+  // CHECK REQUIRED FIELD
 
+  if (!customer_id) {
+    return next(new AppError('Please provide customer id', 400));
+  }
 
-    // CHECK REQUIRED FIELD
+  if (!sales_date) {
+    return next(new AppError('Please provide sales date', 400));
+  }
 
-    if (!customer_id) {
-        return next(new AppError('Please provide customer id', 400));
-    }
+  if (!currency_id) {
+    return next(new AppError('Please provide currency id', 400));
+  }
 
-    if (!sales_date) {
-        return next(new AppError('Please provide sales date', 400));
-    }
+  // CHECK DATA TYPE
 
-    if (!currency_id) {
-        return next(new AppError('Please provide currency id', 400));
-    }
+  if (!Number.isInteger(Number(customer_id))) {
+    return next(new AppError('Customer id must be an integer', 400));
+  }
 
+  if (isNaN(Date.parse(sales_date))) {
+    return next(new AppError('Sales date must be a valid date', 400));
+  }
 
-    // CHECK DATA TYPE
+  if (!Number.isInteger(Number(currency_id))) {
+    return next(new AppError('Currency id must be an integer', 400));
+  }
 
-    if (!Number.isInteger(Number(customer_id))) {
-        return next(new AppError('Customer id must be an integer', 400));
-    }
-
-    if (isNaN(Date.parse(sales_date))) {
-        return next(new AppError('Sales date must be a valid date', 400));
-    }
-
-    if (!Number.isInteger(Number(currency_id))) {
-        return next(new AppError('Currency id must be an integer', 400));
-    }
-
-
-    const [result] = await db.query(
-
-        `INSERT INTO sales
+  const [result] = await db.query(
+    `INSERT INTO sales
         (customer_id,sales_date,currency_id)
         VALUES (?,?,?)`,
 
-        [
-            customer_id,
-            sales_date,
-            currency_id
-        ]
+    [customer_id, sales_date, currency_id],
+  );
 
-    );
+  res.status(201).json({
+    status: 'success',
 
-    res.status(201).json({
-
-        status: 'success',
-
-        insertId: result.insertId
-
-    });
-
+    insertId: result.insertId,
+  });
 });
-
 
 // Update Sale
 
 exports.updateSale = catchAsync(async (req, res, next) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  const { customer_id, sales_date, currency_id } = req.body;
 
-    const {
-        customer_id,
-        sales_date,
-        currency_id
-    } = req.body;
+  // CHECK IF SALE EXISTS
 
+  const [sale] = await db.query(
+    'SELECT sales_id FROM sales WHERE sales_id = ?',
+    [id],
+  );
 
-    // CHECK IF SALE EXISTS
+  if (sale.length === 0) {
+    return next(new AppError('Sale not founded', 404));
+  }
 
-    const [sale] = await db.query(
-        'SELECT sales_id FROM sales WHERE sales_id = ?',
-        [id]
-    );
+  // CHECK REQUIRED FIELD
 
-    if (sale.length === 0) {
+  if (!customer_id && customer_id !== undefined) {
+    return next(new AppError('Please provide customer id', 400));
+  }
 
-        return next(new AppError('Sale not founded', 404));
+  if (!sales_date && sales_date !== undefined) {
+    return next(new AppError('Please provide sales date', 400));
+  }
 
-    }
+  if (!currency_id && currency_id !== undefined) {
+    return next(new AppError('Please provide currency id', 400));
+  }
 
+  // CHECK DATA TYPE
 
-    // CHECK REQUIRED FIELD
+  if (customer_id !== undefined && !Number.isInteger(Number(customer_id))) {
+    return next(new AppError('Customer id must be an integer', 400));
+  }
 
-    if (!customer_id && customer_id !== undefined) {
-        return next(new AppError('Please provide customer id', 400));
-    }
+  if (sales_date !== undefined && isNaN(Date.parse(sales_date))) {
+    return next(new AppError('Sales date must be a valid date', 400));
+  }
 
-    if (!sales_date && sales_date !== undefined) {
-        return next(new AppError('Please provide sales date', 400));
-    }
+  if (currency_id !== undefined && !Number.isInteger(Number(currency_id))) {
+    return next(new AppError('Currency id must be an integer', 400));
+  }
 
-    if (!currency_id && currency_id !== undefined) {
-        return next(new AppError('Please provide currency id', 400));
-    }
-
-
-    // CHECK DATA TYPE
-
-    if (customer_id !== undefined && !Number.isInteger(Number(customer_id))) {
-        return next(new AppError('Customer id must be an integer', 400));
-    }
-
-    if (sales_date !== undefined && isNaN(Date.parse(sales_date))) {
-        return next(new AppError('Sales date must be a valid date', 400));
-    }
-
-    if (currency_id !== undefined && !Number.isInteger(Number(currency_id))) {
-        return next(new AppError('Currency id must be an integer', 400));
-    }
-
-
-    const [result] = await db.query(
-
-        `UPDATE sales
+  const [result] = await db.query(
+    `UPDATE sales
         SET customer_id=COALESCE(?, customer_id),
             sales_date=COALESCE(?, sales_date),
             currency_id=COALESCE(?, currency_id)
         WHERE sales_id=?`,
 
-        [
-            customer_id ?? null,
-            sales_date ?? null,
-            currency_id ?? null,
-            id
-        ]
+    [customer_id ?? null, sales_date ?? null, currency_id ?? null, id],
+  );
 
-    );
+  if (!result.affectedRows) {
+    return next(new AppError('Sale not founded', 404));
+  }
 
-    if (!result.affectedRows) {
+  res.status(200).json({
+    status: 'success',
 
-        return next(new AppError('Sale not founded', 404));
-
-    }
-
-    res.status(200).json({
-
-        status: 'success',
-
-        message: 'Sale updated successfully.'
-
-    });
-
+    message: 'Sale updated successfully.',
+  });
 });
-
 
 // Delete Sale
 
 exports.deleteSale = catchAsync(async (req, res, next) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  const [result] = await db.query(
+    'DELETE FROM sales WHERE sales_id=?',
 
-    const [result] = await db.query(
+    [id],
+  );
 
-        'DELETE FROM sales WHERE sales_id=?',
+  if (!result.affectedRows) {
+    return next(new AppError('Sale not founded', 404));
+  }
 
-        [id]
+  res.status(204).json({
+    status: 'success',
 
-    );
-
-    if (!result.affectedRows) {
-
-        return next(new AppError('Sale not founded', 404));
-
-    }
-
-    res.status(204).json({
-
-        status: 'success',
-
-        data: null
-
-    });
-
+    data: null,
+  });
 });

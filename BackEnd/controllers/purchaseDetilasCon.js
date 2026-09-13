@@ -1,4 +1,3 @@
-
 // const db = require('../config/db');
 
 // // Get All Purchase Details
@@ -25,7 +24,6 @@
 //     }
 // };
 
-
 // // Get Single Purchase Detail
 // exports.getPurchaseDetail = async (req, res) => {
 //     try {
@@ -49,7 +47,6 @@
 
 //     }
 // };
-
 
 // // Create Purchase Detail
 // exports.createPurchaseDetail = async (req, res) => {
@@ -88,7 +85,6 @@
 
 //     }
 // };
-
 
 // // Update Purchase Detail
 // exports.updatePurchaseDetail = async (req, res) => {
@@ -132,7 +128,6 @@
 //     }
 // };
 
-
 // // Delete Purchase Detail
 // exports.deletePurchaseDetail = async (req, res) => {
 //     try {
@@ -157,266 +152,213 @@
 //     }
 // };
 
-
-
 const db = require('../config/db');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
-
 // Get All Purchase Details
 
 exports.getAllPurchaseDetails = catchAsync(async (req, res, next) => {
+  const [rows] = await db.query('SELECT * FROM purchase_details');
 
-    const [rows] = await db.query(
-        'SELECT * FROM purchase_details'
-    );
-
-    res.status(200).json({
-        status: 'success',
-        results: rows.length,
-        data: rows
-    });
-
+  res.status(200).json({
+    status: 'success',
+    results: rows.length,
+    data: rows,
+  });
 });
-
 
 // Get Single Purchase Detail
 
 exports.getPurchaseDetail = catchAsync(async (req, res, next) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  if (!/^\d+$/.test(id)) {
+    return next(new AppError('Invalid purchase detail ID', 400));
+  }
 
-    if (!/^\d+$/.test(id)) {
-        return next(new AppError('Invalid purchase detail ID', 400));
-    }
+  const [rows] = await db.query(
+    'SELECT * FROM purchase_details WHERE detail_id = ?',
+    [id],
+  );
 
-    const [rows] = await db.query(
-        'SELECT * FROM purchase_details WHERE detail_id = ?',
-        [id]
-    );
+  if (rows.length === 0) {
+    return next(new AppError('Purchase detail not found', 404));
+  }
 
-    if (rows.length === 0) {
+  res.status(200).json({
+    status: 'success',
 
-        return next(new AppError('Purchase detail not found', 404));
-
-    }
-
-    res.status(200).json({
-
-        status: 'success',
-
-        data: rows[0]
-
-    });
-
+    data: rows[0],
+  });
 });
-
 
 // Create Purchase Detail
 
 exports.createPurchaseDetail = catchAsync(async (req, res, next) => {
+  const { purchase_id, item_id, quantity, unit_price } = req.body;
 
-    const {
-        purchase_id,
-        item_id,
-        quantity,
-        unit_price
-    } = req.body;
+  // CHECK REQUIRED FIELD
 
+  if (!purchase_id) {
+    return next(new AppError('Please provide purchase id', 400));
+  }
 
-    // CHECK REQUIRED FIELD
+  if (!item_id) {
+    return next(new AppError('Please provide item id', 400));
+  }
 
-    if (!purchase_id) {
-        return next(new AppError('Please provide purchase id', 400));
-    }
+  if (!quantity) {
+    return next(new AppError('Please provide quantity', 400));
+  }
 
-    if (!item_id) {
-        return next(new AppError('Please provide item id', 400));
-    }
+  if (!unit_price) {
+    return next(new AppError('Please provide unit price', 400));
+  }
 
-    if (!quantity) {
-        return next(new AppError('Please provide quantity', 400));
-    }
+  // CHECK DATA TYPE
 
-    if (!unit_price) {
-        return next(new AppError('Please provide unit price', 400));
-    }
+  if (!Number.isInteger(Number(purchase_id))) {
+    return next(new AppError('Purchase id must be an integer', 400));
+  }
 
+  if (!Number.isInteger(Number(item_id))) {
+    return next(new AppError('Item id must be an integer', 400));
+  }
 
-    // CHECK DATA TYPE
+  if (isNaN(Number(quantity))) {
+    return next(new AppError('Quantity must be a number', 400));
+  }
 
-    if (!Number.isInteger(Number(purchase_id))) {
-        return next(new AppError('Purchase id must be an integer', 400));
-    }
+  if (isNaN(Number(unit_price))) {
+    return next(new AppError('Unit price must be a number', 400));
+  }
 
-    if (!Number.isInteger(Number(item_id))) {
-        return next(new AppError('Item id must be an integer', 400));
-    }
-
-    if (isNaN(Number(quantity))) {
-        return next(new AppError('Quantity must be a number', 400));
-    }
-
-    if (isNaN(Number(unit_price))) {
-        return next(new AppError('Unit price must be a number', 400));
-    }
-
-
-    const [result] = await db.query(
-
-        `INSERT INTO purchase_details
+  const [result] = await db.query(
+    `INSERT INTO purchase_details
         (purchase_id,item_id,quantity,unit_price)
         VALUES (?,?,?,?)`,
 
-        [
-            purchase_id,
-            item_id,
-            quantity,
-            unit_price
-        ]
+    [purchase_id, item_id, quantity, unit_price],
+  );
 
-    );
+  res.status(201).json({
+    status: 'success',
 
-    res.status(201).json({
-
-        status: 'success',
-
-        insertId: result.insertId
-
-    });
-
+    insertId: result.insertId,
+  });
 });
-
 
 // Update Purchase Detail
 
 exports.updatePurchaseDetail = catchAsync(async (req, res, next) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  const { purchase_id, item_id, quantity, unit_price } = req.body;
 
-    const {
-        purchase_id,
-        item_id,
-        quantity,
-        unit_price
-    } = req.body;
+  // CHECK IF PURCHASE DETAIL EXISTS
 
+  const [purchaseDetail] = await db.query(
+    'SELECT detail_id FROM purchase_details WHERE detail_id = ?',
+    [id],
+  );
 
-    // CHECK IF PURCHASE DETAIL EXISTS
+  if (purchaseDetail.length === 0) {
+    return next(new AppError('Purchase detail not founded', 404));
+  }
 
-    const [purchaseDetail] = await db.query(
-        'SELECT detail_id FROM purchase_details WHERE detail_id = ?',
-        [id]
-    );
+  // CHECK REQUIRED FIELD
 
-    if (purchaseDetail.length === 0) {
+  if (!purchase_id && purchase_id !== undefined) {
+    return next(new AppError('Please provide purchase id', 400));
+  }
 
-        return next(new AppError('Purchase detail not founded', 404));
+  if (!item_id && item_id !== undefined) {
+    return next(new AppError('Please provide item id', 400));
+  }
 
-    }
+  if (!quantity && quantity !== undefined) {
+    return next(new AppError('Please provide quantity', 400));
+  }
 
+  if (!unit_price && unit_price !== undefined) {
+    return next(new AppError('Please provide unit price', 400));
+  }
 
-    // CHECK REQUIRED FIELD
+  // CHECK DATA TYPE
 
-    if (!purchase_id && purchase_id !== undefined) {
-        return next(new AppError('Please provide purchase id', 400));
-    }
+  if (purchase_id !== undefined && !Number.isInteger(Number(purchase_id))) {
+    return next(new AppError('Purchase id must be an integer', 400));
+  }
 
-    if (!item_id && item_id !== undefined) {
-        return next(new AppError('Please provide item id', 400));
-    }
+  if (item_id !== undefined && !Number.isInteger(Number(item_id))) {
+    return next(new AppError('Item id must be an integer', 400));
+  }
 
-    if (!quantity && quantity !== undefined) {
-        return next(new AppError('Please provide quantity', 400));
-    }
+  if (
+    quantity !== undefined &&
+    quantity !== null &&
+    quantity !== '' &&
+    isNaN(Number(quantity))
+  ) {
+    return next(new AppError('Quantity must be a number', 400));
+  }
 
-    if (!unit_price && unit_price !== undefined) {
-        return next(new AppError('Please provide unit price', 400));
-    }
+  if (
+    unit_price !== undefined &&
+    unit_price !== null &&
+    unit_price !== '' &&
+    isNaN(Number(unit_price))
+  ) {
+    return next(new AppError('Unit price must be a number', 400));
+  }
 
-
-    // CHECK DATA TYPE
-
-    if (purchase_id !== undefined && !Number.isInteger(Number(purchase_id))) {
-        return next(new AppError('Purchase id must be an integer', 400));
-    }
-
-    if (item_id !== undefined && !Number.isInteger(Number(item_id))) {
-        return next(new AppError('Item id must be an integer', 400));
-    }
-
-    if (quantity !== undefined && quantity !== null && quantity !== '' && isNaN(Number(quantity))) {
-        return next(new AppError('Quantity must be a number', 400));
-    }
-
-    if (unit_price !== undefined && unit_price !== null && unit_price !== '' && isNaN(Number(unit_price))) {
-        return next(new AppError('Unit price must be a number', 400));
-    }
-
-
-    const [result] = await db.query(
-
-        `UPDATE purchase_details
+  const [result] = await db.query(
+    `UPDATE purchase_details
         SET purchase_id=COALESCE(?, purchase_id),
             item_id=COALESCE(?, item_id),
             quantity=COALESCE(?, quantity),
             unit_price=COALESCE(?, unit_price)
         WHERE detail_id=?`,
 
-        [
-            purchase_id ?? null,
-            item_id ?? null,
-            quantity ?? null,
-            unit_price ?? null,
-            id
-        ]
+    [
+      purchase_id ?? null,
+      item_id ?? null,
+      quantity ?? null,
+      unit_price ?? null,
+      id,
+    ],
+  );
 
-    );
+  if (!result.affectedRows) {
+    return next(new AppError('Purchase detail not founded', 404));
+  }
 
-    if (!result.affectedRows) {
+  res.status(200).json({
+    status: 'success',
 
-        return next(new AppError('Purchase detail not founded', 404));
-
-    }
-
-    res.status(200).json({
-
-        status: 'success',
-
-        message: 'Purchase detail updated successfully.'
-
-    });
-
+    message: 'Purchase detail updated successfully.',
+  });
 });
-
 
 // Delete Purchase Detail
 
 exports.deletePurchaseDetail = catchAsync(async (req, res, next) => {
+  const id = req.params.id;
 
-    const id = req.params.id;
+  const [result] = await db.query(
+    'DELETE FROM purchase_details WHERE detail_id=?',
 
-    const [result] = await db.query(
+    [id],
+  );
 
-        'DELETE FROM purchase_details WHERE detail_id=?',
+  if (!result.affectedRows) {
+    return next(new AppError('Purchase detail not founded', 404));
+  }
 
-        [id]
+  res.status(204).json({
+    status: 'success',
 
-    );
-
-    if (!result.affectedRows) {
-
-        return next(new AppError('Purchase detail not founded', 404));
-
-    }
-
-    res.status(204).json({
-
-        status: 'success',
-
-        data: null
-
-    });
-
+    data: null,
+  });
 });
