@@ -31,6 +31,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { Pencil, Trash2 } from "lucide-react";
+
 // --------------------------------------------------
 // EXCHANGE RATE PAGE
 // --------------------------------------------------
@@ -379,7 +381,7 @@ export default function ExchangeRatePage() {
 
                     onClick={() => handleEdit(exchangeRate)}
                   >
-                    Edit
+                    <Pencil className="h-4 w-4" />
                   </Button>
                 )}
 
@@ -393,7 +395,7 @@ export default function ExchangeRatePage() {
 
                     onClick={() => handleDeleteClick(exchangeRate)}
                   >
-                    Delete
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 )}
               </div>

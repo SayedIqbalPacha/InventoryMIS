@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 
-import {
-  getItems,
-  updateItem,
-  createItem,
-  deleteItem,
-} from "@/services/Items";
+import { getItems, updateItem, createItem, deleteItem } from "@/services/Items";
 
 import { getCatagories } from "@/services/Catagory";
 import { getUnits } from "@/services/Units";
@@ -28,13 +23,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { Pencil, Trash2 } from "lucide-react";
 
 // --------------------------------------------------
 // ITEMS PAGE
 // --------------------------------------------------
 
 export default function ItemsPage() {
-
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -42,7 +37,6 @@ export default function ItemsPage() {
   const [items, setItems] = useState([]);
   const [units, setUnits] = useState([]);
   const [catagories, setCatagories] = useState([]);
-
 
   // --------------------------------------------------
   // LOADING
@@ -52,20 +46,17 @@ export default function ItemsPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-
   // --------------------------------------------------
   // ERROR
   // --------------------------------------------------
 
   const [error, setError] = useState("");
 
-
   // --------------------------------------------------
   // SEARCH
   // --------------------------------------------------
 
   const [search, setSearch] = useState("");
-
 
   // --------------------------------------------------
   // FORM
@@ -74,7 +65,6 @@ export default function ItemsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-
   // --------------------------------------------------
   // DELETE
   // --------------------------------------------------
@@ -82,185 +72,113 @@ export default function ItemsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
-
   // --------------------------------------------------
   // LOAD ALL DATA
   // --------------------------------------------------
 
   async function loadData() {
-
     try {
-
       setLoading(true);
       setError("");
 
-      const [itemsResponse,catagoriesResponse,unitsResponse,] =
-       await Promise.all([
-        getItems(),
-        getCatagories(),
-        getUnits(),
-      ]);
+      const [itemsResponse, catagoriesResponse, unitsResponse] =
+        await Promise.all([getItems(), getCatagories(), getUnits()]);
 
+      setItems(itemsResponse?.data || []);
 
-      setItems(
-        itemsResponse?.data || []
-      );
+      setCatagories(catagoriesResponse?.data || []);
 
-      setCatagories(
-        catagoriesResponse?.data || []
-      );
-
-      setUnits(
-        unitsResponse?.data || []
-      );
-
+      setUnits(unitsResponse?.data || []);
     } catch (err) {
-
-      setError(
-        err.message ||
-        "Failed to load items."
-      );
-
+      setError(err.message || "Failed to load items.");
     } finally {
-
       setLoading(false);
-
     }
-
   }
-
 
   // --------------------------------------------------
   // INITIAL FETCH
   // --------------------------------------------------
 
   useEffect(() => {
-
     loadData();
-
   }, []);
-
 
   // --------------------------------------------------
   // CREATE / UPDATE
   // --------------------------------------------------
 
   async function handleItemSubmit(data) {
-
     try {
-
       setFormLoading(true);
       setError("");
 
       if (selectedItem) {
-
-        await updateItem(
-          selectedItem.item_id,
-          data
-        );
-
+        await updateItem(selectedItem.item_id, data);
       } else {
-
         await createItem(data);
-
       }
-
 
       await loadData();
 
-
       setFormOpen(false);
       setSelectedItem(null);
-
     } catch (err) {
-
       throw err;
-
     } finally {
-
       setFormLoading(false);
-
     }
-
   }
-
 
   // --------------------------------------------------
   // EDIT
   // --------------------------------------------------
 
   function handleEdit(item) {
-
     setSelectedItem(item);
     setFormOpen(true);
-
   }
-
 
   // --------------------------------------------------
   // DELETE DIALOG
   // --------------------------------------------------
 
   function handleDeleteClick(item) {
-
     setItemToDelete(item);
     setDeleteOpen(true);
-
   }
-
 
   // --------------------------------------------------
   // DELETE
   // --------------------------------------------------
 
   async function handleDelete() {
-
     if (!itemToDelete) {
       return;
     }
 
-
     try {
-
       setDeleteLoading(true);
       setError("");
 
-
-      await deleteItem(
-        itemToDelete.item_id
-      );
-
+      await deleteItem(itemToDelete.item_id);
 
       await loadData();
 
-
       setDeleteOpen(false);
       setItemToDelete(null);
-
     } catch (err) {
-
-      setError(
-        err.message ||
-        "Failed to delete item."
-      );
-
+      setError(err.message || "Failed to delete item.");
     } finally {
-
       setDeleteLoading(false);
-
     }
-
   }
-
 
   // --------------------------------------------------
   // SEARCH
   // --------------------------------------------------
 
-  const searchValue = search
-    .toLowerCase()
-    .trim();
-
+  const searchValue = search.toLowerCase().trim();
 
   // --------------------------------------------------
   // MAP LOOKUPS
@@ -268,83 +186,52 @@ export default function ItemsPage() {
 
   // this function is javascript Object.fromEntries() change the array to object to display the names, but they are ids in fact
   const unitMap = Object.fromEntries(
-    units.map((unit) => [
-      unit.unit_id,
-      unit.unit_name,
-    ])
+    units.map((unit) => [unit.unit_id, unit.unit_name]),
   );
-
 
   const catagoryMap = Object.fromEntries(
     catagories.map((catagory) => [
       catagory.catagory_id,
       catagory.catagory_name,
-    ])
+    ]),
   );
-
 
   // --------------------------------------------------
   // PREPARE TABLE DATA
   // --------------------------------------------------
 
   const tableItems = items.map((item) => ({
-
     ...item,
-    unit_name_display:unitMap[item.unit_id] || "-",
-    catagory_name_display:catagoryMap[item.catagory_id] || "-",
-
+    unit_name_display: unitMap[item.unit_id] || "-",
+    catagory_name_display: catagoryMap[item.catagory_id] || "-",
   }));
-
 
   // --------------------------------------------------
   // FILTER
   // --------------------------------------------------
 
-  const filteredItems =tableItems.filter((item) => {
-
-      return (
-
-        String(
-          item.item_name || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
-
-        ||
-
-        String(
-          item.description || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
-
-        ||
-
-        String(
-          item.unit_name_display || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
-
-        ||
-
-        String(
-          item.catagory_name_display || ""
-        )
-          .toLowerCase()
-          .includes(searchValue)
-
-      );
-
-    });
-
+  const filteredItems = tableItems.filter((item) => {
+    return (
+      String(item.item_name || "")
+        .toLowerCase()
+        .includes(searchValue) ||
+      String(item.description || "")
+        .toLowerCase()
+        .includes(searchValue) ||
+      String(item.unit_name_display || "")
+        .toLowerCase()
+        .includes(searchValue) ||
+      String(item.catagory_name_display || "")
+        .toLowerCase()
+        .includes(searchValue)
+    );
+  });
 
   // --------------------------------------------------
   // TABLE COLUMNS
   // --------------------------------------------------
 
   const columns = [
-
     {
       key: "item_id",
       label: "ID",
@@ -384,9 +271,7 @@ export default function ItemsPage() {
       key: "catagory_name_display",
       label: "Catagory",
     },
-
   ];
-
 
   // --------------------------------------------------
   // ROLE
@@ -396,191 +281,118 @@ export default function ItemsPage() {
 
   const role = user?.role;
 
+  const canCreate = ["user", "manager", "admin"].includes(role);
 
-  const canCreate = [
-    "user",
-    "manager",
-    "admin",
-  ].includes(role);
+  const canUpdate = ["manager", "admin"].includes(role);
 
-
-  const canUpdate = [
-    "manager",
-    "admin",
-  ].includes(role);
-
-
-  const canDelete =
-    role === "admin";
-
+  const canDelete = role === "admin";
 
   // --------------------------------------------------
   // RENDER
   // --------------------------------------------------
 
   return (
-
     <div className="space-y-4 sm:space-y-6">
-
-
       {/* HEADER */}
 
-      <PageHeader
-        title="Items"
-        description="Manage your inventory items"
-      >
-
+      <PageHeader title="Items" description="Manage your inventory items">
         {canCreate && (
-
           <Button
             className="w-full sm:w-auto"
             onClick={() => {
-
               setSelectedItem(null);
               setFormOpen(true);
               setError("");
-
             }}
           >
             Add Item
           </Button>
-
         )}
-
       </PageHeader>
-
 
       {/* SERVER ERROR */}
 
       {error && (
-
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-
           {error}
-
         </div>
-
       )}
-
 
       {/* SEARCH */}
 
       <div className="w-full sm:max-w-sm">
-
         <Input
           value={search}
-          onChange={(event) =>
-            setSearch(event.target.value)
-          }
+          onChange={(event) => setSearch(event.target.value)}
           placeholder="Search items..."
         />
-
       </div>
-
 
       {/* TABLE */}
 
       {loading ? (
-
         <div className="py-10 text-center text-muted-foreground">
           Loading items...
         </div>
-
       ) : (
-
         <div className="w-full overflow-x-auto">
-
           <GeneralTable
             columns={columns}
             data={filteredItems}
-            getRowId={(item) =>
-              item.item_id
-            }
+            getRowId={(item) => item.item_id}
             actions={(item) => (
-
               <div className="flex flex-wrap justify-end gap-2">
-
                 {/* EDIT */}
 
                 {canUpdate && (
-
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() =>
-                      handleEdit(item)
-                    }
+                    onClick={() => handleEdit(item)}
                   >
-                    Edit
+                    <Pencil className="h-4 w-4" />
                   </Button>
-
                 )}
-
 
                 {/* DELETE */}
 
                 {canDelete && (
-
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() =>
-                      handleDeleteClick(item)
-                    }
+                    onClick={() => handleDeleteClick(item)}
                   >
-                    Delete
+                    <Trash2 className="h-4 w-4" />
                   </Button>
-
                 )}
-
               </div>
-
             )}
           />
-
         </div>
-
       )}
-
 
       {/* CREATE / UPDATE DIALOG */}
 
       <Dialog
         open={formOpen}
         onOpenChange={(open) => {
-
           setFormOpen(open);
 
           if (!open) {
             setSelectedItem(null);
           }
-
         }}
       >
-
         <DialogContent className="w-[calc(100%-2rem)] max-w-[750px] sm:w-full">
-
           <DialogHeader>
-
-            <DialogTitle>
-
-              {selectedItem
-                ? "Edit Item"
-                : "Add Item"}
-
-            </DialogTitle>
-
+            <DialogTitle>{selectedItem ? "Edit Item" : "Add Item"}</DialogTitle>
 
             <DialogDescription>
-
               {selectedItem
                 ? "Update item information."
                 : "Enter item information."}
-
             </DialogDescription>
-
           </DialogHeader>
-
 
           <ItemForm
             item={selectedItem}
@@ -589,11 +401,8 @@ export default function ItemsPage() {
             onSubmit={handleItemSubmit}
             loading={formLoading}
           />
-
         </DialogContent>
-
       </Dialog>
-
 
       {/* DELETE */}
 
@@ -605,8 +414,6 @@ export default function ItemsPage() {
         name={itemToDelete?.item_name}
         tableName="Item"
       />
-
     </div>
-
   );
 }

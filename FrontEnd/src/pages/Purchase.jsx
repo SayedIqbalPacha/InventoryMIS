@@ -36,6 +36,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { Pencil, Trash2 } from "lucide-react";
+
 // --------------------------------------------------
 // PURCHASE PAGE
 // --------------------------------------------------
@@ -549,7 +551,7 @@ export default function PurchasePage() {
                     size="sm"
                     onClick={() => handleEdit(purchase)}
                   >
-                    Edit
+                    <Pencil className="w-4 h-4" />
                   </Button>
                 )}
 
@@ -561,7 +563,7 @@ export default function PurchasePage() {
                     size="sm"
                     onClick={() => handleDeleteClick(purchase)}
                   >
-                    Delete
+                    <Trash2 className="w-4 h-4" />
                   </Button>
                 )}
               </div>

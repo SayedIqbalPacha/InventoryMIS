@@ -29,6 +29,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { Pencil, Trash2 } from "lucide-react";
+
 export default function VendorPaymentPage() {
   // --------------------------------------------------
   // DATA
@@ -390,7 +392,7 @@ export default function VendorPaymentPage() {
                     size="sm"
                     onClick={() => handleEdit(payment)}
                   >
-                    Edit
+                    <Pencil className="h-4 w-4" />
                   </Button>
                 )}
 
@@ -402,7 +404,7 @@ export default function VendorPaymentPage() {
                     size="sm"
                     onClick={() => handleDeleteClick(payment)}
                   >
-                    Delete
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 )}
               </div>
