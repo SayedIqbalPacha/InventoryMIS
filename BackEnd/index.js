@@ -1,4 +1,4 @@
-const env =  require('dotenv')
+const env = require('dotenv');
 env.config({ path: './config.env' });
 
 const fs = require('fs');
@@ -11,14 +11,13 @@ const globalErrorHandling = require('./controllers/errorCon');
 app.use(express.json());
 app.use(morgan('dev'));
 
-
 // Import Routes
 const catagoryRot = require('./routes/catagoryRot');
 const customerRot = require('./routes/customerRot');
 const currencyRot = require('./routes/currencyRot');
 const customerPaymentRot = require('./routes/customerPaymentRot');
 const itemRot = require('./routes/itemRot');
-const purchaseRot = require('./routes/purchaseRot');    
+const purchaseRot = require('./routes/purchaseRot');
 const exchangeRateRot = require('./routes/exchangeRateRot');
 const purchaseDetailsRot = require('./routes/purchaseDetailsRot');
 const salesRot = require('./routes/salesRot');
@@ -28,41 +27,42 @@ const vendorRot = require('./routes/vendorRot');
 const vendorPaymentRot = require('./routes/vendorPaymentRot');
 const authRot = require('./routes/authRot');
 const usersRot = require('./routes/userRot');
-const cors = require("cors");
+const dashboardRot = require('./routes/dashboardRot');
+const cors = require('cors');
 
-app.use(cors({
-  origin: "http://localhost:5173"
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+  }),
+);
 
 // Use Routes3
 app.use('/api/v1/catagories', catagoryRot);
 app.use('/api/v1/customer', customerRot);
-app.use('/api/v1/currency',currencyRot);
-app.use('/api/v1/customerPayment',customerPaymentRot);
+app.use('/api/v1/currency', currencyRot);
+app.use('/api/v1/customerPayment', customerPaymentRot);
 app.use('/api/v1/item', itemRot);
-app.use('/api/v1/purchase',purchaseRot);
-app.use('/api/v1/purchaseDetails',purchaseDetailsRot);
+app.use('/api/v1/purchase', purchaseRot);
+app.use('/api/v1/purchaseDetails', purchaseDetailsRot);
 app.use('/api/v1/exchangeRate', exchangeRateRot);
-app.use('/api/v1/sales',salesRot);
-app.use('/api/v1/salesDetails',salesDetailsRot);
-app.use('/api/v1/unit',unitRot);
-app.use('/api/v1/vendor',vendorRot);
-app.use('/api/v1/vendorPayment',vendorPaymentRot);
-app.use('/api/v1/users',usersRot);
-app.use('/api/v1/auth',authRot);
+app.use('/api/v1/sales', salesRot);
+app.use('/api/v1/salesDetails', salesDetailsRot);
+app.use('/api/v1/unit', unitRot);
+app.use('/api/v1/vendor', vendorRot);
+app.use('/api/v1/vendorPayment', vendorPaymentRot);
+app.use('/api/v1/users', usersRot);
+app.use('/api/v1/auth', authRot);
+app.use('/api/v1/dashboard', dashboardRot);
+app.all('*', (req, res, next) => {
+  // res.status(404).json({
+  //     status:"fail",
+  //     message:`cant find the ${req.originalUrl} at this server`
 
-app.all('*',(req,res,next)=>{
-    // res.status(404).json({
-    //     status:"fail",
-    //     message:`cant find the ${req.originalUrl} at this server`
+  // });
 
-    // });
-
-    next(new AppError(`cant find ${req.originalUrl} at this server`,404))
+  next(new AppError(`cant find ${req.originalUrl} at this server`, 404));
 });
 
 app.use(globalErrorHandling);
 
 module.exports = app;
-
-

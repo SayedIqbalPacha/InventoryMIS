@@ -1,4 +1,4 @@
- import {
+import {
   Table,
   TableBody,
   TableCaption,
@@ -7,81 +7,81 @@
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
+function formatNumber(value) {
+  return new Intl.NumberFormat("en-US").format(value || 0);
+}
 
-const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
-  },
-]
+function formatDate(date) {
+  if (!date) return "";
 
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(date));
+}
 
-export  function SalesTable() {
+function getSaleKey(sale) {
+  return `${sale.sales_id}-${sale.item_id}`;
+}
+
+export function SalesTable({ data = [] }) {
+  const total = data.reduce(
+    (sum, sale) => sum + Number(sale.total_sale_afn || 0),
+    0,
+  );
+
   return (
     <Table>
-      <TableCaption>A list of your recent sales.</TableCaption>
+      <TableCaption>Your most recent sales</TableCaption>
+
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Sale</TableHead>
-          <TableHead>Status</TableHead>
+          <TableHead>Sale</TableHead>
+          <TableHead>Customer</TableHead>
+          <TableHead>Item</TableHead>
+          <TableHead>Date</TableHead>
           <TableHead className="text-right">Amount</TableHead>
         </TableRow>
       </TableHeader>
+
       <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+        {data.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={5} className="h-24 text-center">
+              No sales found.
+            </TableCell>
           </TableRow>
-        ))}
+        ) : (
+          data.map((sale) => (
+            <TableRow key={getSaleKey(sale)}>
+              <TableCell className="font-medium">#{sale.sales_id}</TableCell>
+
+              <TableCell>{sale.customer_name}</TableCell>
+
+              <TableCell>{sale.item_name}</TableCell>
+
+              <TableCell>{formatDate(sale.sales_date)}</TableCell>
+
+              <TableCell className="text-right">
+                {formatNumber(sale.total_sale_afn)} AFN
+              </TableCell>
+            </TableRow>
+          ))
+        )}
       </TableBody>
+
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={2}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
+          <TableCell colSpan={4}>Total shown</TableCell>
+
+          <TableCell className="text-right">
+            {formatNumber(total)} AFN
+          </TableCell>
         </TableRow>
       </TableFooter>
     </Table>
-  )
+  );
 }

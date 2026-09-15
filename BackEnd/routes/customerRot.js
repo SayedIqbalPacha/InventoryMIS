@@ -8,43 +8,36 @@ const router = express.Router();
 
 router
 
-    .route('/')
+  .route('/')
 
-    .get(
-         protect,
-        restrictTo('user', 'manager', 'admin'),
-        customerController.getAllCustomers
-    )
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    customerController.getAllCustomers,
+  )
 
-    .post(
-        protect,
-        restrictTo('user', 'manager', 'admin'),
-        customerController.createCustomer
-
-    );
-
+  .post(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    customerController.createCustomer,
+  );
 
 router
 
-    .route('/:id')
+  .route('/:id')
 
-    .get(
-        protect,
-        restrictTo('user', 'manager', 'admin'),
-        customerController.getCustomer
-    )
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    customerController.getCustomer,
+  )
 
-    .patch(
-        protect,
-        restrictTo('manager', 'admin'),
-        customerController.updateCustomer
-    )
+  .patch(
+    protect,
+    restrictTo('manager', 'admin'),
+    customerController.updateCustomer,
+  )
 
-    .delete(
-        protect,
-        restrictTo('admin'),
-        customerController.deleteCustomer
-    );
-
+  .delete(protect, restrictTo('admin'), customerController.deleteCustomer);
 
 module.exports = router;

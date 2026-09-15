@@ -89,6 +89,7 @@ export default function SalesForm({
   currencies = [],
   items = [],
   salesDetails = [],
+  availableStock = [],
   onSubmit,
   loading,
 }) {
@@ -199,12 +200,21 @@ export default function SalesForm({
     );
   }, [items]);
 
+  //stock lookup
+  const stockMap = useMemo(() => {
+    return Object.fromEntries(
+      availableStock.map((stock) => [
+        String(stock.item_id),
+        Number(stock.available_stock) || 0,
+      ]),
+    );
+  }, [availableStock]);
+
   // --------------------------------------------------
   // WATCH DETAILS
   // --------------------------------------------------
 
   const watchedDetails = form.watch("details") || [];
-
   // --------------------------------------------------
   // GRAND TOTAL
   // --------------------------------------------------
@@ -236,6 +246,7 @@ export default function SalesForm({
   function handleItemChange(value, index) {
     const selectedItem = itemMap[value];
 
+    //setValue take three elements which are name, value and options. The options is an object which can have shouldValidate, shouldDirty and shouldTouch properties. In this case we are using shouldValidate to trigger validation after setting the value.
     form.setValue(`details.${index}.item_id`, value, {
       shouldValidate: true,
     });
@@ -288,6 +299,18 @@ export default function SalesForm({
 
         unit_price: Number(detail.unit_price),
       }));
+
+      for (const detail of data.details) {
+        const available = stockMap[String(detail.item_id)] || 0;
+
+        const quantity = Number(detail.quantity);
+
+        if (quantity > available) {
+          throw new Error(
+            `Insufficient stock for item ${detail.item_id}. Available: ${available}, requested: ${quantity}.`,
+          );
+        }
+      }
 
       await onSubmit({
         salesData,
@@ -389,6 +412,10 @@ export default function SalesForm({
 
           <div className="space-y-4">
             {fields.map((field, index) => {
+              const selectedItemId = watchedDetails[index]?.item_id;
+
+              const availableQuantity = stockMap[String(selectedItemId)] || 0;
+
               const quantity = Number(watchedDetails[index]?.quantity) || 0;
 
               const unitPrice = Number(watchedDetails[index]?.unit_price) || 0;
@@ -399,7 +426,6 @@ export default function SalesForm({
                 <div key={field.id} className="rounded-lg border p-4">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
                     {/* ITEM */}
-
                     <div className="md:col-span-12">
                       <Controller
                         name={`details.${index}.item_id`}
@@ -433,6 +459,15 @@ export default function SalesForm({
                               </SelectContent>
                             </Select>
 
+                            {selectedItemId && (
+                              <p className="text-sm text-muted-foreground">
+                                Available stock:{" "}
+                                <span className="font-medium text-foreground">
+                                  {availableQuantity}
+                                </span>
+                              </p>
+                            )}
+
                             {fieldState.invalid && (
                               <FieldError errors={[fieldState.error]} />
                             )}
@@ -460,7 +495,12 @@ export default function SalesForm({
                               placeholder="0"
                               aria-invalid={fieldState.invalid}
                             />
-
+                            {selectedItemId && quantity > availableQuantity && (
+                              <p className="text-sm text-destructive">
+                                Insufficient stock. Only {availableQuantity}{" "}
+                                available.
+                              </p>
+                            )}
                             {fieldState.invalid && (
                               <FieldError errors={[fieldState.error]} />
                             )}

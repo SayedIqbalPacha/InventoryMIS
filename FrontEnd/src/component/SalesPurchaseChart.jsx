@@ -1,43 +1,105 @@
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
-
-import {  ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  sales: {
+    label: "Sales",
     color: "#2563eb",
   },
-  mobile: {
-    label: "Mobile",
-    color: "#60a5fa",
+  purchases: {
+    label: "Purchases",
+    color: "#f97316",
   },
 };
 
-export function SalesPurchase() {
+function formatDate(date) {
+  if (!date) return "";
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+  }).format(new Date(date));
+}
+
+function formatValue(value) {
+  return new Intl.NumberFormat("en-US").format(value || 0);
+}
+
+export function SalesPurchase({ data = [] }) {
+  const chartData = data.map((row) => ({
+    date: row.transaction_date,
+    dateLabel: formatDate(row.transaction_date),
+    sales: Number(row.total_sales_afn) || 0,
+    purchases: Number(row.total_purchase_afn) || 0,
+  }));
+
   return (
-    <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
-      <BarChart accessibilityLayer data={chartData}>
-        <CartesianGrid vertical={false} />
-         <XAxis
-      dataKey="month"
-      tickLine={false}
-      tickMargin={10}
-      axisLine={false}
-      tickFormatter={(value) => value.slice(0, 3)}
-    />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <ChartLegend content={<ChartLegendContent />} />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-      </BarChart>
-    </ChartContainer>
-  )
+    <div className="w-full">
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold">Sales and Purchases</h2>
+
+        <p className="text-sm text-muted-foreground">
+          Daily sales and purchase amounts in AFN
+        </p>
+      </div>
+
+      <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+        <BarChart
+          accessibilityLayer
+          data={chartData}
+          margin={{
+            top: 10,
+            right: 10,
+            left: 10,
+            bottom: 10,
+          }}
+        >
+          <CartesianGrid vertical={false} />
+
+          <XAxis
+            dataKey="dateLabel"
+            tickLine={false}
+            tickMargin={10}
+            axisLine={false}
+          />
+
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={formatValue}
+          />
+
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                formatter={(value) => `${formatValue(value)} AFN`}
+              />
+            }
+          />
+
+          <ChartLegend content={<ChartLegendContent />} />
+
+          <Bar
+            dataKey="sales"
+            name="Sales"
+            fill="var(--color-sales)"
+            radius={4}
+          />
+
+          <Bar
+            dataKey="purchases"
+            name="Purchases"
+            fill="var(--color-purchases)"
+            radius={4}
+          />
+        </BarChart>
+      </ChartContainer>
+    </div>
+  );
 }

@@ -5,18 +5,14 @@ import {
   updateSales,
   createSales,
   deleteSales,
+  getAvailableStock,
 } from "@/services/Sales";
 
 import { getCustomers } from "@/services/Customer";
 import { getCurrency } from "@/services/Currency";
 import { getItems } from "@/services/Items";
 
-import {
-  getSalesDetails,
-  createSalesDetail,
-  updateSalesDetail,
-  deleteSalesDetail,
-} from "@/services/SalesDetails";
+import { getSalesDetails } from "@/services/SalesDetails";
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -57,6 +53,7 @@ export default function SalesPage() {
 
   const [salesDetails, setSalesDetails] = useState([]);
 
+  const [availableStock, setAvailableStock] = useState([]);
   // --------------------------------------------------
   // LOADING
   // --------------------------------------------------
@@ -110,6 +107,7 @@ export default function SalesPage() {
         currenciesResponse,
         itemsResponse,
         salesDetailsResponse,
+        stockResponse,
       ] = await Promise.all([
         getSales(),
 
@@ -120,6 +118,8 @@ export default function SalesPage() {
         getItems(),
 
         getSalesDetails(),
+
+        getAvailableStock(),
       ]);
 
       setSales(salesResponse?.data || []);
@@ -131,6 +131,8 @@ export default function SalesPage() {
       setItems(itemsResponse?.data || []);
 
       setSalesDetails(salesDetailsResponse?.data || []);
+
+      setAvailableStock(stockResponse?.data || []);
     } catch (err) {
       setError(err?.message || "Failed to load sales.");
     } finally {
@@ -160,33 +162,17 @@ export default function SalesPage() {
       // ==================================================
 
       if (!selectedSales) {
-        const response = await createSales(salesData);
+        // The backend now creates:
+        // 1. Sales
+        // 2. All Sales Details
+        // 3. All Sale-Purchase Allocations
+        //
+        // Everything happens inside ONE transaction.
 
-        const salesId =
-          response?.insertId ??
-          response?.insertedId ??
-          response?.data?.insertId ??
-          response?.data?.insertedId;
-
-        if (!salesId) {
-          throw new Error("Sales was created, but sales ID was not returned.");
-        }
-
-        // -----------------------------------------------
-        // CREATE SALES DETAILS
-        // -----------------------------------------------
-
-        for (const detail of details) {
-          await createSalesDetail({
-            sales_id: Number(salesId),
-
-            item_id: Number(detail.item_id),
-
-            quantity: Number(detail.quantity),
-
-            unit_price: Number(detail.unit_price),
-          });
-        }
+        await createSales({
+          ...salesData,
+          details,
+        });
       }
 
       // ==================================================
@@ -195,90 +181,41 @@ export default function SalesPage() {
       else {
         const salesId = selectedSales.sales_id;
 
-        // -----------------------------------------------
-        // UPDATE SALES HEADER
-        // -----------------------------------------------
+        // The backend now updates:
+        // 1. Sales header
+        // 2. All Sales Details
+        // 3. All Sale-Purchase Allocations
+        //
+        // Old details are replaced and allocations
+        // are rebuilt automatically inside ONE transaction.
 
-        await updateSales(salesId, salesData);
-
-        // -----------------------------------------------
-        // OLD DETAILS
-        // -----------------------------------------------
-
-        const oldDetails = salesDetails.filter(
-          (detail) => Number(detail.sales_id) === Number(salesId),
-        );
-
-        // -----------------------------------------------
-        // CURRENT DETAIL IDS
-        // -----------------------------------------------
-
-        const currentDetailIds = details
-          .filter((detail) => detail.detail_id)
-          .map((detail) => Number(detail.detail_id));
-
-        // -----------------------------------------------
-        // DELETE REMOVED DETAILS
-        // -----------------------------------------------
-
-        for (const oldDetail of oldDetails) {
-          const stillExists = currentDetailIds.includes(
-            Number(oldDetail.detail_id),
-          );
-
-          if (!stillExists) {
-            await deleteSalesDetail(oldDetail.detail_id);
-          }
-        }
-
-        // -----------------------------------------------
-        // UPDATE / CREATE DETAILS
-        // -----------------------------------------------
-
-        for (const detail of details) {
-          // Existing detail
-          if (detail.detail_id) {
-            await updateSalesDetail(
-              detail.detail_id,
-
-              {
-                item_id: Number(detail.item_id),
-
-                quantity: Number(detail.quantity),
-
-                unit_price: Number(detail.unit_price),
-              },
-            );
-          }
-
-          // New detail
-          else {
-            await createSalesDetail({
-              sales_id: Number(salesId),
-
-              item_id: Number(detail.item_id),
-
-              quantity: Number(detail.quantity),
-
-              unit_price: Number(detail.unit_price),
-            });
-          }
-        }
+        await updateSales(salesId, {
+          ...salesData,
+          details,
+        });
       }
 
-      // -----------------------------------------------
+      // ==================================================
       // RELOAD
-      // -----------------------------------------------
+      // ==================================================
 
       await loadData();
 
-      // -----------------------------------------------
+      // ==================================================
       // CLOSE FORM
-      // -----------------------------------------------
+      // ==================================================
 
       setFormOpen(false);
-
       setSelectedSales(null);
+    } catch (err) {
+      setError(
+        err?.message ||
+          "Failed to save sale. Please check the information and try again.",
+      );
+
+      // Re-throw so SalesForm can also display
+      // the server error inside the form.
+      throw err;
     } finally {
       setFormLoading(false);
     }
@@ -321,13 +258,15 @@ export default function SalesPage() {
       // DELETE SALES DETAILS FIRST
       // -----------------------------------------------
 
-      const detailsToDelete = salesDetails.filter(
-        (detail) => Number(detail.sales_id) === Number(salesToDelete.sales_id),
-      );
+      // what if i dont remove it
 
-      for (const detail of detailsToDelete) {
-        await deleteSalesDetail(detail.detail_id);
-      }
+      // const detailsToDelete = salesDetails.filter(
+      //   (detail) => Number(detail.sales_id) === Number(salesToDelete.sales_id),
+      // );
+
+      // for (const detail of detailsToDelete) {
+      //   await deleteSalesDetail(detail.detail_id);
+      // }
 
       // -----------------------------------------------
       // DELETE SALES HEADER
@@ -595,6 +534,8 @@ export default function SalesPage() {
             items={items}
 
             salesDetails={salesDetails}
+
+            availableStock={availableStock}
 
             onSubmit={handleSalesSubmit}
 

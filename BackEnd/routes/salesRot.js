@@ -4,6 +4,8 @@ const salesCon = require('../controllers/salesCon');
 
 const router = express.Router();
 
+router.route('/available-stock').get(salesCon.getAvailableStock);
+
 router.route('/').get(salesCon.getAllSales).post(salesCon.createSale);
 
 router
