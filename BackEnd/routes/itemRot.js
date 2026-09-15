@@ -4,15 +4,17 @@ const itemCon = require('../controllers/itemCon');
 
 const router = express.Router();
 
-router
-    .route('/')
-    .get(itemCon.getAllItems)
-    .post(itemCon.createItem);
+const { protect, restrictTo } = require('../controllers/authCon');
 
 router
-    .route('/:id')
-    .get(itemCon.getItem)
-    .patch(itemCon.updateItem)
-    .delete(itemCon.deleteItem);
+  .route('/')
+  .get(protect, restrictTo('user', 'manager', 'admin'), itemCon.getAllItems)
+  .post(protect, restrictTo('user', 'manager', 'admin'), itemCon.createItem);
+
+router
+  .route('/:id')
+  .get(protect, restrictTo('user', 'manager', 'admin'), itemCon.getItem)
+  .patch(protect, restrictTo('manager', 'admin'), itemCon.updateItem)
+  .delete(protect, restrictTo('admin'), itemCon.deleteItem);
 
 module.exports = router;

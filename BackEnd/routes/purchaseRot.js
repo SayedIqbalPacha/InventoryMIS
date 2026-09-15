@@ -4,15 +4,25 @@ const purchaseCon = require('../controllers/purchaseCon');
 
 const router = express.Router();
 
-router
-    .route('/')
-    .get(purchaseCon.getAllPurchases)
-    .post(purchaseCon.createPurchase);
+const { protect, restrictTo } = require('../controllers/authCon');
 
 router
-    .route('/:id')
-    .get(purchaseCon.getPurchase)
-    .patch(purchaseCon.updatePurchase)
-    .delete(purchaseCon.deletePurchase);
+  .route('/')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    purchaseCon.getAllPurchases,
+  )
+  .post(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    purchaseCon.createPurchase,
+  );
+
+router
+  .route('/:id')
+  .get(protect, restrictTo('user', 'manager', 'admin'), purchaseCon.getPurchase)
+  .patch(protect, restrictTo('manager', 'admin'), purchaseCon.updatePurchase)
+  .delete(protect, restrictTo('admin'), purchaseCon.deletePurchase);
 
 module.exports = router;

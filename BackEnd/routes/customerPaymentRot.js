@@ -1,17 +1,40 @@
 const express = require('express');
+
 const router = express.Router();
 
 const customerPaymentCon = require('../controllers/customerPaymentCon');
 
-router
-.route('/')
-.get(customerPaymentCon.getAllCustomerPayment)
-.post(customerPaymentCon.createCustomerPayment);
+const { protect, restrictTo } = require('../controllers/authCon');
 
 router
-.route('/:id')
-.get(customerPaymentCon.getOneCustomerPayment)
-.patch(customerPaymentCon.updateCustomerPayment)
-.delete(customerPaymentCon.deleteCustomerPayment);
+  .route('/')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    customerPaymentCon.getAllCustomerPayment,
+  )
+  .post(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    customerPaymentCon.createCustomerPayment,
+  );
+
+router
+  .route('/:id')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    customerPaymentCon.getOneCustomerPayment,
+  )
+  .patch(
+    protect,
+    restrictTo('manager', 'admin'),
+    customerPaymentCon.updateCustomerPayment,
+  )
+  .delete(
+    protect,
+    restrictTo('admin'),
+    customerPaymentCon.deleteCustomerPayment,
+  );
 
 module.exports = router;

@@ -4,15 +4,33 @@ const vendorPayment = require('../controllers/vendorPaymentCon');
 
 const router = express.Router();
 
-router
-    .route('/')
-    .get(vendorPayment.getAllVendorPayments)
-    .post(vendorPayment.createVendorPayment);
+const { protect, restrictTo } = require('../controllers/authCon');
 
 router
-    .route('/:id')
-    .get(vendorPayment.getVendorPayment)
-    .patch(vendorPayment.updateVendorPayment)
-    .delete(vendorPayment.deleteVendorPayment);
+  .route('/')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    vendorPayment.getAllVendorPayments,
+  )
+  .post(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    vendorPayment.createVendorPayment,
+  );
+
+router
+  .route('/:id')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    vendorPayment.getVendorPayment,
+  )
+  .patch(
+    protect,
+    restrictTo('manager', 'admin'),
+    vendorPayment.updateVendorPayment,
+  )
+  .delete(protect, restrictTo('admin'), vendorPayment.deleteVendorPayment);
 
 module.exports = router;

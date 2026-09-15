@@ -4,14 +4,25 @@ const salesCon = require('../controllers/salesCon');
 
 const router = express.Router();
 
-router.route('/available-stock').get(salesCon.getAvailableStock);
+const { protect, restrictTo } = require('../controllers/authCon');
 
-router.route('/').get(salesCon.getAllSales).post(salesCon.createSale);
+router
+  .route('/available-stock')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    salesCon.getAvailableStock,
+  );
+
+router
+  .route('/')
+  .get(protect, restrictTo('user', 'manager', 'admin'), salesCon.getAllSales)
+  .post(protect, restrictTo('user', 'manager', 'admin'), salesCon.createSale);
 
 router
   .route('/:id')
-  .get(salesCon.getSale)
-  .patch(salesCon.updateSale)
-  .delete(salesCon.deleteSale);
+  .get(protect, restrictTo('user', 'manager', 'admin'), salesCon.getSale)
+  .patch(protect, restrictTo('manager', 'admin'), salesCon.updateSale)
+  .delete(protect, restrictTo('admin'), salesCon.deleteSale);
 
 module.exports = router;

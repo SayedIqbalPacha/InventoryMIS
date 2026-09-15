@@ -4,15 +4,33 @@ const exchangeRateCon = require('../controllers/exchangeRateCon');
 
 const router = express.Router();
 
-router
-    .route('/')
-    .get(exchangeRateCon.getAllExchangeRates)
-    .post(exchangeRateCon.createExchangeRate);
+const { protect, restrictTo } = require('../controllers/authCon');
 
 router
-    .route('/:id')
-    .get(exchangeRateCon.getExchangeRate)
-    .patch(exchangeRateCon.updateExchangeRate)
-    .delete(exchangeRateCon.deleteExchangeRate);
+  .route('/')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    exchangeRateCon.getAllExchangeRates,
+  )
+  .post(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    exchangeRateCon.createExchangeRate,
+  );
+
+router
+  .route('/:id')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    exchangeRateCon.getExchangeRate,
+  )
+  .patch(
+    protect,
+    restrictTo('manager', 'admin'),
+    exchangeRateCon.updateExchangeRate,
+  )
+  .delete(protect, restrictTo('admin'), exchangeRateCon.deleteExchangeRate);
 
 module.exports = router;
