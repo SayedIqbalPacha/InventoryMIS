@@ -29,7 +29,7 @@ function DashboardCard({ title, value, icon: Icon }) {
         </CardHeader>
 
         <CardContent>
-          <p className="text-3xl font-bold">{value}</p>
+          <p className="text-2xl font-bold">{value}</p>
         </CardContent>
       </Card>
     </div>

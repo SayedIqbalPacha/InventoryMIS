@@ -116,7 +116,7 @@ export default function SalesForm({
   // --------------------------------------------------
   // LOAD EDIT DATA
   // --------------------------------------------------
-
+  // generally this useEffect is responsible for loading the data when we click on edit button and reset form with the existing data back
   useEffect(() => {
     if (sales) {
       const existingDetails = salesDetails
@@ -145,7 +145,18 @@ export default function SalesForm({
           existingDetails.length > 0 ? existingDetails : defaultValues.details,
       });
     } else {
-      form.reset(defaultValues);
+      const savedDraft = localStorage.getItem("salesDraft");
+
+      if (savedDraft) {
+        try {
+          form.reset(JSON.parse(savedDraft));
+        } catch {
+          localStorage.removeItem("salesDraft");
+          form.reset(defaultValues);
+        }
+      } else {
+        form.reset(defaultValues);
+      }
     }
 
     setServerError("");
@@ -215,6 +226,21 @@ export default function SalesForm({
   // --------------------------------------------------
 
   const watchedDetails = form.watch("details") || [];
+
+  // --------------------------------------------------
+  // SAVE SALES DRAFT
+  // --------------------------------------------------
+
+  useEffect(() => {
+    if (sales) return;
+
+    const subscription = form.watch((value) => {
+      localStorage.setItem("salesDraft", JSON.stringify(value));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, sales]);
+
   // --------------------------------------------------
   // GRAND TOTAL
   // --------------------------------------------------
@@ -316,6 +342,7 @@ export default function SalesForm({
         salesData,
         details,
       });
+      localStorage.removeItem("salesDraft");
     } catch (err) {
       const message = err?.message || "Something went wrong. Please try again.";
 
@@ -333,6 +360,7 @@ export default function SalesForm({
   // --------------------------------------------------
 
   function handleReset() {
+    localStorage.removeItem("salesDraft");
     if (sales) {
       const existingDetails = salesDetails
         .filter((detail) => Number(detail.sales_id) === Number(sales.sales_id))

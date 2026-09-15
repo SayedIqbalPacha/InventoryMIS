@@ -292,7 +292,7 @@ export default function ItemsPage() {
   // --------------------------------------------------
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-0 sm:space-y-6 overflow-hidden">
       {/* HEADER */}
 
       <PageHeader title="Items" description="Manage your inventory items">
@@ -383,7 +383,14 @@ export default function ItemsPage() {
           }
         }}
       >
-        <DialogContent className="w-[calc(100%-2rem)] max-w-[750px] sm:w-full">
+        <DialogContent
+          className="
+        w-[calc(100%-2rem)]
+        max-w-5xl
+        max-h-[90vh]
+        overflow-y-auto
+        sm:w-full "
+        >
           <DialogHeader>
             <DialogTitle>{selectedItem ? "Edit Item" : "Add Item"}</DialogTitle>
 

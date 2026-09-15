@@ -6,66 +6,51 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
 
-
 // --------------------------------------------------
 // VALIDATION
 // --------------------------------------------------
 
 const itemSchema = z.object({
-  item_name: z
-    .string()
-    .trim()
-    .min(1, "Please provide an item name."),
+  item_name: z.string().trim().min(1, "Please provide an item name."),
 
-  description: z
-    .string()
-    .trim()
-    .optional(),
+  description: z.string().trim().optional(),
 
   sell_price: z.preprocess(
     (value) =>
-      value === "" || value === undefined
-        ? undefined
-        : Number(value),
-    z.number({
+      value === "" || value === undefined ? undefined : Number(value),
+    z
+      .number({
         message: "Sell price must be a number.",
       })
-      .min(0, "Sell price cannot be negative.")
+      .min(0, "Sell price cannot be negative."),
   ),
 
   cost_price: z.preprocess(
     (value) =>
-      value === "" || value === undefined
-        ? undefined
-        : Number(value),
-    z.number({
+      value === "" || value === undefined ? undefined : Number(value),
+    z
+      .number({
         message: "Cost price must be a number.",
       })
       .min(0, "Cost price cannot be negative.")
-      .optional()
+      .optional(),
   ),
 
   stock_quantity: z.preprocess(
     (value) =>
-      value === "" || value === undefined
-        ? undefined
-        : Number(value),
-    z.number({
+      value === "" || value === undefined ? undefined : Number(value),
+    z
+      .number({
         message: "Stock quantity must be a number.",
       })
       .min(0, "Stock quantity cannot be negative.")
-      .optional()
+      .optional(),
   ),
 
-  unit_id: z
-    .string()
-    .optional(),
+  unit_id: z.string().optional(),
 
-  catagory_id: z
-    .string()
-    .optional(),
+  catagory_id: z.string().optional(),
 });
-
 
 // --------------------------------------------------
 // DEFAULT VALUES
@@ -81,7 +66,6 @@ const defaultValues = {
   catagory_id: "",
 };
 
-
 // --------------------------------------------------
 // ITEM FORM
 // --------------------------------------------------
@@ -93,9 +77,7 @@ export default function ItemForm({
   onSubmit,
   loading,
 }) {
-
   const [serverError, setServerError] = useState("");
-
 
   // --------------------------------------------------
   // FORM
@@ -106,59 +88,40 @@ export default function ItemForm({
     defaultValues,
   });
 
-
   // --------------------------------------------------
   // EDIT DATA
   // --------------------------------------------------
 
   useEffect(() => {
-
     if (item) {
-
       form.reset({
         item_name: item.item_name || "",
 
-        description:
-          item.description || "",
+        description: item.description || "",
 
-        sell_price:
-          item.sell_price ?? "",
+        sell_price: item.sell_price ?? "",
 
-        cost_price:
-          item.cost_price ?? "",
+        cost_price: item.cost_price ?? "",
 
-        stock_quantity:
-          item.stock_quantity ?? "",
+        stock_quantity: item.stock_quantity ?? "",
 
-        unit_id:
-          item.unit_id != null
-            ? String(item.unit_id)
-            : "",
+        unit_id: item.unit_id != null ? String(item.unit_id) : "",
 
-        catagory_id:
-          item.catagory_id != null
-            ? String(item.catagory_id)
-            : "",
+        catagory_id: item.catagory_id != null ? String(item.catagory_id) : "",
       });
-
     } else {
-
       form.reset(defaultValues);
-
     }
 
     setServerError("");
     form.clearErrors();
-
   }, [item]);
-
 
   // --------------------------------------------------
   // FIELDS
   // --------------------------------------------------
 
   const fields = [
-
     {
       name: "item_name",
       label: "Item Name",
@@ -223,18 +186,14 @@ export default function ItemForm({
       placeholder: "Enter item description",
       description: "Optional description of the item.",
     },
-
   ];
-
 
   // --------------------------------------------------
   // SUBMIT
   // --------------------------------------------------
 
   async function handleSubmit(data) {
-
     try {
-
       setServerError("");
       form.clearErrors("root.server");
 
@@ -242,43 +201,34 @@ export default function ItemForm({
       const itemData = {
         item_name: data.item_name.trim(),
 
-        description:
-          data.description?.trim() || "",
+        description: data.description?.trim() || "",
 
         sell_price: Number(data.sell_price),
 
         cost_price:
-          data.cost_price === "" ||
-          data.cost_price === undefined
+          data.cost_price === "" || data.cost_price === undefined
             ? null
             : Number(data.cost_price),
 
         stock_quantity:
-          data.stock_quantity === "" ||
-          data.stock_quantity === undefined
+          data.stock_quantity === "" || data.stock_quantity === undefined
             ? null
             : Number(data.stock_quantity),
 
         unit_id:
-          data.unit_id === "" ||
-          data.unit_id === undefined
+          data.unit_id === "" || data.unit_id === undefined
             ? null
             : Number(data.unit_id),
 
         catagory_id:
-          data.catagory_id === "" ||
-          data.catagory_id === undefined
+          data.catagory_id === "" || data.catagory_id === undefined
             ? null
             : Number(data.catagory_id),
       };
 
       await onSubmit(itemData);
-
     } catch (err) {
-
-      const message =
-        err?.message ||
-        "Something went wrong. Please try again.";
+      const message = err?.message || "Something went wrong. Please try again.";
 
       setServerError(message);
 
@@ -286,20 +236,15 @@ export default function ItemForm({
         type: "server",
         message,
       });
-
     }
-
   }
-
 
   // --------------------------------------------------
   // RESET
   // --------------------------------------------------
 
   function handleReset() {
-
     if (item) {
-
       form.reset({
         item_name: item.item_name || "",
         description: item.description || "",
@@ -307,62 +252,36 @@ export default function ItemForm({
         cost_price: item.cost_price ?? "",
         stock_quantity: item.stock_quantity ?? "",
 
-        unit_id:
-          item.unit_id != null
-            ? String(item.unit_id)
-            : "",
+        unit_id: item.unit_id != null ? String(item.unit_id) : "",
 
-        catagory_id:
-          item.catagory_id != null
-            ? String(item.catagory_id)
-            : "",
+        catagory_id: item.catagory_id != null ? String(item.catagory_id) : "",
       });
-
     } else {
-
       form.reset(defaultValues);
-
     }
 
     setServerError("");
     form.clearErrors();
-
   }
-
 
   // --------------------------------------------------
   // RENDER
   // --------------------------------------------------
 
   return (
-
     <div className="space-y-5">
-
       {/* SERVER ERROR */}
 
-      {(serverError ||
-        form.formState.errors.root?.server) && (
-
+      {(serverError || form.formState.errors.root?.server) && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-
-          {serverError ||
-            form.formState.errors.root.server.message}
-
+          {serverError || form.formState.errors.root.server.message}
         </div>
-
       )}
 
-
-      <GeneralForm
-        form={form}
-        fields={fields}
-        onSubmit={handleSubmit}
-      >
-
+      <GeneralForm form={form} fields={fields} onSubmit={handleSubmit}>
         {/* BUTTONS */}
 
         <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
-
           <Button
             type="button"
             variant="outline"
@@ -373,23 +292,11 @@ export default function ItemForm({
             Reset
           </Button>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto"
-          >
-            {loading
-              ? "Saving..."
-              : item
-                ? "Update Item"
-                : "Add Item"}
+          <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+            {loading ? "Saving..." : item ? "Update Item" : "Add Item"}
           </Button>
-
         </div>
-
       </GeneralForm>
-
     </div>
-
   );
 }

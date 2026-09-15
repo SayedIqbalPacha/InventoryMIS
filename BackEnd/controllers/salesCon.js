@@ -504,6 +504,7 @@ exports.createSale = catchAsync(async (req, res, next) => {
   const connection = await db.getConnection();
 
   try {
+    // transaction is needed cause it combine multiple queries and if one of them fails, it will rollback all the changes made by previous queries
     await connection.beginTransaction();
 
     // --------------------------------------------------
@@ -571,6 +572,7 @@ exports.createSale = catchAsync(async (req, res, next) => {
     await connection.rollback();
     return next(err);
   } finally {
+    // release the connection back to the pool
     connection.release();
   }
 });

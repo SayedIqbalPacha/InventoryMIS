@@ -1,5 +1,6 @@
 const AppError = require('./appError');
 
+// generally this function insert data into sale_purchase_allocation table based on FIFO allocation
 async function allocateSale(connection, salesDetailId, itemId, saleQuantity) {
   const requestedQuantity = Number(saleQuantity);
 
@@ -8,6 +9,7 @@ async function allocateSale(connection, salesDetailId, itemId, saleQuantity) {
   // FIFO: OLDEST PURCHASE FIRST
   // --------------------------------------------------
 
+  // we wrtie this query to get all purchase details for items that are completed and we will use it in FIFO allocation
   const [purchaseDetails] = await connection.query(
     `SELECT
         pd.detail_id,
@@ -41,6 +43,7 @@ async function allocateSale(connection, salesDetailId, itemId, saleQuantity) {
 
   const purchaseDetailIds = purchaseDetails.map((detail) => detail.detail_id);
 
+  // this query gives us the total allocated quantity for each purchase detail and we will use it in
   const [allocatedRows] = await connection.query(
     `SELECT
         purchase_details_id,
@@ -108,6 +111,7 @@ async function allocateSale(connection, salesDetailId, itemId, saleQuantity) {
       continue;
     }
 
+    //.min is used to ensure we don't allocate more than available or more than remaining it take the smaller of the two values
     const quantityToAllocate = Math.min(remainingQuantity, availableQuantity);
 
     await connection.query(

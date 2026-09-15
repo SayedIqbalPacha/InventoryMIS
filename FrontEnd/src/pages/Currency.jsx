@@ -287,7 +287,14 @@ export default function CurrencyPage() {
           }
         }}
       >
-        <DialogContent className="w-[calc(100%-2rem)] max-w-[600px] sm:w-full">
+        <DialogContent
+          className="
+        w-[calc(100%-2rem)]
+        max-w-5xl
+        max-h-[90vh]
+        overflow-y-auto
+        sm:w-full "
+        >
           <DialogHeader>
             <DialogTitle>
               {selectedCurrency ? "Edit Currency" : "Add Currency"}

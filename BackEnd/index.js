@@ -28,6 +28,7 @@ const vendorPaymentRot = require('./routes/vendorPaymentRot');
 const authRot = require('./routes/authRot');
 const usersRot = require('./routes/userRot');
 const dashboardRot = require('./routes/dashboardRot');
+const reportRot = require('./routes/reportRot');
 const cors = require('cors');
 
 app.use(
@@ -53,13 +54,9 @@ app.use('/api/v1/vendorPayment', vendorPaymentRot);
 app.use('/api/v1/users', usersRot);
 app.use('/api/v1/auth', authRot);
 app.use('/api/v1/dashboard', dashboardRot);
+app.use('/api/v1/reports', reportRot);
+
 app.all('*', (req, res, next) => {
-  // res.status(404).json({
-  //     status:"fail",
-  //     message:`cant find the ${req.originalUrl} at this server`
-
-  // });
-
   next(new AppError(`cant find ${req.originalUrl} at this server`, 404));
 });
 
