@@ -22,7 +22,7 @@ import {
 
 export default function GeneralForm({ form, fields, onSubmit, children }) {
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="w-full min-w-0">
       <FieldGroup className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {fields.map((fieldConfig) => (
           <Controller

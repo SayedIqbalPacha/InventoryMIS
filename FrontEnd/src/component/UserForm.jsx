@@ -218,7 +218,14 @@ export default function UserForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className=" w-[calc(100%-2rem)]
+          max-w-4xl
+          max-h-[90vh]
+          overflow-y-auto
+          sm:max-w-5xl
+                       "
+      >
         <DialogHeader>
           <DialogTitle>{isEditing ? "Update User" : "Add User"}</DialogTitle>
 

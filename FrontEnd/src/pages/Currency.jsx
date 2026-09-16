@@ -288,12 +288,12 @@ export default function CurrencyPage() {
         }}
       >
         <DialogContent
-          className="
-        w-[calc(100%-2rem)]
-        max-w-5xl
-        max-h-[90vh]
-        overflow-y-auto
-        sm:w-full "
+          className=" w-[calc(100%-2rem)]
+          max-w-4xl
+          max-h-[90vh]
+          overflow-y-auto
+          sm:max-w-5xl
+                       "
         >
           <DialogHeader>
             <DialogTitle>
