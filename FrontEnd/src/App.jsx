@@ -26,6 +26,7 @@ import PasswordReset from "@/pages/PasswordReset";
 import CustomerPaymentPage from "@/pages/CustomerPayment";
 import VendorPaymentPage from "@/pages/VendorPayment";
 import ExchangeRatePage from "@/pages/ExchangeRate";
+import Profile from "@/pages/Profile";
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
                 <Route path="vendor" element={<Vendor />} />
                 <Route path="vendorPayment" element={<VendorPaymentPage />} />
                 <Route path="exchange-rates" element={<ExchangeRatePage />} />
+                <Route path="profile" element={<Profile />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFound />} />

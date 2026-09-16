@@ -4,28 +4,29 @@ const authController = require('../controllers/authCon');
 
 const router = express.Router();
 
-
 // SIGN UP
-router.post('/signup',authController.signup);
-
+router.post('/signup', authController.signup);
 
 // LOGIN
-router.post('/login',authController.login);
-
+router.post('/login', authController.login);
 
 // FORGOT PASSWORD
-router.post('/forgotPassword',authController.forgotPassword);
-
+router.post('/forgotPassword', authController.forgotPassword);
 
 // RESET PASSWORD
-router.patch('/resetPassword/:token',authController.resetPassword);
-
+router.patch('/resetPassword/:token', authController.resetPassword);
 
 // UPDATE CURRENT USER
-router.patch('/updateMe',authController.protect,authController.updateMe);
+router.patch('/updateMe', authController.protect, authController.updateMe);
 
+// UPDATE CURRENT USER PASSWORD
+router.patch(
+  '/updateMyPassword',
+  authController.protect,
+  authController.updateMyPassword,
+);
 
 // DELETE CURRENT USER
-router.delete('/deleteMe',authController.protect,authController.deleteMe);
+router.delete('/deleteMe', authController.protect, authController.deleteMe);
 
 module.exports = router;

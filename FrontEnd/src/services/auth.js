@@ -22,7 +22,6 @@ async function handleResponse(response) {
   return data;
 }
 
-
 // LOGIN
 export async function login(email, password) {
   const response = await fetch(`${API_URL}/login`, {
@@ -41,7 +40,6 @@ export async function login(email, password) {
   return handleResponse(response);
 }
 
-
 // SIGNUP
 export async function signup(userData) {
   const response = await fetch(`${API_URL}/signup`, {
@@ -56,7 +54,6 @@ export async function signup(userData) {
 
   return handleResponse(response);
 }
-
 
 // FORGOT PASSWORD
 export async function forgotPassword(email) {
@@ -75,28 +72,23 @@ export async function forgotPassword(email) {
   return handleResponse(response);
 }
 
-
 // RESET PASSWORD
 export async function resetPassword(token, password, passwordConfirm) {
-  const response = await fetch(
-    `${API_URL}/resetPassword/${token}`,
-    {
-      method: "PATCH",
+  const response = await fetch(`${API_URL}/resetPassword/${token}`, {
+    method: "PATCH",
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+    headers: {
+      "Content-Type": "application/json",
+    },
 
-      body: JSON.stringify({
-        password,
-        passwordConfirm,
-      }),
-    }
-  );
+    body: JSON.stringify({
+      password,
+      passwordConfirm,
+    }),
+  });
 
   return handleResponse(response);
 }
-
 
 // UPDATE CURRENT USER
 export async function updateMe(userData) {
@@ -116,6 +108,24 @@ export async function updateMe(userData) {
   return handleResponse(response);
 }
 
+// UPDATE CURRENT USER PASSWORD
+
+export async function updateMyPassword(passwordData) {
+  const token = getToken();
+
+  const response = await fetch(`${API_URL}/updateMyPassword`, {
+    method: "PATCH",
+
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+
+    body: JSON.stringify(passwordData),
+  });
+
+  return handleResponse(response);
+}
 
 // DELETE CURRENT USER
 export async function deleteMe() {
@@ -132,13 +142,11 @@ export async function deleteMe() {
   return handleResponse(response);
 }
 
-
 // LOGOUT
 export function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 }
-
 
 // GET STORED USER
 export function getCurrentUser() {
@@ -156,12 +164,10 @@ export function getCurrentUser() {
   }
 }
 
-
 // GET TOKEN
 export function getToken() {
   return localStorage.getItem("token");
 }
-
 
 // SAVE AUTH DATA
 export function saveAuthData(data) {

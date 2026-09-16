@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LogOut, Settings, User, Users } from "lucide-react";
 
@@ -44,7 +44,9 @@ export default function NavBar() {
             <DropdownMenuGroup>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuItem>
-                <User /> Profile
+                <Link to="/profile" className="flex items-center gap-2">
+                  <User /> Profile
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings /> Setting
@@ -53,7 +55,9 @@ export default function NavBar() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Users /> Team
+                <Link to="/users" className="flex items-center gap-2">
+                  <Users /> Team
+                </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={handleLogout}>

@@ -1,4 +1,3 @@
-
 import {
   LayoutDashboard,
   Package,
@@ -38,86 +37,83 @@ const mainItems = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
-     link:"/dashboard",
+    link: "/dashboard",
   },
   {
     title: "Items",
     icon: Package,
-     link:"/items",
+    link: "/items",
   },
   {
     title: "Categories",
     icon: Boxes,
-     link:"/catagory",
+    link: "/catagory",
   },
   {
     title: "Customers",
     icon: Users,
-     link:"/customer",
+    link: "/customer",
   },
- 
+
   {
     title: "Vendors",
     icon: Truck,
-     link:"/vendor",
+    link: "/vendor",
   },
   {
     title: "Units",
     icon: SquaresUniteIcon,
-     link:"/units",
+    link: "/units",
   },
   {
     title: "Users",
     icon: UserIcon,
-     link:"/users",
+    link: "/users",
   },
-
 ];
 
 const transactionItems = [
   {
     title: "Purchase",
     icon: ShoppingBag,
-    link:"/purchase",
+    link: "/purchase",
   },
   {
     title: "Sales",
     icon: ShoppingCart,
-    link:"/sales",
+    link: "/sales",
   },
   {
     title: "Currency",
     icon: DollarSign,
-    link:"/currency"
+    link: "/currency",
   },
   {
     title: "Exchange Rates",
     icon: ChartCandlestick,
-    link:"/exchange-rates"
+    link: "/exchange-rates",
   },
-   {
+  {
     title: "Customer Payments",
     icon: HandCoins,
-     link:"/customerPayment",
+    link: "/customerPayment",
   },
-   {
+  {
     title: "Vendor Payment",
     icon: CircleDollarSign,
-     link:"/vendorPayment",
+    link: "/vendorPayment",
   },
   {
     title: "Reports",
     icon: FileText,
-    link:"/reports"
+    link: "/reports",
   },
 ];
 
 export function AppSidebar() {
   return (
-   
     <Sidebar collapsible="icon">
       <SidebarHeader>
-       
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
@@ -126,13 +122,9 @@ export function AppSidebar() {
               </div>
 
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  My ERP System
-                </span>
+                <span className="truncate font-semibold">My ERP System</span>
 
-                <span className="truncate text-xs">
-                  Management System
-                </span>
+                <span className="truncate text-xs">Management System</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -147,7 +139,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title} className="py-2">
-                  <SidebarMenuButton  tooltip={item.title}>
+                  <SidebarMenuButton tooltip={item.title}>
                     <Link to={item.link} className="flex justify-between ">
                       <item.icon />
                       <span className="ml-2">{item.title}</span>
@@ -166,7 +158,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {transactionItems.map((item) => (
                 <SidebarMenuItem key={item.title} className="py-2">
-                  <SidebarMenuButton  tooltip={item.title}>
+                  <SidebarMenuButton tooltip={item.title}>
                     <Link to={item.link} className="flex justify-between">
                       <item.icon />
                       <span className="ml-2">{item.title}</span>
@@ -184,7 +176,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton  tooltip="Settings">
+                <SidebarMenuButton tooltip="Settings">
                   <Link to="" className="flex justify-between">
                     <Settings />
                     <span className="ml-2">Settings</span>
@@ -199,8 +191,8 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton  tooltip="Profile">
-              <Link to="" className="flex justify-between">
+            <SidebarMenuButton tooltip="Profile">
+              <Link to="/profile" className="flex justify-between">
                 <Users />
                 <span className="ml-2">Profile</span>
               </Link>
@@ -209,7 +201,5 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-   
   );
 }
-
