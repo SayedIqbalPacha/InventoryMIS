@@ -25,7 +25,7 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50  flex items-center justify-between px-2 h-16 border-b bg-background">
+    <nav className="sticky top-0   flex items-center justify-between px-2 h-16 border-b bg-background">
       {/* left */}
 
       <SidebarTrigger />

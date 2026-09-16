@@ -465,7 +465,6 @@ export default function SalesForm({
 
                             <Select
                               value={field.value || ""}
-
                               onValueChange={(value) =>
                                 handleItemChange(value, index)
                               }
@@ -478,7 +477,6 @@ export default function SalesForm({
                                 {items.map((item) => (
                                   <SelectItem
                                     key={item.item_id}
-
                                     value={String(item.item_id)}
                                   >
                                     {item.item_name}

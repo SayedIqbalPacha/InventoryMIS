@@ -74,6 +74,7 @@ export default function GeneralForm({ form, fields, onSubmit, children }) {
 
                 {fieldConfig.type === "select" && (
                   <Select
+                    items={fieldConfig.options}
                     value={field.value ?? ""}
                     onValueChange={field.onChange}
                   >
