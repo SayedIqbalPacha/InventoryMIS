@@ -36,7 +36,7 @@ export default function NavBar() {
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar className="ml-4">
-              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarImage src="#" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
@@ -49,7 +49,9 @@ export default function NavBar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Settings /> Setting
+                <Link to="/settings" className="flex items-center gap-2">
+                  <Settings /> Setting
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

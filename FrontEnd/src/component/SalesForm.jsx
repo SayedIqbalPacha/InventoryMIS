@@ -464,6 +464,7 @@ export default function SalesForm({
                             <FieldLabel>Item</FieldLabel>
 
                             <Select
+                              item={field.options}
                               value={field.value || ""}
                               onValueChange={(value) =>
                                 handleItemChange(value, index)

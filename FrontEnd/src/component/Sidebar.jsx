@@ -177,7 +177,7 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton tooltip="Settings">
-                  <Link to="" className="flex justify-between">
+                  <Link to="/settings" className="flex justify-between">
                     <Settings />
                     <span className="ml-2">Settings</span>
                   </Link>

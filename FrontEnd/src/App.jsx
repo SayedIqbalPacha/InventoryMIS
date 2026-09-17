@@ -27,6 +27,7 @@ import CustomerPaymentPage from "@/pages/CustomerPayment";
 import VendorPaymentPage from "@/pages/VendorPayment";
 import ExchangeRatePage from "@/pages/ExchangeRate";
 import Profile from "@/pages/Profile";
+import Settings from "@/pages/Settings";
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
                 <Route path="vendorPayment" element={<VendorPaymentPage />} />
                 <Route path="exchange-rates" element={<ExchangeRatePage />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="settings" element={<Settings />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFound />} />
