@@ -38,3 +38,42 @@ export async function getReports() {
 
   return handleResponse(response);
 }
+
+export async function getCustomerActivity({
+  name,
+  fromDate,
+  toDate,
+  customerId,
+}) {
+  // new URLSearchParams() is used to create a query string for the API request based on the provided parameters. Each parameter is conditionally added to the query string if it has a value. The fetch request is then made to the API endpoint with the constructed query string, and the response is handled accordingly.
+  const params = new URLSearchParams();
+
+  if (name) {
+    params.set("name", name);
+  }
+
+  if (fromDate) {
+    params.set("fromDate", fromDate);
+  }
+
+  if (toDate) {
+    params.set("toDate", toDate);
+  }
+
+  if (customerId) {
+    params.set("customerId", customerId);
+  }
+
+  const response = await fetch(
+    `${API_URL}/customer-activity?${params.toString()}`,
+    {
+      method: "GET",
+
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    },
+  );
+
+  return handleResponse(response);
+}

@@ -8,6 +8,7 @@ import {
   Boxes,
   DollarSign,
   FileText,
+  Search,
   Settings,
   House,
   SquaresUniteIcon,
@@ -107,6 +108,11 @@ const transactionItems = [
     title: "Reports",
     icon: FileText,
     link: "/reports",
+  },
+  {
+    title: "Customer Activity",
+    icon: Search,
+    link: "/customer-activity",
   },
 ];
 

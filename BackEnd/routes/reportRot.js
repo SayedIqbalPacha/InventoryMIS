@@ -10,4 +10,12 @@ router
   .route('/')
   .get(protect, restrictTo('user', 'manager', 'admin'), reportCon.getReports);
 
+router
+  .route('/customer-activity')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    reportCon.getCustomerActivity,
+  );
+
 module.exports = router;
