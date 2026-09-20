@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { getCustomerActivity } from "@/services/Reports";
 
 import PageHeader from "@/component/PageHeader";
 import ReportCard from "@/component/ReportCard";
 import ReportTable from "@/component/ReportTable";
+import PrintButton from "@/component/PrintButton";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,10 @@ function formatMoney(value) {
 }
 
 export default function CustomerActivity() {
+  const printRef = useRef(null);
+  const printInvoiceItemsRef = useRef(null);
+  const printInoivePaymentRef = useRef(null);
+
   const [name, setName] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -179,12 +184,8 @@ export default function CustomerActivity() {
               {result.period.fromDate} to {result.period.toDate}
             </p>
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-              <p>
-                Phone: {result.customer.phone || "-"}
-              </p>
-              <p>
-                Email: {result.customer.email || "-"}
-              </p>
+              <p>Phone: {result.customer.phone || "-"}</p>
+              <p>Email: {result.customer.email || "-"}</p>
             </div>
           </section>
 
@@ -239,86 +240,113 @@ export default function CustomerActivity() {
             </div>
           </section>
 
-          <ReportTable
-            title="Bills / Invoices"
-            emptyMessage="No invoices found in this date range."
-            columns={[
-              { key: "sales_id", label: "Invoice #" },
-              {
-                key: "sales_date",
-                label: "Date",
-                render: (row) => formatDate(row.sales_date),
-              },
-              { key: "currency_code", label: "Currency" },
-              { key: "total_qty", label: "Quantity" },
-              {
-                key: "total_original",
-                label: "Bill total",
-                render: (row) => formatMoney(row.total_original),
-              },
-              {
-                key: "total_afn",
-                label: "Total AFN",
-                render: (row) => formatMoney(row.total_afn),
-              },
-            ]}
-            data={invoices}
-          />
+          <div>
+            <PrintButton
+              contentRef={printRef}
+              title="Print / save Invoices"
+              documentTitle={`Bills-Invoices-${customerTitle}`}
+            />
+            <div ref={printRef}>
+              <ReportTable
+                title="Bills / Invoices"
+                emptyMessage="No invoices found in this date range."
+                columns={[
+                  { key: "sales_id", label: "Invoice #" },
+                  {
+                    key: "sales_date",
+                    label: "Date",
+                    render: (row) => formatDate(row.sales_date),
+                  },
+                  { key: "currency_code", label: "Currency" },
+                  { key: "total_qty", label: "Quantity" },
+                  {
+                    key: "total_original",
+                    label: "Bill total",
+                    render: (row) => formatMoney(row.total_original),
+                  },
+                  {
+                    key: "total_afn",
+                    label: "Total AFN",
+                    render: (row) => formatMoney(row.total_afn),
+                  },
+                ]}
+                data={invoices}
+              />
+            </div>
+          </div>
 
-          <ReportTable
-            title="Invoice items"
-            emptyMessage="No invoice items found in this date range."
-            columns={[
-              { key: "sales_id", label: "Invoice #" },
-              {
-                key: "sales_date",
-                label: "Date",
-                render: (row) => formatDate(row.sales_date),
-              },
-              { key: "item_name", label: "Item" },
-              { key: "quantity", label: "Quantity" },
-              {
-                key: "unit_price",
-                label: "Unit price",
-                render: (row) => formatMoney(row.unit_price),
-              },
-              {
-                key: "total_afn",
-                label: "Total AFN",
-                render: (row) => formatMoney(row.total_afn),
-              },
-            ]}
-            data={invoiceItems.map((item, index) => ({
-              ...item,
-              id: `${item.sales_id}-${index}`,
-            }))}
-          />
+          <div>
+            <PrintButton
+              contentRef={printInvoiceItemsRef}
+              title="Print / save Invoice Items"
+              documentTitle={`Itmes-Invoices`}
+            />
+            <div ref={printInvoiceItemsRef}>
+              <ReportTable
+                title="Invoice items"
+                emptyMessage="No invoice items found in this date range."
+                columns={[
+                  { key: "sales_id", label: "Invoice #" },
+                  {
+                    key: "sales_date",
+                    label: "Date",
+                    render: (row) => formatDate(row.sales_date),
+                  },
+                  { key: "item_name", label: "Item" },
+                  { key: "quantity", label: "Quantity" },
+                  {
+                    key: "unit_price",
+                    label: "Unit price",
+                    render: (row) => formatMoney(row.unit_price),
+                  },
+                  {
+                    key: "total_afn",
+                    label: "Total AFN",
+                    render: (row) => formatMoney(row.total_afn),
+                  },
+                ]}
+                data={invoiceItems.map((item, index) => ({
+                  ...item,
+                  id: `${item.sales_id}-${index}`,
+                }))}
+              />
+            </div>
+          </div>
 
-          <ReportTable
-            title="Payments"
-            emptyMessage="No payments found in this date range."
-            columns={[
-              { key: "cus_payment_id", label: "Payment #" },
-              { key: "sale_id", label: "Invoice #" },
-              {
-                key: "date",
-                label: "Date",
-                render: (row) => formatDate(row.date),
-              },
-              { key: "currency_code", label: "Currency" },
-              {
-                key: "amount",
-                label: "Amount",
-                render: (row) => formatMoney(row.amount),
-              },
-              {
-                key: "amount_afn",
-                label: "Amount AFN",
-                render: (row) => formatMoney(row.amount_afn),
-              },
-            ]}
-            data={payments}
-          />
+          <div>
+            <PrintButton
+              contentRef={printInoivePaymentRef}
+              title="Print / Save Payments"
+              documentTitle={"Payments"}
+            />
+            <div ref={printInoivePaymentRef}>
+              <ReportTable
+                title="Payments"
+                emptyMessage="No payments found in this date range."
+                columns={[
+                  { key: "cus_payment_id", label: "Payment #" },
+                  { key: "sale_id", label: "Invoice #" },
+                  {
+                    key: "date",
+                    label: "Date",
+                    render: (row) => formatDate(row.date),
+                  },
+                  { key: "currency_code", label: "Currency" },
+                  {
+                    key: "amount",
+                    label: "Amount",
+                    render: (row) => formatMoney(row.amount),
+                  },
+                  {
+                    key: "amount_afn",
+                    label: "Amount AFN",
+                    render: (row) => formatMoney(row.amount_afn),
+                  },
+                ]}
+                data={payments}
+              />
+            </div>
+          </div>
 
           <div className="rounded-xl border bg-card p-4 shadow-sm">
             <p className="text-sm text-muted-foreground">Total paid</p>
