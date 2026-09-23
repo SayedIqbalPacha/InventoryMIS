@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { getReports } from "@/services/Reports";
 
 import ReportCard from "@/component/ReportCard";
 import ReportTable from "@/component/ReportTable";
 import PageHeader from "@/component/PageHeader";
+import PrintButton from "@/component/PrintButton";
 
 import {
   Bar,
@@ -22,6 +23,11 @@ import {
 // ==================================================
 
 export default function Reports() {
+  const printStockReport = useRef(null);
+  const printSalesReport = useRef(null);
+  const printPurchaseReport = useRef(null);
+  const printCostReport = useRef(null);
+  const printLossReport = useRef(null);
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -464,171 +470,213 @@ export default function Reports() {
           STOCK TABLE
       ================================================== */}
 
-      <ReportTable
-        title="Stock Report"
-        columns={[
-          {
-            key: "item_name",
-            label: "Item",
-          },
-          {
-            key: "total_purchased",
-            label: "Purchased",
-          },
-          {
-            key: "total_sold",
-            label: "Sold",
-          },
-          {
-            key: "current_stock",
-            label: "Current Stock",
-          },
-        ]}
-        data={stock}
-      />
-
+      <div>
+        <PrintButton
+          contentRef={printStockReport}
+          title="print/save report"
+          documentTitle="Available Stock"
+        />
+        <div ref={printStockReport}>
+          <ReportTable
+            title="Stock Report"
+            columns={[
+              {
+                key: "item_name",
+                label: "Item",
+              },
+              {
+                key: "total_purchased",
+                label: "Purchased",
+              },
+              {
+                key: "total_sold",
+                label: "Sold",
+              },
+              {
+                key: "current_stock",
+                label: "Current Stock",
+              },
+            ]}
+            data={stock}
+          />
+        </div>
+      </div>
       {/* ==================================================
           SALES TABLE
       ================================================== */}
 
-      <ReportTable
-        title="Sales Report"
-        columns={[
-          {
-            key: "sales_id",
-            label: "Sale ID",
-          },
-          {
-            key: "item_name",
-            label: "Item",
-          },
-          {
-            key: "sale_of_item",
-            label: "Revenue AFN",
-            render: (row) =>
-              Number(row.sale_of_item || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }),
-          },
-        ]}
-        data={sales.map((sale, index) => ({
-          ...sale,
-          id: `${sale.sales_id}-${sale.item_id}-${index}`,
-        }))}
-      />
+      <div>
+        <PrintButton
+          contentRef={printSalesReport}
+          title="print/save report"
+          documentTitle="All Sales"
+        />
+        <div ref={printSalesReport}>
+          <ReportTable
+            title="Sales Report"
+            columns={[
+              {
+                key: "sales_id",
+                label: "Sale ID",
+              },
+              {
+                key: "item_name",
+                label: "Item",
+              },
+              {
+                key: "sale_of_item",
+                label: "Revenue AFN",
+                render: (row) =>
+                  Number(row.sale_of_item || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }),
+              },
+            ]}
+            data={sales.map((sale, index) => ({
+              ...sale,
+              id: `${sale.sales_id}-${sale.item_id}-${index}`,
+            }))}
+          />
+        </div>
+      </div>
 
       {/* ==================================================
           PURCHASE TABLE
       ================================================== */}
 
-      <ReportTable
-        title="Purchase Report"
-        columns={[
-          {
-            key: "purchase_id",
-            label: "Purchase ID",
-          },
-          {
-            key: "item_name",
-            label: "Item",
-          },
-          {
-            key: "total_qty",
-            label: "Quantity",
-          },
-          {
-            key: "cost_to_afn",
-            label: "Cost / Unit AFN",
-            render: (row) =>
-              Number(row.cost_to_afn || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }),
-          },
-        ]}
-        data={purchases.map((purchase, index) => ({
-          ...purchase,
-          id: `${purchase.purchase_id}-${purchase.item_id}-${index}`,
-        }))}
-      />
-
+      <div>
+        <PrintButton
+          contentRef={printPurchaseReport}
+          title="print/save report"
+          documentTitle="All Purchases"
+        />
+        <div ref={printPurchaseReport}>
+          <ReportTable
+            title="Purchase Report"
+            columns={[
+              {
+                key: "purchase_id",
+                label: "Purchase ID",
+              },
+              {
+                key: "item_name",
+                label: "Item",
+              },
+              {
+                key: "total_qty",
+                label: "Quantity",
+              },
+              {
+                key: "cost_to_afn",
+                label: "Cost / Unit AFN",
+                render: (row) =>
+                  Number(row.cost_to_afn || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }),
+              },
+            ]}
+            data={purchases.map((purchase, index) => ({
+              ...purchase,
+              id: `${purchase.purchase_id}-${purchase.item_id}-${index}`,
+            }))}
+          />
+        </div>
+      </div>
       {/* ==================================================
           COST TABLE
       ================================================== */}
 
-      <ReportTable
-        title="Cost Report"
-        columns={[
-          {
-            key: "purchase_id",
-            label: "Purchase ID",
-          },
-          {
-            key: "item_name",
-            label: "Item",
-          },
-          {
-            key: "cost_of_item_afn",
-            label: "Total Cost AFN",
-            render: (row) =>
-              Number(row.cost_of_item_afn || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }),
-          },
-        ]}
-        data={costs.map((cost, index) => ({
-          ...cost,
-          id: `${cost.purchase_id}-${cost.item_id}-${index}`,
-        }))}
-      />
-
+      <div>
+        <PrintButton
+          contentRef={printPurchaseReport}
+          title="print/save report"
+          documentTitle="All Costs"
+        />
+        <div ref={printCostReport}>
+          <ReportTable
+            title="Cost Report"
+            columns={[
+              {
+                key: "purchase_id",
+                label: "Purchase ID",
+              },
+              {
+                key: "item_name",
+                label: "Item",
+              },
+              {
+                key: "cost_of_item_afn",
+                label: "Total Cost AFN",
+                render: (row) =>
+                  Number(row.cost_of_item_afn || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }),
+              },
+            ]}
+            data={costs.map((cost, index) => ({
+              ...cost,
+              id: `${cost.purchase_id}-${cost.item_id}-${index}`,
+            }))}
+          />
+        </div>
+      </div>
       {/* ==================================================
           LOSS TABLE
       ================================================== */}
 
-      <ReportTable
-        title="Loss Report"
-        columns={[
-          {
-            key: "allocation_id",
-            label: "Allocation ID",
-          },
-          {
-            key: "allocated_qty",
-            label: "Quantity",
-          },
-          {
-            key: "total_cost_afn",
-            label: "Cost AFN",
-            render: (row) =>
-              Number(row.total_cost_afn || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }),
-          },
-          {
-            key: "total_revenue_afn",
-            label: "Revenue AFN",
-            render: (row) =>
-              Number(row.total_revenue_afn || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }),
-          },
-          {
-            key: "total_loss_afn",
-            label: "Loss AFN",
-            render: (row) =>
-              Number(row.total_loss_afn || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }),
-          },
-        ]}
-        data={loss}
-      />
+      <div>
+        <PrintButton
+          contentRef={printLossReport}
+          title="print/save report"
+          documentTitle="All Loss"
+        />
+        <div ref={printLossReport}>
+          <ReportTable
+            title="Loss Report"
+            columns={[
+              {
+                key: "allocation_id",
+                label: "Allocation ID",
+              },
+              {
+                key: "allocated_qty",
+                label: "Quantity",
+              },
+              {
+                key: "total_cost_afn",
+                label: "Cost AFN",
+                render: (row) =>
+                  Number(row.total_cost_afn || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }),
+              },
+              {
+                key: "total_revenue_afn",
+                label: "Revenue AFN",
+                render: (row) =>
+                  Number(row.total_revenue_afn || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }),
+              },
+              {
+                key: "total_loss_afn",
+                label: "Loss AFN",
+                render: (row) =>
+                  Number(row.total_loss_afn || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }),
+              },
+            ]}
+            data={loss}
+          />
+        </div>
+      </div>
     </div>
   );
 }

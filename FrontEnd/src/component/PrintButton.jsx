@@ -18,7 +18,7 @@ export default function PrintButton({
       type="button"
       variant="outline"
       onClick={handlePrint}
-      className="gap-2"
+      className="gap-2 mb-1"
     >
       <Printer className="h-4 w-4" />
       {title}
