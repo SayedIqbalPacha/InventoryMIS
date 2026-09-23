@@ -18,4 +18,12 @@ router
     reportCon.getCustomerActivity,
   );
 
+router
+  .route('/vendor-activity')
+  .get(
+    protect,
+    restrictTo('user', 'manager', 'admin'),
+    reportCon.getVendorActivity,
+  );
+
 module.exports = router;

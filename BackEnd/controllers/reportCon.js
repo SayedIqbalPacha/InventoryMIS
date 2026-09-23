@@ -240,6 +240,97 @@ function paymentExchangeJoin() {
 }
 
 // ==================================================
+// GET VENDOR ACTIVITY
+// ==================================================
+exports.getVendorActivity = catchAsync(async (req, res, next) => {
+  const vendorId = String(req.query.vendorId || '').trim();
+  const fromDate = String(req.query.fromDate || '').trim();
+  const toDate = String(req.query.toDate || '').trim();
+
+  if (!/^\d+$/.test(vendorId)) return next(new AppError('Please select a vendor', 400));
+  if (!isValidDate(fromDate) || !isValidDate(toDate)) {
+    return next(new AppError('Please provide valid dates as YYYY-MM-DD', 400));
+  }
+  if (fromDate > toDate) return next(new AppError('From date cannot be after to date', 400));
+
+  const [[vendor]] = await db.query(
+    'SELECT vendor_id, vendor_name, email, address FROM vendor WHERE vendor_id = ?',
+    [vendorId],
+  );
+  if (!vendor) return next(new AppError('Vendor not found', 404));
+
+  const purchaseSelect = `
+    SELECT p.purchase_id, p.purchase_date, p.currency_id, cur.currency_code,
+      p.total_amount AS total_original,
+      p.total_amount * COALESCE((SELECT er.exchange_rate FROM exchange_rate er
+        WHERE er.from_currency_id = p.currency_id AND er.to_currency_id = 100
+          AND er.effective_date <= p.purchase_date
+        ORDER BY er.effective_date DESC, er.rate_id DESC LIMIT 1), 1) AS total_afn
+    FROM purchase p LEFT JOIN currency cur ON cur.currency_id = p.currency_id
+    WHERE p.vendor_id = ?`;
+  const paymentSelect = `
+    SELECT vp.payment_id, vp.purchase_id, vp.payment_date, vp.currency_id, cur.currency_code,
+      vp.amount AS amount_original, COALESCE(p.vendor_id, vp.vendor_id) AS resolved_vendor_id,
+      (vp.vendor_id IS NOT NULL AND p.vendor_id IS NOT NULL AND vp.vendor_id <> p.vendor_id) AS vendor_mismatch,
+      vp.amount * COALESCE((SELECT er.exchange_rate FROM exchange_rate er
+        WHERE er.from_currency_id = vp.currency_id AND er.to_currency_id = 100
+          AND er.effective_date <= vp.payment_date
+        ORDER BY er.effective_date DESC, er.rate_id DESC LIMIT 1), 1) AS amount_afn
+    FROM vendor_payment vp LEFT JOIN purchase p ON p.purchase_id = vp.purchase_id
+      LEFT JOIN currency cur ON cur.currency_id = vp.currency_id
+    WHERE COALESCE(p.vendor_id, vp.vendor_id) = ?`;
+
+  const purchaseTotalQuery = `
+    SELECT COALESCE(SUM(p.total_amount * COALESCE((
+      SELECT er.exchange_rate FROM exchange_rate er
+      WHERE er.from_currency_id = p.currency_id AND er.to_currency_id = 100
+        AND er.effective_date <= p.purchase_date
+      ORDER BY er.effective_date DESC, er.rate_id DESC LIMIT 1
+    ), 1)), 0) AS total_afn
+    FROM purchase p WHERE p.vendor_id = ?`;
+  const paymentTotalQuery = `
+    SELECT COALESCE(SUM(vp.amount * COALESCE((
+      SELECT er.exchange_rate FROM exchange_rate er
+      WHERE er.from_currency_id = vp.currency_id AND er.to_currency_id = 100
+        AND er.effective_date <= vp.payment_date
+      ORDER BY er.effective_date DESC, er.rate_id DESC LIMIT 1
+    ), 1)), 0) AS total_afn
+    FROM vendor_payment vp
+    LEFT JOIN purchase p ON p.purchase_id = vp.purchase_id
+    WHERE COALESCE(p.vendor_id, vp.vendor_id) = ?`;
+
+  const [[[purchaseTotals]], [[paymentTotals]], [periodPurchases], [allPayments]] = await Promise.all([
+    db.query(purchaseTotalQuery, [vendorId]),
+    db.query(paymentTotalQuery, [vendorId]),
+    db.query(`${purchaseSelect} AND DATE(p.purchase_date) BETWEEN ? AND ? ORDER BY p.purchase_date DESC, p.purchase_id DESC`, [vendorId, fromDate, toDate]),
+    db.query(`${paymentSelect} ORDER BY vp.payment_date DESC, vp.payment_id DESC`, [vendorId]),
+  ]);
+
+  const sum = (rows, key) => rows.reduce((total, row) => total + Number(row[key] || 0), 0);
+  const totalPurchasesAfn = Number(purchaseTotals.total_afn || 0);
+  const totalPaymentsAfn = Number(paymentTotals.total_afn || 0);
+  const periodPurchasesAfn = sum(periodPurchases, 'total_afn');
+  const totalPaymentRowsAfn = sum(allPayments, 'amount_afn');
+  const outstandingAfn = totalPurchasesAfn - totalPaymentsAfn;
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      vendor,
+      period: { fromDate, toDate },
+      purchases: { total_afn: periodPurchasesAfn, rows: periodPurchases },
+      payments: { total_afn: totalPaymentRowsAfn, rows: allPayments },
+      account: {
+        total_purchases_afn: totalPurchasesAfn,
+        total_payments_afn: totalPaymentsAfn,
+        outstanding_afn: outstandingAfn,
+        status: outstandingAfn > 0 ? 'payable' : outstandingAfn < 0 ? 'vendor_credit' : 'settled',
+      },
+    },
+  });
+});
+
+// ==================================================
 // GET CUSTOMER ACTIVITY
 // ==================================================
 
@@ -400,12 +491,30 @@ exports.getCustomerActivity = catchAsync(async (req, res, next) => {
         ON cur.currency_id = cp.currency_id
       ${paymentExchangeJoin()}
       WHERE cp.customer_id = ?
-        AND DATE(cp.date) BETWEEN ? AND ?
       ORDER BY
         cp.date DESC,
         cp.cus_payment_id DESC
     `,
-    [customerId, fromDate, toDate],
+    [customerId],
+  );
+
+  // The account balance must use the customer's full history. The date range
+  // above is only for the activity report, not for the amount still owed.
+  const [[accountSales]] = await db.query(
+    `
+      SELECT
+        COALESCE(SUM(
+          sd.quantity
+          * sd.unit_price
+          * COALESCE(sr.exchange_rate, 1)
+        ), 0) AS total_sold_afn
+      FROM sales AS s
+      INNER JOIN sales_details AS sd
+        ON sd.sales_id = s.sales_id
+      ${saleExchangeJoin()}
+      WHERE s.customer_id = ?
+    `,
+    [customerId],
   );
 
   const [soldRows] = await db.query(
@@ -485,6 +594,9 @@ exports.getCustomerActivity = catchAsync(async (req, res, next) => {
     0,
   );
 
+  const accountSalesAfn = Number(accountSales.total_sold_afn || 0);
+  const outstandingAfn = accountSalesAfn - totalPaidAfn;
+
   res.status(200).json({
     status: 'success',
     needsSelection: false,
@@ -514,6 +626,12 @@ exports.getCustomerActivity = catchAsync(async (req, res, next) => {
       payments: {
         total_paid_afn: totalPaidAfn,
         rows: payments,
+      },
+      account: {
+        total_sold_afn: accountSalesAfn,
+        total_paid_afn: totalPaidAfn,
+        outstanding_afn: outstandingAfn,
+        status: outstandingAfn > 0 ? 'borrower' : 'settled',
       },
       invoices,
       invoiceItems,

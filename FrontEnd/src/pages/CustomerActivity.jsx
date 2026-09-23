@@ -102,7 +102,7 @@ export default function CustomerActivity() {
     <div className="min-w-0 space-y-5 sm:space-y-6">
       <PageHeader
         title="Customer Activity"
-        description="Search a customer by date range and view invoices, sales, and profit."
+        description="View date-range sales and profit, complete payment history, and outstanding balance."
       />
 
       <form
@@ -321,8 +321,8 @@ export default function CustomerActivity() {
             />
             <div ref={printInoivePaymentRef}>
               <ReportTable
-                title="Payments"
-                emptyMessage="No payments found in this date range."
+                title="All Payments"
+                emptyMessage="No payments have been recorded for this customer."
                 columns={[
                   { key: "cus_payment_id", label: "Payment #" },
                   { key: "sale_id", label: "Invoice #" },
@@ -348,12 +348,27 @@ export default function CustomerActivity() {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <p className="text-sm text-muted-foreground">Total paid</p>
-            <p className="mt-1 text-2xl font-bold">
-              {formatMoney(result.payments.total_paid_afn)} AFN
-            </p>
-          </div>
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <ReportCard
+              title="All-time sales"
+              value={result.account.total_sold_afn}
+              suffix="AFN"
+            />
+            <ReportCard
+              title="All payments"
+              value={result.account.total_paid_afn}
+              suffix="AFN"
+            />
+            <ReportCard
+              title={
+                result.account.status === "borrower"
+                  ? "Customer owes you"
+                  : "Outstanding balance"
+              }
+              value={result.account.outstanding_afn}
+              suffix="AFN"
+            />
+          </section>
         </>
       )}
     </div>

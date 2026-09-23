@@ -77,3 +77,34 @@ export async function getCustomerActivity({
 
   return handleResponse(response);
 }
+
+export async function getVendorActivity({ vendorId, fromDate, toDate }) {
+  // Build the query string the same way as customer activity so optional or
+  // incomplete fields are handled consistently by the API.
+  const params = new URLSearchParams();
+
+  if (vendorId) {
+    params.set("vendorId", vendorId);
+  }
+
+  if (fromDate) {
+    params.set("fromDate", fromDate);
+  }
+
+  if (toDate) {
+    params.set("toDate", toDate);
+  }
+
+  const response = await fetch(
+    `${API_URL}/vendor-activity?${params.toString()}`,
+    {
+      method: "GET",
+
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    },
+  );
+
+  return handleResponse(response);
+}

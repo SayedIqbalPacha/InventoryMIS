@@ -29,6 +29,7 @@ import ExchangeRatePage from "@/pages/ExchangeRate";
 import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
 import CustomerActivity from "@/pages/CustomerActivity";
+import VendorActivity from "@/pages/VendorActivity";
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
                 <Route path="profile" element={<Profile />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="customer-activity" element={<CustomerActivity />} />
+                <Route path="vendor-activity" element={<VendorActivity />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFound />} />

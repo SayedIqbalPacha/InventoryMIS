@@ -16,9 +16,11 @@ import {
   HandCoins,
   CircleDollarSign,
   ChartCandlestick,
+  ChevronDown,
 } from "lucide-react";
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 import {
   Sidebar,
@@ -31,6 +33,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
@@ -109,14 +114,13 @@ const transactionItems = [
     icon: FileText,
     link: "/reports",
   },
-  {
-    title: "Customer Activity",
-    icon: Search,
-    link: "/customer-activity",
-  },
 ];
 
 export function AppSidebar() {
+  const location = useLocation();
+  const activityRouteActive = ["/customer-activity", "/vendor-activity"].includes(location.pathname);
+  const [activitiesOpen, setActivitiesOpen] = useState(activityRouteActive);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -162,6 +166,34 @@ export function AppSidebar() {
 
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem className="py-1">
+                <SidebarMenuButton
+                  tooltip="Search Activities"
+                  isActive={activityRouteActive}
+                  onClick={() => setActivitiesOpen((open) => !open)}
+                  aria-expanded={activitiesOpen}
+                >
+                  <Search />
+                  <span className="flex-1">Search Activities</span>
+                  <ChevronDown className={`ml-auto transition-transform ${activitiesOpen ? "rotate-180" : ""}`} />
+                </SidebarMenuButton>
+                {activitiesOpen && (
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton render={<Link to="/customer-activity" />} isActive={location.pathname === "/customer-activity"}>
+                        <Users />
+                        <span>Customer Activity</span>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton render={<Link to="/vendor-activity" />} isActive={location.pathname === "/vendor-activity"}>
+                        <Truck />
+                        <span>Vendor Activity</span>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                )}
+              </SidebarMenuItem>
               {transactionItems.map((item) => (
                 <SidebarMenuItem key={item.title} className="py-2">
                   <SidebarMenuButton tooltip={item.title}>
