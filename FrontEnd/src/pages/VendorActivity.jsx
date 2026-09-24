@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getVendorActivity } from "@/services/Reports";
 import { getVendors } from "@/services/Vendor";
 import PageHeader from "@/component/PageHeader";
@@ -18,7 +18,9 @@ const date = (value) => (value ? String(value).slice(0, 10) : "-");
 
 export default function VendorActivity() {
   const printRef = useRef(null);
+
   const [vendors, setVendors] = useState([]);
+  const [vendorName, setVendorName] = useState("");
   const [vendorId, setVendorId] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -32,16 +34,37 @@ export default function VendorActivity() {
       .catch((err) => setError(err.message || "Failed to load vendors."));
   }, []);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (!vendorId || !fromDate || !toDate) {
-      setError("Choose a vendor and date range.");
+  const suggestions = useMemo(() => {
+    const query = vendorName.trim().toLowerCase();
+
+    if (!query) {
+      return [];
+    }
+
+    return vendors.filter((vendor) =>
+      vendor.vendor_name.toLowerCase().includes(query),
+    );
+  }, [vendors, vendorName]);
+
+  async function searchVendor(vendorId) {
+    if (!fromDate || !toDate) {
+      setError("Choose a  date range.");
       return;
     }
+    if (!vendorId || !vendorName) {
+      setError("Choose a vendor Name or ID.");
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
-      const response = await getVendorActivity({ vendorId, fromDate, toDate });
+      const response = await getVendorActivity({
+        vendorId,
+        vendorName: vendorName.trim(),
+        fromDate,
+        toDate,
+      });
       setResult(response?.data || null);
     } catch (err) {
       setResult(null);
@@ -49,6 +72,11 @@ export default function VendorActivity() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    searchVendor();
   }
 
   const purchases = result?.purchases?.rows || [];
@@ -85,19 +113,18 @@ export default function VendorActivity() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="vendor-activity-vendor">Vendor</Label>
-          <select
+          <Input
             id="vendor-activity-vendor"
-            value={vendorId}
-            onChange={(event) => setVendorId(event.target.value)}
-            className="h-9 w-full rounded-md border bg-background px-3 text-sm"
-          >
-            <option value="">Select a vendor</option>
-            {vendors.map((vendor) => (
-              <option key={vendor.vendor_id} value={vendor.vendor_id}>
-                {vendor.vendor_name}
-              </option>
-            ))}
-          </select>
+            type="text"
+            placeholder="Search by vendor name"
+            value={vendorName}
+            onChange={(event) => {
+              setVendorName(event.target.value);
+              setVendorId("");
+              setResult(null);
+            }}
+            autoComplete="off"
+          />
         </div>
         <div className="flex items-end">
           <Button type="submit" disabled={loading} className="w-full">
@@ -105,6 +132,29 @@ export default function VendorActivity() {
           </Button>
         </div>
       </form>
+
+      {suggestions.length > 0 && (
+        <section className="rounded-xl border bg-card p-4 shadow-sm">
+          <h2 className="mb-3 text-base font-semibold">Choose a vendor</h2>
+          <div className="space-y-2">
+            {suggestions.map((vendor) => (
+              <Button
+                key={vendor.vendor_id}
+                type="button"
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {
+                  setVendorName(String(vendor.vendor_name));
+                  searchVendor(vendor.vendor_id);
+                }}
+              >
+                {vendor.vendor_name}
+              </Button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
           {error}

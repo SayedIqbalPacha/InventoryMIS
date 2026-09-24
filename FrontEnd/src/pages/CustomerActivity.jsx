@@ -1,6 +1,7 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { getCustomerActivity } from "@/services/Reports";
+import { getCustomers } from "@/services/Customer";
 
 import PageHeader from "@/component/PageHeader";
 import ReportCard from "@/component/ReportCard";
@@ -34,12 +35,49 @@ export default function CustomerActivity() {
   const [name, setName] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [customers, setCustomers] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [matches, setMatches] = useState([]);
   const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadCustomers() {
+      try {
+        const response = await getCustomers();
+
+        if (!cancelled) {
+          setCustomers(response?.data || []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message || "Failed to load customers.");
+        }
+      }
+    }
+
+    loadCustomers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const suggestions = useMemo(() => {
+    const query = name.trim().toLowerCase();
+
+    if (!query) {
+      return [];
+    }
+
+    return customers.filter((customer) =>
+      customer.customer_name.toLowerCase().includes(query),
+    );
+  }, [customers, name]);
 
   async function searchCustomer(customerId) {
     if (!fromDate || !toDate) {
@@ -136,7 +174,11 @@ export default function CustomerActivity() {
             type="text"
             placeholder="Search by name"
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => {
+              setName(event.target.value);
+              setResult(null);
+              setMatches([]);
+            }}
           />
         </div>
 
@@ -153,11 +195,11 @@ export default function CustomerActivity() {
         </div>
       )}
 
-      {matches.length > 0 && (
+      {(matches.length > 0 || suggestions.length > 0) && (
         <section className="rounded-xl border bg-card p-4 shadow-sm">
           <h2 className="mb-3 text-base font-semibold">Choose a customer</h2>
           <div className="space-y-2">
-            {matches.map((customer) => (
+            {(matches.length > 0 ? matches : suggestions).map((customer) => (
               <Button
                 key={customer.customer_id}
                 type="button"
