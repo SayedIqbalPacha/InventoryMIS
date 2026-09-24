@@ -48,11 +48,11 @@ export default function VendorActivity() {
 
   async function searchVendor(vendorId) {
     if (!fromDate || !toDate) {
-      setError("Choose a  date range.");
+      setError(" Please Choose a  date range.");
       return;
     }
-    if (!vendorId || !vendorName) {
-      setError("Choose a vendor Name or ID.");
+    if (!vendorId) {
+      setError("Please choose a vendor from list");
       return;
     }
 
@@ -61,7 +61,6 @@ export default function VendorActivity() {
     try {
       const response = await getVendorActivity({
         vendorId,
-        vendorName: vendorName.trim(),
         fromDate,
         toDate,
       });
@@ -76,7 +75,7 @@ export default function VendorActivity() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    searchVendor();
+    searchVendor(vendorId);
   }
 
   const purchases = result?.purchases?.rows || [];
@@ -123,6 +122,16 @@ export default function VendorActivity() {
               setVendorId("");
               setResult(null);
             }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && suggestions.length > 0) {
+                event.preventDefault();
+
+                const vendor = suggestions[0];
+                setVendorId(String(vendor.vendor_id));
+                setVendorName(vendor.vendor_name);
+                searchVendor(vendor.vendor_id);
+              }
+            }}
             autoComplete="off"
           />
         </div>
@@ -144,8 +153,8 @@ export default function VendorActivity() {
                 variant="outline"
                 className="w-full justify-start"
                 onClick={() => {
-                  setVendorName(String(vendor.vendor_name));
-                  searchVendor(vendor.vendor_id);
+                  setVendorId(String(vendor.vendor_id));
+                  setVendorName(vendor.vendor_name);
                 }}
               >
                 {vendor.vendor_name}
