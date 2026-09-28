@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/chart";
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-
+import { useTranslation } from "react-i18next";
 // ==================================================
 // CHART CONFIG
 // ==================================================
@@ -28,21 +28,20 @@ const chartConfig = {
 // FORMAT DATE
 // ==================================================
 
-function formatDate(date) {
+function formatDate(date, locale) {
   if (!date) return "";
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(locale, {
+    calendar: "gregory",
     month: "short",
     day: "numeric",
   }).format(new Date(date));
 }
 
-// ==================================================
-// FORMAT VALUE
-// ==================================================
+// format value
 
-function formatValue(value) {
-  return new Intl.NumberFormat("en-US").format(value || 0);
+function formatValue(value, locale) {
+  return new Intl.NumberFormat(locale).format(value || 0);
 }
 
 // ==================================================
@@ -50,6 +49,20 @@ function formatValue(value) {
 // ==================================================
 
 export function SalesPurchase({ data = [] }) {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
+  const locale = isDari ? "fa-AF" : "en-US";
+
+  const chartConfig = {
+    sales: {
+      label: t("sales"),
+      color: "#2563eb",
+    },
+    purchases: {
+      label: t("purchases"),
+      color: "#f97316",
+    },
+  };
   // --------------------------------------------------
   // CHART DATA
   // --------------------------------------------------
@@ -57,7 +70,7 @@ export function SalesPurchase({ data = [] }) {
   const chartData = data.map((row) => ({
     date: row.transaction_date,
 
-    dateLabel: formatDate(row.transaction_date),
+    dateLabel: formatDate(row.transaction_date, locale),
 
     sales: Number(row.total_sales_afn) || 0,
 
@@ -74,11 +87,11 @@ export function SalesPurchase({ data = [] }) {
 
       <div className="mb-4">
         <h2 className="text-base font-semibold sm:text-lg">
-          Sales and Purchases
+          {t("salesAndPurchases")}
         </h2>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Daily sales and purchase amounts in AFN
+          {t("chartDescription")}
         </p>
       </div>
 
@@ -109,7 +122,7 @@ export function SalesPurchase({ data = [] }) {
             <YAxis
               tickLine={false}
               axisLine={false}
-              tickFormatter={formatValue}
+              tickFormatter={(value) => formatValue(value, locale)}
               tick={{ fontSize: 11 }}
               width={80}
             />
@@ -117,7 +130,9 @@ export function SalesPurchase({ data = [] }) {
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  formatter={(value) => `${formatValue(value)} AFN`}
+                  formatter={(value) =>
+                    `${formatValue(value, locale)} ${t("currencyAFN")}`
+                  }
                 />
               }
             />
@@ -126,7 +141,7 @@ export function SalesPurchase({ data = [] }) {
 
             <Bar
               dataKey="sales"
-              name="Sales"
+              name={t("sales")}
               fill="var(--color-sales)"
               radius={[5, 5, 0, 0]}
               maxBarSize={28}
@@ -134,7 +149,7 @@ export function SalesPurchase({ data = [] }) {
 
             <Bar
               dataKey="purchases"
-              name="Purchases"
+              name={t("purchases")}
               fill="var(--color-purchases)"
               radius={[5, 5, 0, 0]}
               maxBarSize={28}

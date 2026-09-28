@@ -5,53 +5,48 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
-
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 // --------------------------------------------------
 // VALIDATION
 // --------------------------------------------------
 
-const itemSchema = z.object({
-  item_name: z.string().trim().min(1, "Please provide an item name."),
+function createItemSchema(t) {
+  return z.object({
+    item_name: z.string().trim().min(1, t("pleaseProvideItemName")),
 
-  description: z.string().trim().optional(),
+    description: z.string().trim().optional(),
 
-  sell_price: z.preprocess(
-    (value) =>
-      value === "" || value === undefined ? undefined : Number(value),
-    z
-      .number({
-        message: "Sell price must be a number.",
-      })
-      .min(0, "Sell price cannot be negative."),
-  ),
+    sell_price: z.preprocess(
+      (value) =>
+        value === "" || value === undefined ? undefined : Number(value),
+      z
+        .number({ message: t("sellPriceMustBeNumber") })
+        .min(0, t("sellPriceCannotBeNegative")),
+    ),
 
-  cost_price: z.preprocess(
-    (value) =>
-      value === "" || value === undefined ? undefined : Number(value),
-    z
-      .number({
-        message: "Cost price must be a number.",
-      })
-      .min(0, "Cost price cannot be negative.")
-      .optional(),
-  ),
+    cost_price: z.preprocess(
+      (value) =>
+        value === "" || value === undefined ? undefined : Number(value),
+      z
+        .number({ message: t("costPriceMustBeNumber") })
+        .min(0, t("costPriceCannotBeNegative"))
+        .optional(),
+    ),
 
-  stock_quantity: z.preprocess(
-    (value) =>
-      value === "" || value === undefined ? undefined : Number(value),
-    z
-      .number({
-        message: "Stock quantity must be a number.",
-      })
-      .min(0, "Stock quantity cannot be negative.")
-      .optional(),
-  ),
+    stock_quantity: z.preprocess(
+      (value) =>
+        value === "" || value === undefined ? undefined : Number(value),
+      z
+        .number({ message: t("stockQuantityMustBeNumber") })
+        .min(0, t("stockQuantityCannotBeNegative"))
+        .optional(),
+    ),
 
-  unit_id: z.string().optional(),
-
-  catagory_id: z.string().optional(),
-});
-
+    unit_id: z.string().optional(),
+    catagory_id: z.string().optional(),
+  });
+}
 // --------------------------------------------------
 // DEFAULT VALUES
 // --------------------------------------------------
@@ -78,6 +73,9 @@ export default function ItemForm({
   loading,
 }) {
   const [serverError, setServerError] = useState("");
+
+  const { t } = useTranslation();
+  const itemSchema = useMemo(() => createItemSchema(t), [t]);
 
   // --------------------------------------------------
   // FORM
@@ -124,44 +122,44 @@ export default function ItemForm({
   const fields = [
     {
       name: "item_name",
-      label: "Item Name",
+      label: t("itemName"),
       type: "input",
-      placeholder: "Enter item name",
-      description: "Enter the name of the item.",
+      placeholder: t("enterItemName"),
+      description: t("itemNameHelp"),
     },
 
     {
       name: "sell_price",
-      label: "Sell Price",
+      label: t("sellPrice"),
       type: "input",
       inputType: "number",
-      placeholder: "Enter selling price",
-      description: "Selling price of the item.",
+      placeholder: t("enterSellingPrice"),
+      description: t("sellingPriceHelp"),
     },
 
     {
       name: "cost_price",
-      label: "Cost Price",
+      label: t("costPrice"),
       type: "input",
       inputType: "number",
-      placeholder: "Enter cost price",
-      description: "Optional purchase/cost price.",
+      placeholder: t("enterCostPrice"),
+      description: t("costPriceHelp"),
     },
 
     {
       name: "stock_quantity",
-      label: "Stock Quantity",
+      label: t("stockQuantity"),
       type: "input",
+      placeholder: t("enterStockQuantity"),
+      description: t("stockQuantityHelp"),
       inputType: "number",
-      placeholder: "Enter stock quantity",
-      description: "Current available stock.",
     },
 
     {
       name: "unit_id",
-      label: "Unit",
+      label: t("unit"),
       type: "select",
-      placeholder: "Select unit",
+      placeholder: t("selectUnit"),
       options: units.map((unit) => ({
         value: String(unit.unit_id),
         label: unit.unit_name,
@@ -170,9 +168,9 @@ export default function ItemForm({
 
     {
       name: "catagory_id",
-      label: "Catagory",
+      label: t("category"),
       type: "select",
-      placeholder: "Select catagory",
+      placeholder: t("selectCategory"),
       options: catagories.map((catagory) => ({
         value: String(catagory.catagory_id),
         label: catagory.catagory_name,
@@ -181,10 +179,10 @@ export default function ItemForm({
 
     {
       name: "description",
-      label: "Description",
+      label: t("itemDescription"),
       type: "textarea",
-      placeholder: "Enter item description",
-      description: "Optional description of the item.",
+      placeholder: t("enterItemDescription"),
+      description: t("itemDescriptionHelp"),
     },
   ];
 
@@ -228,7 +226,7 @@ export default function ItemForm({
 
       await onSubmit(itemData);
     } catch (err) {
-      const message = err?.message || "Something went wrong. Please try again.";
+      const message = err?.message || "unexpectedError";
 
       setServerError(message);
 
@@ -274,7 +272,9 @@ export default function ItemForm({
 
       {(serverError || form.formState.errors.root?.server) && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {serverError || form.formState.errors.root.server.message}
+          {serverError === "unexpectedError"
+            ? t(serverError)
+            : serverError || form.formState.errors.root.server.message}
         </div>
       )}
 
@@ -289,11 +289,11 @@ export default function ItemForm({
             onClick={handleReset}
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("reset")}
           </Button>
 
           <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Saving..." : item ? "Update Item" : "Add Item"}
+            {loading ? t("saving") : item ? t("updateItem") : t("addItem")}
           </Button>
         </div>
       </GeneralForm>

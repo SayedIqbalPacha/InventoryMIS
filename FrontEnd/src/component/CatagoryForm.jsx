@@ -1,27 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 
 // --------------------------------------------------
 // VALIDATION
 // --------------------------------------------------
 
-const catagorySchema = z.object({
-  catagory_name: z
-    .string()
-    .trim()
-    .min(1, "Please provide a catagory name."),
-
-  catagory_description: z
-    .string()
-    .trim()
-    .optional(),
-});
+function createCatagorySchema(t) {
+  return z.object({
+    catagory_name: z
+      .string()
+      .trim()
+      .min(1, t("pleaseProvideCategoryName")),
+    catagory_description: z.string().trim().optional(),
+  });
+}
 
 
 // --------------------------------------------------
@@ -43,6 +42,8 @@ export default function CatagoryForm({
   onSubmit,
   loading,
 }) {
+  const { t } = useTranslation();
+  const catagorySchema = useMemo(() => createCatagorySchema(t), [t]);
 
   // SERVER ERROR
   const [serverError, setServerError] = useState("");
@@ -92,16 +93,16 @@ export default function CatagoryForm({
 
     {
       name: "catagory_name",
-      label: "Catagory Name",
+      label: t("categoryName"),
       type: "input",
-      placeholder: "Enter catagory name",
+      placeholder: t("enterCategoryName"),
     },
 
     {
       name: "catagory_description",
-      label: "Catagory Description",
+      label: t("categoryDescription"),
       type: "textarea",
-      placeholder: "Enter catagory description",
+      placeholder: t("enterCategoryDescription"),
     },
 
   ];
@@ -123,9 +124,7 @@ export default function CatagoryForm({
 
     } catch (err) {
 
-      const message =
-        err?.message ||
-        "Something went wrong. Please try again.";
+      const message = err?.message || "unexpectedError";
 
       setServerError(message);
 
@@ -176,8 +175,9 @@ export default function CatagoryForm({
 
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
 
-          {serverError ||
-            form.formState.errors.root.server.message}
+          {serverError === "unexpectedError"
+            ? t(serverError)
+            : serverError || form.formState.errors.root.server.message}
 
         </div>
 
@@ -203,7 +203,7 @@ export default function CatagoryForm({
             onClick={handleReset}
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("reset")}
           </Button>
 
 
@@ -216,10 +216,10 @@ export default function CatagoryForm({
           >
 
             {loading
-              ? "Saving..."
+              ? t("saving")
               : catagory
-                ? "Update Catagory"
-                : "Add Catagory"}
+                ? t("updateCategory")
+                : t("addCategory")}
 
           </Button>
 

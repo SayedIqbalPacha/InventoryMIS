@@ -8,70 +8,61 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
-
-export default function DeleteDialog({open,onOpenChange,onConfirm,loading,name,tableName,}) {
-
+export default function DeleteDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  loading,
+  name,
+  tableName,
+}) {
+  const { t } = useTranslation();
   return (
-      // <DeleteDialog
+    // <DeleteDialog
 
-      //   open={deleteOpen}
+    //   open={deleteOpen}
 
-      //   onOpenChange={setDeleteOpen}
+    //   onOpenChange={setDeleteOpen}
 
-      //   onConfirm={handleDelete}
+    //   onConfirm={handleDelete}
 
-      //   loading={deleteLoading}
+    //   loading={deleteLoading}
 
-      //   name={
-      //     customerToDelete?.customer_name
-      //   }
-      //  
-      //    tableName="Customer"
+    //   name={
+    //     customerToDelete?.customer_name
+    //   }
+    //
+    //    tableName="Customer"
 
-      // />
+    // />
 
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-
       <AlertDialogContent className="w-[calc(100%-2rem)] max-w-lg">
-
         <AlertDialogHeader>
-
           <AlertDialogTitle>
-            Delete {tableName}?
+            {t("deleteItemTitle", { tableName })}
           </AlertDialogTitle>
-
           <AlertDialogDescription>
-            Are you sure you want to delete{" "}
-            <strong>{name}</strong>?
-            This action cannot be undone.
+            {t("deleteConfirm", { name })} {t("deleteCannotUndo")}
           </AlertDialogDescription>
-
         </AlertDialogHeader>
 
-
         <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-
           <AlertDialogCancel disabled={loading} className="w-full sm:w-auto">
-            Cancel
+            {t("cancel")}
           </AlertDialogCancel>
-
 
           <AlertDialogAction
             className="w-full sm:w-auto"
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading
-              ? "Deleting..."
-              : "Delete"}
+            {loading ? t("deleting") : t("delete")}{" "}
           </AlertDialogAction>
-
         </AlertDialogFooter>
-
       </AlertDialogContent>
-
     </AlertDialog>
-
   );
 }

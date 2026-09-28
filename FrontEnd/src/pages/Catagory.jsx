@@ -25,12 +25,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 // --------------------------------------------------
 // CATAGORY PAGE
 // --------------------------------------------------
 
 export default function Catagory() {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
+
   // DATA
   const [catagories, setCatagories] = useState([]);
 
@@ -66,7 +71,7 @@ export default function Catagory() {
 
       setCatagories(response.data || []);
     } catch (err) {
-      setError(err.message || "Failed to load catagories.");
+      setError(err.message || "failedToLoadCategories");
     } finally {
       setLoading(false);
     }
@@ -145,7 +150,7 @@ export default function Catagory() {
       setDeleteOpen(false);
       setCatagoryToDelete(null);
     } catch (err) {
-      setError(err.message || "Failed to delete catagory.");
+      setError(err.message || "failedToDeleteCategory");
     } finally {
       setDeleteLoading(false);
     }
@@ -157,14 +162,26 @@ export default function Catagory() {
 
   const searchValue = search.toLowerCase().trim();
 
-  const filteredCatagories = catagories.filter((catagory) => {
+  const tableCatagories = catagories.map((catagory) => ({
+    ...catagory,
+    catagory_name_display: localizeInventoryValue(
+      catagory.catagory_name,
+      isDari,
+    ),
+    catagory_description_display: localizeInventoryValue(
+      catagory.catagory_description,
+      isDari,
+    ),
+  }));
+
+  const filteredCatagories = tableCatagories.filter((catagory) => {
     return (
-      String(catagory.catagory_name || "")
-        .toLowerCase()
-        .includes(searchValue) ||
-      String(catagory.catagory_description || "")
-        .toLowerCase()
-        .includes(searchValue)
+      [
+        catagory.catagory_name,
+        catagory.catagory_name_display,
+        catagory.catagory_description,
+        catagory.catagory_description_display,
+      ].some((value) => String(value || "").toLowerCase().includes(searchValue))
     );
   });
 
@@ -175,17 +192,17 @@ export default function Catagory() {
   const columns = [
     {
       key: "catagory_id",
-      label: "ID",
+      label: t("id"),
     },
 
     {
-      key: "catagory_name",
-      label: "Catagory Name",
+      key: "catagory_name_display",
+      label: t("categoryName"),
     },
 
     {
-      key: "catagory_description",
-      label: "Description",
+      key: "catagory_description_display",
+      label: t("categoryDescription"),
     },
   ];
 
@@ -211,7 +228,7 @@ export default function Catagory() {
     <div className="space-y-4 sm:space-y-6">
       {/* HEADER */}
 
-      <PageHeader title="Catagories" description="Manage your catagories">
+      <PageHeader title={t("categories")} description={t("manageCategories")}>
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -221,7 +238,7 @@ export default function Catagory() {
               setError("");
             }}
           >
-            Add Catagory
+            {t("addCategory")}
           </Button>
         )}
       </PageHeader>
@@ -230,7 +247,10 @@ export default function Catagory() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+          {error === "failedToLoadCategories" ||
+          error === "failedToDeleteCategory"
+            ? t(error)
+            : error}
         </div>
       )}
 
@@ -240,7 +260,7 @@ export default function Catagory() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search catagory..."
+          placeholder={t("searchCategories")}
         />
       </div>
 
@@ -248,7 +268,7 @@ export default function Catagory() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading catagories...
+          {t("loadingCategories")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -262,8 +282,9 @@ export default function Catagory() {
 
                 {canUpdate && (
                   <Button
-                    variant="outline"
-                    size="sm"
+                  variant="outline"
+                  size="sm"
+                  aria-label={t("editCategory")}
                     onClick={() => handleEdit(catagory)}
                   >
                     <Pencil className="h-4 w-4" />
@@ -274,8 +295,9 @@ export default function Catagory() {
 
                 {canDelete && (
                   <Button
-                    variant="destructive"
-                    size="sm"
+                  variant="destructive"
+                  size="sm"
+                  aria-label={t("delete")}
                     onClick={() => handleDeleteClick(catagory)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -309,13 +331,13 @@ export default function Catagory() {
         >
           <DialogHeader>
             <DialogTitle>
-              {selectedCatagory ? "Edit Catagory" : "Add Catagory"}
+              {selectedCatagory ? t("editCategory") : t("addCategory")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedCatagory
-                ? "Update catagory information."
-                : "Enter catagory information."}
+                ? t("updateCategoryInfo")
+                : t("enterCategoryInfo")}
             </DialogDescription>
           </DialogHeader>
 
@@ -334,8 +356,8 @@ export default function Catagory() {
         onOpenChange={setDeleteOpen}
         onConfirm={handleDelete}
         loading={deleteLoading}
-        name={catagoryToDelete?.catagory_name}
-        tableName="Categories"
+        name={localizeInventoryValue(catagoryToDelete?.catagory_name, isDari)}
+        tableName={t("category")}
       />
     </div>
   );

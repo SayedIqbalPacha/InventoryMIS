@@ -10,7 +10,6 @@ import {
   FileText,
   Search,
   Settings,
-  House,
   SquaresUniteIcon,
   UserIcon,
   HandCoins,
@@ -36,43 +35,43 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useTranslation } from "react-i18next";
 
 const mainItems = [
   {
-    title: "Dashboard",
+    key: "dashboard",
     icon: LayoutDashboard,
     link: "/dashboard",
   },
   {
-    title: "Items",
+    key: "items",
     icon: Package,
     link: "/items",
   },
   {
-    title: "Categories",
+    key: "categories",
     icon: Boxes,
     link: "/catagory",
   },
   {
-    title: "Customers",
+    key: "customers",
     icon: Users,
     link: "/customer",
   },
 
   {
-    title: "Vendors",
+    key: "vendors",
     icon: Truck,
     link: "/vendor",
   },
   {
-    title: "Units",
+    key: "units",
     icon: SquaresUniteIcon,
     link: "/units",
   },
   {
-    title: "Users",
+    key: "users",
     icon: UserIcon,
     link: "/users",
   },
@@ -80,37 +79,37 @@ const mainItems = [
 
 const transactionItems = [
   {
-    title: "Purchase",
+    key: "purchase",
     icon: ShoppingBag,
     link: "/purchase",
   },
   {
-    title: "Sales",
+    key: "sales",
     icon: ShoppingCart,
     link: "/sales",
   },
   {
-    title: "Currency",
+    key: "currency",
     icon: DollarSign,
     link: "/currency",
   },
   {
-    title: "Exchange Rates",
+    key: "exchangeRates",
     icon: ChartCandlestick,
     link: "/exchange-rates",
   },
   {
-    title: "Customer Payments",
+    key: "customerPayments",
     icon: HandCoins,
     link: "/customerPayment",
   },
   {
-    title: "Vendor Payment",
+    key: "vendorPayment",
     icon: CircleDollarSign,
     link: "/vendorPayment",
   },
   {
-    title: "Reports",
+    key: "reports",
     icon: FileText,
     link: "/reports",
   },
@@ -118,11 +117,18 @@ const transactionItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const activityRouteActive = ["/customer-activity", "/vendor-activity"].includes(location.pathname);
+  const { t, i18n } = useTranslation();
+  const sidebarSide = i18n.resolvedLanguage?.startsWith("prs")
+    ? "right"
+    : "left";
+  const activityRouteActive = [
+    "/customer-activity",
+    "/vendor-activity",
+  ].includes(location.pathname);
   const [activitiesOpen, setActivitiesOpen] = useState(activityRouteActive);
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar side={sidebarSide} collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -131,10 +137,10 @@ export function AppSidebar() {
                 ERP
               </div>
 
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">My ERP System</span>
+              <div className="grid flex-1 text-start text-sm leading-tight">
+                <span className="truncate font-semibold">{t("appName")}</span>
 
-                <span className="truncate text-xs">Management System</span>
+                <span className="truncate text-xs">{t("appSubtitle")}</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -143,16 +149,16 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("management")}</SidebarGroupLabel>
 
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title} className="py-2">
-                  <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuItem key={item.key} className="py-2">
+                  <SidebarMenuButton tooltip={t(item.key)}>
                     <Link to={item.link} className="flex justify-between ">
                       <item.icon />
-                      <span className="ml-2">{item.title}</span>
+                      <span className="ms-2">{t(item.key)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -162,44 +168,50 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Transactions</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("transactions")}</SidebarGroupLabel>
 
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem className="py-1">
                 <SidebarMenuButton
-                  tooltip="Search Activities"
+                  tooltip={t("searchActivities")}
                   isActive={activityRouteActive}
                   onClick={() => setActivitiesOpen((open) => !open)}
                   aria-expanded={activitiesOpen}
                 >
                   <Search />
-                  <span className="flex-1">Search Activities</span>
-                  <ChevronDown className={`ml-auto transition-transform ${activitiesOpen ? "rotate-180" : ""}`} />
+                  <span className="flex-1">{t("searchActivities")}</span>
+                  <ChevronDown className={`ms-auto transition-transform ${activitiesOpen ? "rotate-180" : ""}`} />
                 </SidebarMenuButton>
                 {activitiesOpen && (
                   <SidebarMenuSub>
                     <SidebarMenuSubItem>
-                      <SidebarMenuSubButton render={<Link to="/customer-activity" />} isActive={location.pathname === "/customer-activity"}>
+                      <SidebarMenuSubButton
+                        render={<Link to="/customer-activity" />}
+                        isActive={location.pathname === "/customer-activity"}
+                      >
                         <Users />
-                        <span>Customer Activity</span>
+                        <span>{t("customerActivity")}</span>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                     <SidebarMenuSubItem>
-                      <SidebarMenuSubButton render={<Link to="/vendor-activity" />} isActive={location.pathname === "/vendor-activity"}>
+                      <SidebarMenuSubButton
+                        render={<Link to="/vendor-activity" />}
+                        isActive={location.pathname === "/vendor-activity"}
+                      >
                         <Truck />
-                        <span>Vendor Activity</span>
+                        <span>{t("vendorActivity")}</span>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   </SidebarMenuSub>
                 )}
               </SidebarMenuItem>
               {transactionItems.map((item) => (
-                <SidebarMenuItem key={item.title} className="py-2">
-                  <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuItem key={item.key} className="py-2">
+                  <SidebarMenuButton tooltip={t(item.key)}>
                     <Link to={item.link} className="flex justify-between">
                       <item.icon />
-                      <span className="ml-2">{item.title}</span>
+                      <span className="ms-2">{t(item.key)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -209,15 +221,15 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>System</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("system")}</SidebarGroupLabel>
 
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Settings">
+                <SidebarMenuButton tooltip={t("settings")}>
                   <Link to="/settings" className="flex justify-between">
                     <Settings />
-                    <span className="ml-2">Settings</span>
+                    <span className="ms-2">{t("settings")}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -229,10 +241,10 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Profile">
+            <SidebarMenuButton tooltip={t("profile")}>
               <Link to="/profile" className="flex justify-between">
                 <Users />
-                <span className="ml-2">Profile</span>
+                <span className="ms-2">{t("profile")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

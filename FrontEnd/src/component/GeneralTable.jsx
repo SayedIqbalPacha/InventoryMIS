@@ -6,8 +6,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import { useTranslation } from "react-i18next";
 export default function GeneralTable({ columns, data, actions, getRowId }) {
+  const { t } = useTranslation();
+
   return (
     <div className=" w-full overflow-auto rounded-md border scrollbar-thin h-[calc(100vh-250px)]">
       <Table className="min-w-[800px]">
@@ -16,15 +18,15 @@ export default function GeneralTable({ columns, data, actions, getRowId }) {
             {columns.map((column) => (
               <TableHead
                 key={column.key}
-                className="sticky top-0  bg-background"
+                className="sticky top-0 bg-background rtl:text-right"
               >
                 {column.label}
               </TableHead>
             ))}
 
             {actions && (
-              <TableHead className="text-right sticky top-0 z-20 bg-background">
-                Actions
+              <TableHead className="text-end sticky top-0 z-20 bg-background">
+                {t("actions")}
               </TableHead>
             )}
           </TableRow>
@@ -38,7 +40,7 @@ export default function GeneralTable({ columns, data, actions, getRowId }) {
                 colSpan={columns.length + (actions ? 1 : 0)}
                 className="h-24 text-center"
               >
-                No data found.
+                {t("noDataFound")}
               </TableCell>
             </TableRow>
           ) : (
@@ -48,14 +50,17 @@ export default function GeneralTable({ columns, data, actions, getRowId }) {
                 key={getRowId ? getRowId(row) : JSON.stringify(row)}
               >
                 {columns.map((column) => (
-                  <TableCell key={column.key} className="whitespace-nowrap">
+                  <TableCell
+                    key={column.key}
+                    className="whitespace-nowrap rtl:text-right"
+                  >
                     {/* this structure is called bracket notation which take the specific value of an object */}
                     {row[column.key] ?? "-"}
                   </TableCell>
                 ))}
 
                 {actions && (
-                  <TableCell className="text-right">
+                  <TableCell className="text-end">
                     {/* here we write actions(row) to mention this action is belong to which cell or data in a cell*/}
                     {actions(row)}
                   </TableCell>

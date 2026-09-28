@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/dialog";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 // --------------------------------------------------
 // ITEMS PAGE
@@ -33,7 +35,8 @@ export default function ItemsPage() {
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
-
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const [items, setItems] = useState([]);
   const [units, setUnits] = useState([]);
   const [catagories, setCatagories] = useState([]);
@@ -90,7 +93,7 @@ export default function ItemsPage() {
 
       setUnits(unitsResponse?.data || []);
     } catch (err) {
-      setError(err.message || "Failed to load items.");
+      setError(err.message || "failedToLoadItems");
     } finally {
       setLoading(false);
     }
@@ -168,7 +171,7 @@ export default function ItemsPage() {
       setDeleteOpen(false);
       setItemToDelete(null);
     } catch (err) {
-      setError(err.message || "Failed to delete item.");
+      setError(err.message || "failedToDeleteItem");
     } finally {
       setDeleteLoading(false);
     }
@@ -202,8 +205,13 @@ export default function ItemsPage() {
 
   const tableItems = items.map((item) => ({
     ...item,
-    unit_name_display: unitMap[item.unit_id] || "-",
-    catagory_name_display: catagoryMap[item.catagory_id] || "-",
+    item_name_display: localizeInventoryValue(item.item_name, isDari),
+    description_display: localizeInventoryValue(item.description, isDari),
+    unit_name_display: localizeInventoryValue(unitMap[item.unit_id], isDari),
+    catagory_name_display: localizeInventoryValue(
+      catagoryMap[item.catagory_id],
+      isDari,
+    ),
   }));
 
   // --------------------------------------------------
@@ -212,18 +220,14 @@ export default function ItemsPage() {
 
   const filteredItems = tableItems.filter((item) => {
     return (
-      String(item.item_name || "")
-        .toLowerCase()
-        .includes(searchValue) ||
-      String(item.description || "")
-        .toLowerCase()
-        .includes(searchValue) ||
-      String(item.unit_name_display || "")
-        .toLowerCase()
-        .includes(searchValue) ||
-      String(item.catagory_name_display || "")
-        .toLowerCase()
-        .includes(searchValue)
+      [
+        item.item_name,
+        item.item_name_display,
+        item.description,
+        item.description_display,
+        item.unit_name_display,
+        item.catagory_name_display,
+      ].some((value) => String(value || "").toLowerCase().includes(searchValue))
     );
   });
 
@@ -232,45 +236,14 @@ export default function ItemsPage() {
   // --------------------------------------------------
 
   const columns = [
-    {
-      key: "item_id",
-      label: "ID",
-    },
-
-    {
-      key: "item_name",
-      label: "Item Name",
-    },
-
-    {
-      key: "description",
-      label: "Description",
-    },
-
-    {
-      key: "sell_price",
-      label: "Sell Price",
-    },
-
-    {
-      key: "cost_price",
-      label: "Cost Price",
-    },
-
-    {
-      key: "stock_quantity",
-      label: "Stock",
-    },
-
-    {
-      key: "unit_name_display",
-      label: "Unit",
-    },
-
-    {
-      key: "catagory_name_display",
-      label: "Catagory",
-    },
+    { key: "item_id", label: t("id") },
+    { key: "item_name_display", label: t("itemName") },
+    { key: "description_display", label: t("itemDescription") },
+    { key: "sell_price", label: t("sellPrice") },
+    { key: "cost_price", label: t("costPrice") },
+    { key: "stock_quantity", label: t("stockQuantity") },
+    { key: "unit_name_display", label: t("unit") },
+    { key: "catagory_name_display", label: t("category") },
   ];
 
   // --------------------------------------------------
@@ -295,7 +268,7 @@ export default function ItemsPage() {
     <div className="space-y-0 sm:space-y-6 overflow-hidden">
       {/* HEADER */}
 
-      <PageHeader title="Items" description="Manage your inventory items">
+      <PageHeader title={t("items")} description={t("manageInventoryItems")}>
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -305,7 +278,7 @@ export default function ItemsPage() {
               setError("");
             }}
           >
-            Add Item
+            {t("addItem")}
           </Button>
         )}
       </PageHeader>
@@ -314,7 +287,9 @@ export default function ItemsPage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+          {error === "failedToLoadItems" || error === "failedToDeleteItem"
+            ? t(error)
+            : error}
         </div>
       )}
 
@@ -324,7 +299,7 @@ export default function ItemsPage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search items..."
+          placeholder={t("searchItems")}
         />
       </div>
 
@@ -332,7 +307,7 @@ export default function ItemsPage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading items...
+          {t("loadingItems")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -348,6 +323,7 @@ export default function ItemsPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    aria-label={t("editItem")}
                     onClick={() => handleEdit(item)}
                   >
                     <Pencil className="h-4 w-4" />
@@ -360,6 +336,7 @@ export default function ItemsPage() {
                   <Button
                     variant="destructive"
                     size="sm"
+                    aria-label={t("delete")}
                     onClick={() => handleDeleteClick(item)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -393,12 +370,12 @@ export default function ItemsPage() {
             "
         >
           <DialogHeader>
-            <DialogTitle>{selectedItem ? "Edit Item" : "Add Item"}</DialogTitle>
+            <DialogTitle>
+              {selectedItem ? t("editItem") : t("addItem")}
+            </DialogTitle>
 
             <DialogDescription>
-              {selectedItem
-                ? "Update item information."
-                : "Enter item information."}
+              {selectedItem ? t("updateItemInfo") : t("enterItemInfo")}
             </DialogDescription>
           </DialogHeader>
 
@@ -420,7 +397,7 @@ export default function ItemsPage() {
         onConfirm={handleDelete}
         loading={deleteLoading}
         name={itemToDelete?.item_name}
-        tableName="Item"
+        tableName={t("item")}
       />
     </div>
   );

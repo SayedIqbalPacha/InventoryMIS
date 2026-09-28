@@ -1,3 +1,7 @@
+import { useTranslation } from "react-i18next";
+import { Link, useNavigate } from "react-router-dom";
+import { Languages, LogOut, Settings, User, Users } from "lucide-react";
+
 import { ModeToggle } from "@/components/ToggleChange";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -9,15 +13,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Settings, User, Users } from "lucide-react";
 
 export default function NavBar() {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const currentLanguage = i18n.resolvedLanguage || i18n.language;
+  const isDari = currentLanguage.startsWith("prs");
 
   function handleLogout() {
     logout();
@@ -25,45 +30,78 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="sticky top-0   flex items-center justify-between px-2 h-16 border-b bg-background">
-      {/* left */}
-
+    <nav className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background px-2">
       <SidebarTrigger />
-      {/* right */}
-      <div className="flex  justify-between items-center px-2 ">
+
+      <div className="flex items-center gap-2 px-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            aria-label={t("language")}
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Languages className="size-4" />
+            <span>{isDari ? "دری" : "EN"}</span>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>{t("language")}</DropdownMenuLabel>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => i18n.changeLanguage("en")}>
+              English
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => i18n.changeLanguage("prs")}>
+              دری
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <ModeToggle />
 
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Avatar className="ml-4">
+          <DropdownMenuTrigger
+            aria-label={t("myAccount")}
+            className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Avatar className="ml-2">
               <AvatarImage src="#" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+
+          <DropdownMenuContent align="end">
             <DropdownMenuGroup>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("myAccount")}</DropdownMenuLabel>
+
               <DropdownMenuItem>
                 <Link to="/profile" className="flex items-center gap-2">
-                  <User /> Profile
+                  <User />
+                  {t("profile")}
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuItem>
                 <Link to="/settings" className="flex items-center gap-2">
-                  <Settings /> Setting
+                  <Settings />
+                  {t("settings")}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Link to="/users" className="flex items-center gap-2">
-                  <Users /> Team
+                  <Users />
+                  {t("team")}
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={handleLogout}>
-                <LogOut /> Logout
+                <LogOut />
+                {t("logout")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

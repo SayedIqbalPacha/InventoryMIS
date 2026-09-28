@@ -9,14 +9,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-function formatNumber(value) {
-  return new Intl.NumberFormat("en-US").format(value || 0);
+import { useTranslation } from "react-i18next";
+
+function formatNumber(value, locale) {
+  return new Intl.NumberFormat(locale).format(value || 0);
 }
 
-function formatDate(date) {
+function formatDate(date, locale) {
   if (!date) return "";
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(locale, {
+    calendar: "gregory",
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -28,6 +31,9 @@ function getSaleKey(sale) {
 }
 
 export function SalesTable({ data = [] }) {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
+  const locale = isDari ? "fa-AF" : "en-US";
   const total = data.reduce(
     (sum, sale) => sum + Number(sale.total_sale_afn || 0),
     0,
@@ -35,15 +41,14 @@ export function SalesTable({ data = [] }) {
 
   return (
     <Table>
-      <TableCaption>Your most recent sales</TableCaption>
-
+      <TableCaption>{t("recentSales")}</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>Sale</TableHead>
-          <TableHead>Customer</TableHead>
-          <TableHead>Item</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
+          <TableHead>{t("sale")}</TableHead>
+          <TableHead>{t("customer")}</TableHead>
+          <TableHead>{t("item")}</TableHead>
+          <TableHead>{t("date")}</TableHead>
+          <TableHead className="text-end">{t("amount")}</TableHead>
         </TableRow>
       </TableHeader>
 
@@ -51,7 +56,7 @@ export function SalesTable({ data = [] }) {
         {data.length === 0 ? (
           <TableRow>
             <TableCell colSpan={5} className="h-24 text-center">
-              No sales found.
+              {t("noSalesFound")}
             </TableCell>
           </TableRow>
         ) : (
@@ -63,10 +68,10 @@ export function SalesTable({ data = [] }) {
 
               <TableCell>{sale.item_name}</TableCell>
 
-              <TableCell>{formatDate(sale.sales_date)}</TableCell>
+              <TableCell>{formatDate(sale.sales_date, locale)}</TableCell>
 
               <TableCell className="text-right">
-                {formatNumber(sale.total_sale_afn)} AFN
+                {formatNumber(sale.total_sale_afn, locale)} {t("currencyAFN")}
               </TableCell>
             </TableRow>
           ))
@@ -75,10 +80,10 @@ export function SalesTable({ data = [] }) {
 
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={4}>Total shown</TableCell>
+          <TableCell colSpan={4}>{t("totalShown")}</TableCell>
 
           <TableCell className="text-right">
-            {formatNumber(total)} AFN
+            {formatNumber(total, locale)} {t("currencyAFN")}
           </TableCell>
         </TableRow>
       </TableFooter>

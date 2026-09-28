@@ -9,13 +9,14 @@ import {
   UsersRoundIcon,
 } from "lucide-react";
 import { getDashboard } from "@/services/apiDashboard";
+import { useTranslation } from "react-i18next";
 
-function formatNumber(value) {
-  return new Intl.NumberFormat("en-US").format(value || 0);
+function formatNumber(value, locale) {
+  return new Intl.NumberFormat(locale).format(value || 0);
 }
 
-function formatAfn(value) {
-  return `${formatNumber(value)} AFN`;
+function formatAfn(value, locale, currencyLabel) {
+  return `${formatNumber(value, locale)} ${currencyLabel}`;
 }
 
 function DashboardCard({ title, value, icon: Icon }) {
@@ -37,6 +38,10 @@ function DashboardCard({ title, value, icon: Icon }) {
 }
 
 function Homepage() {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
+  const locale = isDari ? "fa-AF" : "en-US";
+  const currencyLabel = t("currencyAFN");
   const [dashboard, setDashboard] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -48,7 +53,7 @@ function Homepage() {
 
         setDashboard(response.data);
       } catch (err) {
-        setError(err.message || "Failed to load dashboard");
+        setError(err.message || "dashboardLoadFailed");
       } finally {
         setIsLoading(false);
       }
@@ -58,15 +63,19 @@ function Homepage() {
   }, []);
 
   if (isLoading) {
-    return <div className="p-6">Loading dashboard...</div>;
+    return <div className="p-6">{t("loadingDashboard")}</div>;
   }
 
   if (error) {
-    return <div className="p-6 text-destructive">{error}</div>;
+    return (
+      <div className="p-6 text-destructive">
+        {error === "dashboardLoadFailed" ? t(error) : error}
+      </div>
+    );
   }
 
   if (!dashboard) {
-    return <div className="p-6">No dashboard data found.</div>;
+    return <div className="p-6">{t("noDashboardData")}</div>;
   }
 
   const { summary, recentSales, chartData } = dashboard;
@@ -74,26 +83,26 @@ function Homepage() {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-4">
       <DashboardCard
-        title="Total Customers"
-        value={formatNumber(summary.totalCustomers)}
+        title={t("totalCustomers")}
+        value={formatNumber(summary.totalCustomers, locale)}
         icon={UsersRoundIcon}
       />
 
       <DashboardCard
-        title="Total Items"
-        value={formatNumber(summary.totalItems)}
+        title={t("totalItems")}
+        value={formatNumber(summary.totalItems, locale)}
         icon={PackageIcon}
       />
 
       <DashboardCard
-        title="Total Sales"
-        value={formatAfn(summary.totalSalesAfn)}
+        title={t("totalSales")}
+        value={formatAfn(summary.totalSalesAfn, locale, currencyLabel)}
         icon={ShoppingCart}
       />
 
       <DashboardCard
-        title="Total Profit"
-        value={formatAfn(summary.totalProfitAfn)}
+        title={t("totalProfit")}
+        value={formatAfn(summary.totalProfitAfn, locale, currencyLabel)}
         icon={TrendingUp}
       />
 
