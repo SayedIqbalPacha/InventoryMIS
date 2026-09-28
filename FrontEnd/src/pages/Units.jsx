@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 import { getUnits, updateUnit, createUnit, deleteUnit } from "@/services/Units";
 
@@ -28,7 +29,8 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function UnitsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -172,9 +174,17 @@ export default function UnitsPage() {
 
   const searchValue = search.toLowerCase().trim();
 
-  const filteredUnits = units.filter((unit) => {
+  const unitsWithDisplayNames = units.map((unit) => ({
+    ...unit,
+    unit_name_display: localizeInventoryValue(unit.unit_name, isDari),
+  }));
+
+  const filteredUnits = unitsWithDisplayNames.filter((unit) => {
     return (
       String(unit.unit_name || "")
+        .toLowerCase()
+        .includes(searchValue) ||
+      String(unit.unit_name_display || "")
         .toLowerCase()
         .includes(searchValue) ||
       String(unit.unit_symbole || "")
@@ -194,7 +204,7 @@ export default function UnitsPage() {
     },
 
     {
-      key: "unit_name",
+      key: "unit_name_display",
       label: t("unitName"),
     },
 
@@ -347,8 +357,8 @@ export default function UnitsPage() {
         onOpenChange={setDeleteOpen}
         onConfirm={handleDelete}
         loading={deleteLoading}
-        name={unitToDelete?.unit_name}
-        tableName="Unit"
+        name={localizeInventoryValue(unitToDelete?.unit_name, isDari)}
+        tableName={t("unit")}
       />
     </div>
   );

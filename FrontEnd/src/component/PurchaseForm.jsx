@@ -17,17 +17,19 @@ import {
 } from "@/components/ui/select";
 
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { useTranslation } from "react-i18next";
+import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 // --------------------------------------------------
 // VALIDATION
 // --------------------------------------------------
 
-const purchaseSchema = z.object({
-  currency_id: z.string().min(1, "Please select a currency."),
+const createPurchaseSchema = (t) => z.object({
+  currency_id: z.string().min(1, t("selectCurrencyRequired")),
 
-  vendor_id: z.string().min(1, "Please select a vendor."),
+  vendor_id: z.string().min(1, t("selectVendorRequired")),
 
-  purchase_date: z.string().min(1, "Please provide the purchase date."),
+  purchase_date: z.string().min(1, t("purchaseDateRequired")),
 
   status: z.string().trim().optional(),
 
@@ -36,16 +38,16 @@ const purchaseSchema = z.object({
       z.object({
         detail_id: z.number().optional(),
 
-        item_id: z.string().min(1, "Please select an item."),
+        item_id: z.string().min(1, t("selectItemRequired")),
 
         quantity: z.preprocess(
           (value) => (value === "" ? undefined : Number(value)),
 
           z
             .number({
-              message: "Quantity must be a number.",
+              message: t("quantityMustBeNumber"),
             })
-            .positive("Quantity must be greater than 0."),
+            .positive(t("quantityMustBePositive")),
         ),
 
         unit_price: z.preprocess(
@@ -53,13 +55,13 @@ const purchaseSchema = z.object({
 
           z
             .number({
-              message: "Unit price must be a number.",
+              message: t("unitPriceMustBeNumber"),
             })
-            .min(0, "Unit price cannot be negative."),
+            .min(0, t("unitPriceCannotBeNegative")),
         ),
       }),
     )
-    .min(1, "Please add at least one item."),
+    .min(1, t("addAtLeastOneItem")),
 });
 
 // --------------------------------------------------
@@ -95,6 +97,9 @@ export default function PurchaseForm({
   loading,
 }) {
   const [serverError, setServerError] = useState("");
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
+  const purchaseSchema = useMemo(() => createPurchaseSchema(t), [t]);
 
   // --------------------------------------------------
   // FORM
@@ -166,9 +171,9 @@ export default function PurchaseForm({
   const fieldsConfig = [
     {
       name: "currency_id",
-      label: "Currency",
+      label: t("currency"),
       type: "select",
-      placeholder: "Select currency",
+      placeholder: t("selectCurrency"),
 
       options: currencies.map((currency) => ({
         value: String(currency.currency_id),
@@ -178,9 +183,9 @@ export default function PurchaseForm({
 
     {
       name: "vendor_id",
-      label: "Vendor",
+      label: t("vendor"),
       type: "select",
-      placeholder: "Select vendor",
+      placeholder: t("selectVendor"),
 
       options: vendors.map((vendor) => ({
         value: String(vendor.vendor_id),
@@ -190,18 +195,18 @@ export default function PurchaseForm({
 
     {
       name: "purchase_date",
-      label: "Purchase Date",
+      label: t("purchaseDate"),
       type: "input",
       inputType: "date",
-      placeholder: "Select purchase date",
+      placeholder: t("selectPurchaseDate"),
     },
 
     {
       name: "status",
-      label: "Status",
+      label: t("status"),
       type: "input",
-      placeholder: "Enter purchase status",
-      description: "Enter the current purchase status.",
+      placeholder: t("enterPurchaseStatus"),
+      description: t("purchaseStatusHelp"),
     },
   ];
 
@@ -311,7 +316,7 @@ export default function PurchaseForm({
         details,
       });
     } catch (err) {
-      const message = err?.message || "Something went wrong. Please try again.";
+      const message = err?.message || t("unexpectedError");
 
       setServerError(message);
 
@@ -389,10 +394,10 @@ export default function PurchaseForm({
         <div className="space-y-4 border-t pt-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-base font-semibold">Purchase Items</h2>
+              <h2 className="text-base font-semibold">{t("purchaseItems")}</h2>
 
               <p className="text-sm text-muted-foreground">
-                Add the items included in this purchase.
+                {t("purchaseItemsHelp")}
               </p>
             </div>
 
@@ -402,7 +407,7 @@ export default function PurchaseForm({
               onClick={handleAddItem}
               className="w-full sm:w-auto"
             >
-              Add Item
+              {t("addItem")}
             </Button>
           </div>
 
@@ -431,7 +436,7 @@ export default function PurchaseForm({
                         control={form.control}
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel>Item</FieldLabel>
+                            <FieldLabel>{t("item")}</FieldLabel>
 
                             <Select
                               value={field.value || ""}
@@ -440,7 +445,7 @@ export default function PurchaseForm({
                               }
                             >
                               <SelectTrigger aria-invalid={fieldState.invalid}>
-                                <SelectValue placeholder="Select item" />
+                                <SelectValue placeholder={t("selectItem")} />
                               </SelectTrigger>
 
                               <SelectContent>
@@ -449,7 +454,7 @@ export default function PurchaseForm({
                                     key={item.item_id}
                                     value={String(item.item_id)}
                                   >
-                                    {item.item_name}
+                                    {localizeInventoryValue(item.item_name, isDari)}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -471,7 +476,7 @@ export default function PurchaseForm({
                         control={form.control}
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel>Quantity</FieldLabel>
+                            <FieldLabel>{t("quantity")}</FieldLabel>
 
                             <Input
                               {...field}
@@ -498,7 +503,7 @@ export default function PurchaseForm({
                         control={form.control}
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel>Unit Price</FieldLabel>
+                            <FieldLabel>{t("unitPrice")}</FieldLabel>
 
                             <Input
                               {...field}
@@ -521,7 +526,7 @@ export default function PurchaseForm({
 
                     <div className="md:col-span-12">
                       <Field>
-                        <FieldLabel>Line Total</FieldLabel>
+                        <FieldLabel>{t("lineTotal")}</FieldLabel>
 
                         <Input
                           value={lineTotal.toFixed(2)}
@@ -541,7 +546,7 @@ export default function PurchaseForm({
                         disabled={fields.length === 1}
                         className="w-full"
                       >
-                        Remove
+                        {t("remove")}
                       </Button>
                     </div>
                   </div>
@@ -557,7 +562,7 @@ export default function PurchaseForm({
           <div className="flex justify-end border-t pt-4">
             <div className="w-full rounded-lg border bg-muted/30 p-4 sm:w-auto sm:min-w-[250px]">
               <div className="flex items-center justify-between gap-6">
-                <span className="font-medium">Grand Total</span>
+                <span className="font-medium">{t("grandTotal")}</span>
 
                 <span className="text-lg font-bold">
                   {grandTotal.toFixed(2)}
@@ -579,15 +584,15 @@ export default function PurchaseForm({
             onClick={handleReset}
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("reset")}
           </Button>
 
           <Button type="submit" disabled={loading} className="w-full sm:w-auto">
             {loading
-              ? "Saving..."
+              ? t("saving")
               : purchase
-                ? "Update Purchase"
-                : "Add Purchase"}
+                ? t("updatePurchase")
+                : t("addPurchase")}
           </Button>
         </div>
       </GeneralForm>

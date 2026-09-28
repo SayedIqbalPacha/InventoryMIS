@@ -17,6 +17,10 @@ export default function DeleteDialog({
   loading,
   name,
   tableName,
+  title,
+  description,
+  actionLabel,
+  loadingLabel,
 }) {
   const { t } = useTranslation();
   return (
@@ -42,10 +46,10 @@ export default function DeleteDialog({
       <AlertDialogContent className="w-[calc(100%-2rem)] max-w-lg">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t("deleteItemTitle", { tableName })}
+            {title || t("deleteItemTitle", { tableName })}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t("deleteConfirm", { name })} {t("deleteCannotUndo")}
+            {description || <>{t("deleteConfirm", { name })} {t("deleteCannotUndo")}</>}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -59,7 +63,7 @@ export default function DeleteDialog({
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading ? t("deleting") : t("delete")}{" "}
+            {loading ? loadingLabel || t("deleting") : actionLabel || t("delete")}{" "}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   getSales,
@@ -39,6 +40,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function SalesPage() {
+  const { t } = useTranslation();
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -134,7 +136,7 @@ export default function SalesPage() {
 
       setAvailableStock(stockResponse?.data || []);
     } catch (err) {
-      setError(err?.message || "Failed to load sales.");
+      setError(err?.message || t("failedToLoadSales"));
     } finally {
       setLoading(false);
     }
@@ -210,7 +212,7 @@ export default function SalesPage() {
     } catch (err) {
       setError(
         err?.message ||
-          "Failed to save sale. Please check the information and try again.",
+          t("failedToSaveSale"),
       );
 
       // Re-throw so SalesForm can also display
@@ -284,7 +286,7 @@ export default function SalesPage() {
 
       setSalesToDelete(null);
     } catch (err) {
-      setError(err?.message || "Failed to delete sales.");
+      setError(err?.message || t("failedToDeleteSale"));
     } finally {
       setDeleteLoading(false);
     }
@@ -366,27 +368,27 @@ export default function SalesPage() {
   const columns = [
     {
       key: "sales_id",
-      label: "ID",
+      label: t("id"),
     },
 
     {
       key: "customer_name_display",
-      label: "Customer",
+      label: t("customer"),
     },
 
     {
       key: "sales_date_display",
-      label: "Sales Date",
+      label: t("salesDate"),
     },
 
     {
       key: "currency_code_display",
-      label: "Currency",
+      label: t("currency"),
     },
 
     {
       key: "item_count_display",
-      label: "Items",
+      label: t("items"),
     },
   ];
 
@@ -412,7 +414,7 @@ export default function SalesPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* HEADER */}
 
-      <PageHeader title="Sales" description="Manage your sales">
+      <PageHeader title={t("sales")} description={t("manageSales")}>
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -424,7 +426,7 @@ export default function SalesPage() {
               setError("");
             }}
           >
-            Add Sales
+            {t("addSale")}
           </Button>
         )}
       </PageHeader>
@@ -433,7 +435,7 @@ export default function SalesPage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+          {t(error, { defaultValue: error })}
         </div>
       )}
 
@@ -443,7 +445,7 @@ export default function SalesPage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search sales..."
+          placeholder={t("searchSales")}
         />
       </div>
 
@@ -451,7 +453,7 @@ export default function SalesPage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading sales...
+          {t("loadingSales")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -513,13 +515,13 @@ export default function SalesPage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {selectedSales ? "Edit Sales" : "Add Sales"}
+              {selectedSales ? t("editSale") : t("addSale")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedSales
-                ? "Update sales information and its items."
-                : "Enter sales information and add its items."}
+                ? t("updateSaleInfo")
+                : t("enterSaleInfo")}
             </DialogDescription>
           </DialogHeader>
 
@@ -554,9 +556,9 @@ export default function SalesPage() {
 
         loading={deleteLoading}
 
-        name={`Sales #${salesToDelete?.sales_id ?? ""}`}
+        name={`${t("sale")} #${salesToDelete?.sales_id ?? ""}`}
 
-        tableName="Sales"
+        tableName={t("sale")}
       />
     </div>
   );

@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,14 +19,15 @@ import { useAuth } from "@/contexts/AuthContext";
 
 import { createUser, updateUser } from "@/services/users";
 
+const createUserSchemas = (t) => {
 const userSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
+  name: z.string().trim().min(1, t("nameRequired")),
 
   email: z
     .string()
     .trim()
-    .min(1, "Email is required")
-    .email("Please provide a valid email"),
+    .min(1, t("emailRequired"))
+    .email(t("pleaseProvideValidEmail")),
 
   password: z.string().optional(),
 
@@ -36,14 +38,16 @@ const userSchema = z.object({
 
 const createSchema = userSchema
   .extend({
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().min(8, t("passwordMinLength")),
 
-    passwordConfirm: z.string().min(1, "Please confirm your password"),
+    passwordConfirm: z.string().min(1, t("confirmPasswordRequired")),
   })
   .refine((data) => data.password === data.passwordConfirm, {
     path: ["passwordConfirm"],
-    message: "Passwords are not the same",
+    message: t("passwordsDoNotMatch"),
   });
+  return { userSchema, createSchema };
+};
 
 export default function UserForm({
   user = null,
@@ -51,12 +55,14 @@ export default function UserForm({
   onOpenChange,
   onSuccess,
 }) {
+  const { t } = useTranslation();
   const { user: currentUser } = useAuth();
 
   const isEditing = Boolean(user);
+  const schemas = useMemo(() => createUserSchemas(t), [t]);
 
   const form = useForm({
-    resolver: zodResolver(isEditing ? userSchema : createSchema),
+    resolver: zodResolver(isEditing ? schemas.userSchema : schemas.createSchema),
 
     defaultValues: {
       name: "",
@@ -100,25 +106,25 @@ export default function UserForm({
       ? [
           {
             value: "manager",
-            label: "Manager",
+            label: t("manager"),
           },
           {
             value: "user",
-            label: "User",
+            label: t("user"),
           },
         ]
       : [
           {
             value: "admin",
-            label: "Admin",
+            label: t("admin"),
           },
           {
             value: "manager",
-            label: "Manager",
+            label: t("manager"),
           },
           {
             value: "user",
-            label: "User",
+            label: t("user"),
           },
         ];
 
@@ -126,45 +132,45 @@ export default function UserForm({
   const fields = [
     {
       name: "name",
-      label: "Name",
+      label: t("name"),
       type: "input",
       inputType: "text",
-      placeholder: "Enter user name",
+      placeholder: t("enterUserName"),
     },
 
     {
       name: "email",
-      label: "Email",
+      label: t("email"),
       type: "input",
       inputType: "email",
-      placeholder: "Enter email address",
+      placeholder: t("enterEmailAddress"),
     },
 
     ...(!isEditing
       ? [
           {
             name: "password",
-            label: "Password",
+            label: t("password"),
             type: "input",
             inputType: "password",
-            placeholder: "Enter password",
+            placeholder: t("enterPassword"),
           },
 
           {
             name: "passwordConfirm",
-            label: "Confirm Password",
+            label: t("confirmPassword"),
             type: "input",
             inputType: "password",
-            placeholder: "Confirm password",
+            placeholder: t("confirmPassword"),
           },
         ]
       : []),
 
     {
       name: "role",
-      label: "Role",
+      label: t("role"),
       type: "select",
-      placeholder: "Select role",
+      placeholder: t("selectRole"),
       options: roleOptions,
     },
   ];
@@ -197,7 +203,7 @@ export default function UserForm({
     } catch (error) {
       form.setError("root.server", {
         type: "server",
-        message: error?.message || "Something went wrong. Please try again.",
+        message: error?.message || t("unexpectedError"),
       });
     }
   }
@@ -227,12 +233,12 @@ export default function UserForm({
                        "
       >
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Update User" : "Add User"}</DialogTitle>
+          <DialogTitle>{isEditing ? t("updateUser") : t("addUser")}</DialogTitle>
 
           <DialogDescription>
             {isEditing
-              ? "Update the user's information and role."
-              : "Create a new system user."}
+              ? t("updateUserInfo")
+              : t("createSystemUser")}
           </DialogDescription>
         </DialogHeader>
 
@@ -256,7 +262,7 @@ export default function UserForm({
                 }}
                 className="w-full sm:w-auto"
               >
-                Reset
+                {t("reset")}
               </Button>
 
               <Button
@@ -265,10 +271,10 @@ export default function UserForm({
                 className="w-full sm:w-auto"
               >
                 {isSubmitting
-                  ? "Saving..."
+                  ? t("saving")
                   : isEditing
-                    ? "Update User"
-                    : "Add User"}
+                    ? t("updateUser")
+                    : t("addUser")}
               </Button>
             </div>
           </GeneralForm>

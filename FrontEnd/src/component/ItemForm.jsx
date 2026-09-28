@@ -7,6 +7,7 @@ import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 // --------------------------------------------------
 // VALIDATION
 // --------------------------------------------------
@@ -74,7 +75,8 @@ export default function ItemForm({
 }) {
   const [serverError, setServerError] = useState("");
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const itemSchema = useMemo(() => createItemSchema(t), [t]);
 
   // --------------------------------------------------
@@ -162,7 +164,7 @@ export default function ItemForm({
       placeholder: t("selectUnit"),
       options: units.map((unit) => ({
         value: String(unit.unit_id),
-        label: unit.unit_name,
+        label: localizeInventoryValue(unit.unit_name, isDari),
       })),
     },
 
@@ -173,7 +175,7 @@ export default function ItemForm({
       placeholder: t("selectCategory"),
       options: catagories.map((catagory) => ({
         value: String(catagory.catagory_id),
-        label: catagory.catagory_name,
+        label: localizeInventoryValue(catagory.catagory_name, isDari),
       })),
     },
 

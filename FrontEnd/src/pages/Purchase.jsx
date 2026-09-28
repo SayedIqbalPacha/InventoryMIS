@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   getPurchases,
@@ -43,6 +44,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function PurchasePage() {
+  const { t } = useTranslation();
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -132,7 +134,7 @@ export default function PurchasePage() {
 
       setPurchaseDetails(purchaseDetailsResponse?.data || []);
     } catch (err) {
-      setError(err?.message || "Failed to load purchases.");
+      setError(err?.message || t("failedToLoadPurchases"));
     } finally {
       setLoading(false);
     }
@@ -169,9 +171,7 @@ export default function PurchasePage() {
           response?.data?.insertId;
 
         if (!purchaseId) {
-          throw new Error(
-            "Purchase was created, but purchase ID was not returned.",
-          );
+          throw new Error(t("purchaseIdMissing"));
         }
         // -----------------------------------------------
         // CREATE PURCHASE DETAILS
@@ -349,7 +349,7 @@ export default function PurchasePage() {
 
       setPurchaseToDelete(null);
     } catch (err) {
-      setError(err?.message || "Failed to delete purchase.");
+      setError(err?.message || t("failedToDeletePurchase"));
     } finally {
       setDeleteLoading(false);
     }
@@ -438,37 +438,37 @@ export default function PurchasePage() {
   const columns = [
     {
       key: "purchase_id",
-      label: "ID",
+      label: t("id"),
     },
 
     {
       key: "currency_code_display",
-      label: "Currency",
+      label: t("currency"),
     },
 
     {
       key: "vendor_name_display",
-      label: "Vendor",
+      label: t("vendor"),
     },
 
     {
       key: "purchase_date_display",
-      label: "Purchase Date",
+      label: t("purchaseDate"),
     },
 
     {
       key: "item_count_display",
-      label: "Items",
+      label: t("items"),
     },
 
     {
       key: "total_amount",
-      label: "Total Amount",
+      label: t("totalAmount"),
     },
 
     {
       key: "status",
-      label: "Status",
+      label: t("status"),
     },
   ];
 
@@ -494,7 +494,7 @@ export default function PurchasePage() {
     <div className="space-y-4 sm:space-y-6">
       {/* HEADER */}
 
-      <PageHeader title="Purchases" description="Manage your purchases">
+      <PageHeader title={t("purchases")} description={t("managePurchases")}>
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -506,7 +506,7 @@ export default function PurchasePage() {
               setError("");
             }}
           >
-            Add Purchase
+            {t("addPurchase")}
           </Button>
         )}
       </PageHeader>
@@ -515,7 +515,7 @@ export default function PurchasePage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+          {t(error, { defaultValue: error })}
         </div>
       )}
 
@@ -525,7 +525,7 @@ export default function PurchasePage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search purchases..."
+          placeholder={t("searchPurchases")}
         />
       </div>
 
@@ -533,7 +533,7 @@ export default function PurchasePage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading purchases...
+          {t("loadingPurchases")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -594,13 +594,13 @@ export default function PurchasePage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {selectedPurchase ? "Edit Purchase" : "Add Purchase"}
+              {selectedPurchase ? t("editPurchase") : t("addPurchase")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedPurchase
-                ? "Update purchase information and its items."
-                : "Enter purchase information and add its items."}
+                ? t("updatePurchaseInfo")
+                : t("enterPurchaseInfo")}
             </DialogDescription>
           </DialogHeader>
 
@@ -633,9 +633,9 @@ export default function PurchasePage() {
 
         loading={deleteLoading}
 
-        name={`Purchase #${purchaseToDelete?.purchase_id ?? ""}`}
+        name={`${t("purchase")} #${purchaseToDelete?.purchase_id ?? ""}`}
 
-        tableName="Purchase"
+        tableName={t("purchase")}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import PageHeader from "@/component/PageHeader";
 import GeneralTable from "@/component/GeneralTable";
@@ -15,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getUsers, deleteUser } from "@/services/users";
 
 export default function Users() {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   const [users, setUsers] = useState([]);
@@ -48,7 +50,7 @@ export default function Users() {
 
       setUsers(data?.data || []);
     } catch (err) {
-      setError(err?.message || "Failed to load users.");
+      setError(err?.message || t("failedToLoadUsers"));
     } finally {
       setLoading(false);
     }
@@ -93,7 +95,7 @@ export default function Users() {
       setDeleteOpen(false);
       setUserToDelete(null);
     } catch (err) {
-      setError(err?.message || "Failed to deactivate user.");
+      setError(err?.message || t("failedToDeactivateUser"));
     } finally {
       setDeleteLoading(false);
     }
@@ -113,10 +115,10 @@ export default function Users() {
       String(user.email || "")
         .toLowerCase()
         .includes(searchValue) ||
-      String(user.role || "")
+      `${user.role || ""} ${t(user.role || "")}`
         .toLowerCase()
         .includes(searchValue) ||
-      String(user.active ? "active" : "inactive")
+      `${user.active ? "active" : "inactive"} ${t(user.active ? "active" : "inactive")}`
         .toLowerCase()
         .includes(searchValue)
     );
@@ -126,42 +128,43 @@ export default function Users() {
   const columns = [
     {
       key: "user_id",
-      label: "ID",
+      label: t("id"),
     },
     {
       key: "name",
-      label: "Name",
+      label: t("name"),
     },
     {
       key: "email",
-      label: "Email",
+      label: t("email"),
     },
     {
-      key: "role",
-      label: "Role",
+      key: "role_display",
+      label: t("role"),
     },
     {
       key: "status",
-      label: "Status",
+      label: t("status"),
     },
   ];
 
   // PREPARE TABLE DATA
   const tableUsers = filteredUsers.map((user) => ({
     ...user,
-    status: user.active ? "Active" : "Inactive",
+    role_display: t(user.role || "user"),
+    status: t(user.active ? "active" : "inactive"),
   }));
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Users"
-        description="Manage system users and their roles."
+        title={t("users")}
+        description={t("manageSystemUsers")}
       >
         {canCreate && (
           <Button onClick={handleCreate} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
-            Add User
+            {t("addUser")}
           </Button>
         )}
       </PageHeader>
@@ -180,7 +183,7 @@ export default function Users() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search users..."
+            placeholder={t("searchUsers")}
             className="pl-9"
           />
         </div>
@@ -189,7 +192,7 @@ export default function Users() {
       {/* TABLE */}
       {loading ? (
         <div className="rounded-md border p-8 text-center text-sm text-muted-foreground">
-          Loading users...
+          {t("loadingUsers")}
         </div>
       ) : (
         <GeneralTable
@@ -204,7 +207,7 @@ export default function Users() {
                   variant="outline"
                   size="icon"
                   onClick={() => handleEdit(user)}
-                  title="Edit user"
+                  title={t("editUser")}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -216,7 +219,7 @@ export default function Users() {
                   variant="destructive"
                   size="icon"
                   onClick={() => handleDeleteClick(user)}
-                  title="Deactivate user"
+                  title={t("deactivateUser")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -240,12 +243,14 @@ export default function Users() {
         onOpenChange={setDeleteOpen}
         onConfirm={handleDelete}
         loading={deleteLoading}
-        title="Deactivate User"
+        title={t("deactivateUser")}
         description={
           userToDelete
-            ? `Are you sure you want to deactivate "${userToDelete.name}"?`
-            : "Are you sure you want to deactivate this user?"
+            ? t("confirmDeactivateUserNamed", { name: userToDelete.name })
+            : t("confirmDeactivateUser")
         }
+        actionLabel={t("deactivate")}
+        loadingLabel={t("deactivating")}
       />
     </div>
   );
