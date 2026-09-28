@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   getCustomers,
@@ -35,6 +36,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function CustomerPage() {
+  const { t } = useTranslation();
   // DATA
 
   const [customers, setCustomers] = useState([]);
@@ -81,7 +83,7 @@ export default function CustomerPage() {
 
       setCustomers(response.data || []);
     } catch (err) {
-      setError(err.message || "Failed to load customers.");
+      setError(err.message || t("failedToLoadCustomers"));
     } finally {
       setLoading(false);
     }
@@ -165,7 +167,7 @@ export default function CustomerPage() {
 
       setCustomerToDelete(null);
     } catch (err) {
-      setError(err.message || "Failed to delete customer.");
+      setError(err.message || t("failedToDeleteCustomer"));
     } finally {
       setDeleteLoading(false);
     }
@@ -200,27 +202,27 @@ export default function CustomerPage() {
   const columns = [
     {
       key: "customer_name",
-      label: "Customer Name",
+      label: t("customerName"),
     },
 
     {
       key: "contact_person",
-      label: "Contact Person",
+      label: t("contactPerson"),
     },
 
     {
       key: "phone",
-      label: "Phone",
+      label: t("phone"),
     },
 
     {
       key: "email",
-      label: "Email",
+      label: t("email"),
     },
 
     {
       key: "address",
-      label: "Address",
+      label: t("address"),
     },
   ];
 
@@ -245,7 +247,7 @@ export default function CustomerPage() {
     <div className="space-y-6">
       {/* HEADER */}
 
-      <PageHeader title="Customers" description="Manage your customers">
+      <PageHeader title={t("customers")} description={t("manageCustomers")}>
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -257,7 +259,7 @@ export default function CustomerPage() {
               setError("");
             }}
           >
-            Add Customer
+            {t("addCustomer")}
           </Button>
         )}
       </PageHeader>
@@ -275,7 +277,7 @@ export default function CustomerPage() {
       <Input
         value={search}
         onChange={(event) => setSearch(event.target.value)}
-        placeholder="Search customers..."
+        placeholder={t("searchCustomers")}
         className="max-w-sm"
       />
 
@@ -283,7 +285,7 @@ export default function CustomerPage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading customers...
+          {t("loadingCustomers")}
         </div>
       ) : (
         <GeneralTable
@@ -346,13 +348,13 @@ export default function CustomerPage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {selectedCustomer ? "Edit Customer" : "Add Customer"}
+              {selectedCustomer ? t("editCustomer") : t("addCustomer")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedCustomer
-                ? "Update customer information."
-                : "Enter customer information."}
+                ? t("updateCustomerInfo")
+                : t("enterCustomerInfo")}
             </DialogDescription>
           </DialogHeader>
 

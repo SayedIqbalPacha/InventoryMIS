@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,34 +8,12 @@ import GeneralForm from "@/component/GeneralForm";
 
 import { Button } from "@/components/ui/button";
 
-// CUSTOMER SCHEMA
-
-const customerSchema = z.object({
-  customer_name: z
-    .string()
-    .trim()
-    .min(2, "Customer name must be at least 2 characters")
-    .max(50, "Customer name cannot exceed 50 characters"),
-
-  contact_person: z
-    .string()
-    .trim()
-    .max(50, "Contact person cannot exceed 50 characters"),
-
-  phone: z
-    .string()
-    .trim()
-    .regex(/^[0-9+\-\s()]+$/, "Please enter a valid phone number")
-    .min(7, "Phone number is too short")
-    .max(20, "Phone number is too long"),
-
-  email: z
-    .string()
-    .trim()
-    .email("Please enter a valid email address")
-    .max(200, "Email cannot exceed 200 characters"),
-
-  address: z.string().trim().max(200, "Address cannot exceed 200 characters"),
+const createCustomerSchema = (t) => z.object({
+  customer_name: z.string().trim().min(2, t("customerNameMin")).max(50, t("customerNameMax")),
+  contact_person: z.string().trim().max(50, t("contactPersonMax")),
+  phone: z.string().trim().regex(/^[0-9+\-\s()]+$/, t("validPhone")).min(7, t("phoneTooShort")).max(20, t("phoneTooLong")),
+  email: z.string().trim().email(t("validEmail")).max(200, t("emailTooLong")),
+  address: z.string().trim().max(200, t("addressTooLong")),
 });
 
 const defaultValues = {
@@ -50,6 +29,8 @@ const defaultValues = {
 };
 
 export default function CustomerForm({ customer, onSubmit, loading }) {
+  const { t } = useTranslation();
+  const customerSchema = useMemo(() => createCustomerSchema(t), [t]);
   const form = useForm({
     resolver: zodResolver(customerSchema),
 
@@ -89,7 +70,7 @@ export default function CustomerForm({ customer, onSubmit, loading }) {
       form.setError("root.server", {
         type: "server",
 
-        message: error.message || "Something went wrong.",
+        message: error.message || t("unexpectedError"),
       });
     }
   }
@@ -97,39 +78,39 @@ export default function CustomerForm({ customer, onSubmit, loading }) {
   const fields = [
     {
       name: "customer_name",
-      label: "Customer Name",
+      label: t("customerName"),
       type: "input",
-      placeholder: "Enter customer name",
+      placeholder: t("enterCustomerName"),
     },
 
     {
       name: "contact_person",
-      label: "Contact Person",
+      label: t("contactPerson"),
       type: "input",
-      placeholder: "Enter contact person",
+      placeholder: t("enterContactPerson"),
     },
 
     {
       name: "phone",
-      label: "Phone",
+      label: t("phone"),
       type: "input",
       inputType: "tel",
-      placeholder: "Enter phone number",
+      placeholder: t("enterPhoneNumber"),
     },
 
     {
       name: "email",
-      label: "Email",
+      label: t("email"),
       type: "input",
       inputType: "email",
-      placeholder: "Enter email address",
+      placeholder: t("enterEmailAddress"),
     },
 
     {
       name: "address",
-      label: "Address",
+      label: t("address"),
       type: "textarea",
-      placeholder: "Enter customer address",
+      placeholder: t("enterCustomerAddress"),
     },
   ];
 
@@ -161,15 +142,15 @@ export default function CustomerForm({ customer, onSubmit, loading }) {
               form.clearErrors();
             }}
           >
-            Reset
+            {t("reset")}
           </Button>
 
           <Button type="submit" disabled={loading}>
             {loading
-              ? "Saving..."
+              ? t("saving")
               : customer
-                ? "Update Customer"
-                : "Add Customer"}
+                ? t("updateCustomer")
+                : t("addCustomer")}
           </Button>
         </div>
       </GeneralForm>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   getVendors,
@@ -32,6 +33,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function VendorPage() {
+  const { t } = useTranslation();
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -85,7 +87,7 @@ export default function VendorPage() {
 
       setVendors(response?.data || []);
     } catch (err) {
-      setError(err?.message || "Failed to load vendors.");
+      setError(err?.message || t("failedToLoadVendors"));
     } finally {
       setLoading(false);
     }
@@ -163,7 +165,7 @@ export default function VendorPage() {
       setDeleteOpen(false);
       setVendorToDelete(null);
     } catch (err) {
-      setError(err?.message || "Failed to delete vendor.");
+      setError(err?.message || t("failedToDeleteVendor"));
     } finally {
       setDeleteLoading(false);
     }
@@ -196,22 +198,22 @@ export default function VendorPage() {
   const columns = [
     {
       key: "vendor_id",
-      label: "ID",
+      label: t("id"),
     },
 
     {
       key: "vendor_name",
-      label: "Vendor Name",
+      label: t("vendorName"),
     },
 
     {
       key: "email",
-      label: "Email",
+      label: t("email"),
     },
 
     {
       key: "address",
-      label: "Address",
+      label: t("address"),
     },
   ];
 
@@ -237,7 +239,7 @@ export default function VendorPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* HEADER */}
 
-      <PageHeader title="Vendors" description="Manage your vendors">
+      <PageHeader title={t("vendors")} description={t("manageVendors")}>
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -247,7 +249,7 @@ export default function VendorPage() {
               setError("");
             }}
           >
-            Add Vendor
+            {t("addVendor")}
           </Button>
         )}
       </PageHeader>
@@ -266,7 +268,7 @@ export default function VendorPage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search vendor..."
+          placeholder={t("searchVendors")}
         />
       </div>
 
@@ -274,7 +276,7 @@ export default function VendorPage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading vendors...
+          {t("loadingVendors")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -335,13 +337,13 @@ export default function VendorPage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {selectedVendor ? "Edit Vendor" : "Add Vendor"}
+              {selectedVendor ? t("editVendor") : t("addVendor")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedVendor
-                ? "Update vendor information."
-                : "Enter vendor information."}
+                ? t("updateVendorInfo")
+                : t("enterVendorInfo")}
             </DialogDescription>
           </DialogHeader>
 

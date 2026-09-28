@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,16 +12,16 @@ import { Button } from "@/components/ui/button";
 // VALIDATION
 // --------------------------------------------------
 
-const vendorSchema = z.object({
+const createVendorSchema = (t) => z.object({
   vendor_name: z
     .string()
     .trim()
-    .min(1, "Please provide a vendor name."),
+    .min(1, t("pleaseProvideVendorName")),
 
   email: z
     .string()
     .trim()
-    .email("Please provide a valid email.")
+    .email(t("pleaseProvideValidEmail"))
     .or(z.literal("")),
 
   address: z
@@ -50,7 +51,8 @@ export default function VendorForm({
   onSubmit,
   loading,
 }) {
-
+  const { t } = useTranslation();
+  const vendorSchema = useMemo(() => createVendorSchema(t), [t]);
   const [serverError, setServerError] = useState("");
 
 
@@ -98,27 +100,27 @@ export default function VendorForm({
 
     {
       name: "vendor_name",
-      label: "Vendor Name",
+      label: t("vendorName"),
       type: "input",
-      placeholder: "Enter vendor name",
-      description: "Enter the name of the vendor.",
+      placeholder: t("enterVendorName"),
+      description: t("vendorNameHelp"),
     },
 
     {
       name: "email",
-      label: "Email",
+      label: t("email"),
       type: "input",
       inputType: "email",
-      placeholder: "Enter vendor email",
-      description: "Optional vendor email address.",
+      placeholder: t("enterVendorEmail"),
+      description: t("vendorEmailHelp"),
     },
 
     {
       name: "address",
-      label: "Address",
+      label: t("address"),
       type: "textarea",
-      placeholder: "Enter vendor address",
-      description: "Optional vendor address.",
+      placeholder: t("enterVendorAddress"),
+      description: t("vendorAddressHelp"),
     },
 
   ];
@@ -151,7 +153,7 @@ export default function VendorForm({
 
       const message =
         err?.message ||
-        "Something went wrong. Please try again.";
+        t("unexpectedError");
 
       setServerError(message);
 
@@ -229,7 +231,7 @@ export default function VendorForm({
             onClick={handleReset}
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("reset")}
           </Button>
 
           <Button
@@ -238,10 +240,10 @@ export default function VendorForm({
             className="w-full sm:w-auto"
           >
             {loading
-              ? "Saving..."
+              ? t("saving")
               : vendor
-                ? "Update Vendor"
-                : "Add Vendor"}
+                ? t("updateVendor")
+                : t("addVendor")}
           </Button>
 
         </div>

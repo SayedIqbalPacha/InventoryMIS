@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,11 +12,11 @@ import { Button } from "@/components/ui/button";
 // VALIDATION
 // --------------------------------------------------
 
-const unitSchema = z.object({
+const createUnitSchema = (t) => z.object({
   unit_name: z
     .string()
     .trim()
-    .min(1, "Please provide a unit name."),
+    .min(1, t("pleaseProvideUnitName")),
 
   unit_symbole: z
     .string()
@@ -43,7 +44,8 @@ export default function UnitForm({
   onSubmit,
   loading,
 }) {
-
+  const { t } = useTranslation();
+  const unitSchema = useMemo(() => createUnitSchema(t), [t]);
   // SERVER ERROR
   const [serverError, setServerError] = useState("");
 
@@ -91,18 +93,18 @@ export default function UnitForm({
 
     {
       name: "unit_name",
-      label: "Unit Name",
+      label: t("unitName"),
       type: "input",
-      placeholder: "Enter unit name",
-      description: "For example: Kilogram, Piece, Box.",
+      placeholder: t("enterUnitName"),
+      description: t("unitNameExamples"),
     },
 
     {
       name: "unit_symbole",
-      label: "Unit Symbol",
+      label: t("unitSymbol"),
       type: "input",
-      placeholder: "Enter unit symbol",
-      description: "For example: kg, pcs, box.",
+      placeholder: t("enterUnitSymbol"),
+      description: t("unitSymbolExamples"),
     },
 
   ];
@@ -132,7 +134,7 @@ export default function UnitForm({
 
       const message =
         err?.message ||
-        "Something went wrong. Please try again.";
+        t("unexpectedError");
 
       setServerError(message);
 
@@ -213,7 +215,7 @@ export default function UnitForm({
             onClick={handleReset}
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("reset")}
           </Button>
 
           <Button
@@ -222,10 +224,10 @@ export default function UnitForm({
             className="w-full sm:w-auto"
           >
             {loading
-              ? "Saving..."
+              ? t("saving")
               : unit
-                ? "Update Unit"
-                : "Add Unit"}
+                ? t("updateUnit")
+                : t("addUnit")}
           </Button>
 
         </div>

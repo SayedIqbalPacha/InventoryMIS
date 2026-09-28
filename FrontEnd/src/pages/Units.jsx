@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getUnits, updateUnit, createUnit, deleteUnit } from "@/services/Units";
 
@@ -27,6 +28,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function UnitsPage() {
+  const { t } = useTranslation();
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -80,7 +82,7 @@ export default function UnitsPage() {
 
       setUnits(response?.data || []);
     } catch (err) {
-      setError(err?.message || "Failed to load units.");
+      setError(err?.message || t("failedToLoadUnits"));
     } finally {
       setLoading(false);
     }
@@ -158,7 +160,7 @@ export default function UnitsPage() {
       setDeleteOpen(false);
       setUnitToDelete(null);
     } catch (err) {
-      setError(err?.message || "Failed to delete unit.");
+      setError(err?.message || t("failedToDeleteUnit"));
     } finally {
       setDeleteLoading(false);
     }
@@ -188,17 +190,17 @@ export default function UnitsPage() {
   const columns = [
     {
       key: "unit_id",
-      label: "ID",
+      label: t("id"),
     },
 
     {
       key: "unit_name",
-      label: "Unit Name",
+      label: t("unitName"),
     },
 
     {
       key: "unit_symbole",
-      label: "Symbol",
+      label: t("unitSymbol"),
     },
   ];
 
@@ -224,7 +226,7 @@ export default function UnitsPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* HEADER */}
 
-      <PageHeader title="Units" description="Manage your units">
+      <PageHeader title={t("units")} description={t("manageUnits")}>
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -234,7 +236,7 @@ export default function UnitsPage() {
               setError("");
             }}
           >
-            Add Unit
+            {t("addUnit")}
           </Button>
         )}
       </PageHeader>
@@ -253,7 +255,7 @@ export default function UnitsPage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search unit..."
+          placeholder={t("searchUnits")}
         />
       </div>
 
@@ -261,7 +263,7 @@ export default function UnitsPage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading units...
+          {t("loadingUnits")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -321,12 +323,12 @@ export default function UnitsPage() {
                        "
         >
           <DialogHeader>
-            <DialogTitle>{selectedUnit ? "Edit Unit" : "Add Unit"}</DialogTitle>
+            <DialogTitle>{selectedUnit ? t("editUnit") : t("addUnit")}</DialogTitle>
 
             <DialogDescription>
               {selectedUnit
-                ? "Update unit information."
-                : "Enter unit information."}
+                ? t("updateUnitInfo")
+                : t("enterUnitInfo")}
             </DialogDescription>
           </DialogHeader>
 
