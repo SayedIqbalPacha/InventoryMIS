@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   getExchangeRates,
@@ -38,6 +39,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function ExchangeRatePage() {
+  const { t } = useTranslation();
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -103,7 +105,7 @@ export default function ExchangeRatePage() {
 
       setCurrencies(currenciesResponse?.data || []);
     } catch (err) {
-      setError(err?.message || "Failed to load exchange rates.");
+      setError(err?.message || t("failedToLoadExchangeRates"));
     } finally {
       setLoading(false);
     }
@@ -189,7 +191,7 @@ export default function ExchangeRatePage() {
 
       setExchangeRateToDelete(null);
     } catch (err) {
-      setError(err?.message || "Failed to delete exchange rate.");
+      setError(err?.message || t("failedToDeleteExchangeRate"));
     } finally {
       setDeleteLoading(false);
     }
@@ -256,27 +258,27 @@ export default function ExchangeRatePage() {
   const columns = [
     {
       key: "rate_id",
-      label: "ID",
+      label: t("id"),
     },
 
     {
       key: "from_currency_display",
-      label: "From Currency",
+      label: t("fromCurrency"),
     },
 
     {
       key: "to_currency_display",
-      label: "To Currency",
+      label: t("toCurrency"),
     },
 
     {
       key: "exchange_rate",
-      label: "Exchange Rate",
+      label: t("exchangeRate"),
     },
 
     {
       key: "effective_date_display",
-      label: "Effective Date",
+      label: t("effectiveDate"),
     },
   ];
 
@@ -303,9 +305,9 @@ export default function ExchangeRatePage() {
       {/* HEADER */}
 
       <PageHeader
-        title="Exchange Rates"
+        title={t("exchangeRates")}
 
-        description="Manage currency exchange rates"
+        description={t("manageExchangeRates")}
       >
         {canCreate && (
           <Button
@@ -319,7 +321,7 @@ export default function ExchangeRatePage() {
               setError("");
             }}
           >
-            Add Exchange Rate
+            {t("addExchangeRate")}
           </Button>
         )}
       </PageHeader>
@@ -338,7 +340,7 @@ export default function ExchangeRatePage() {
             text-destructive
           "
         >
-          {error}
+          {t(error, { defaultValue: error })}
         </div>
       )}
 
@@ -350,7 +352,7 @@ export default function ExchangeRatePage() {
 
           onChange={(event) => setSearch(event.target.value)}
 
-          placeholder="Search exchange rates..."
+          placeholder={t("searchExchangeRates")}
         />
       </div>
 
@@ -358,7 +360,7 @@ export default function ExchangeRatePage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading exchange rates...
+          {t("loadingExchangeRates")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -428,14 +430,14 @@ export default function ExchangeRatePage() {
           <DialogHeader>
             <DialogTitle>
               {selectedExchangeRate
-                ? "Edit Exchange Rate"
-                : "Add Exchange Rate"}
+                ? t("editExchangeRate")
+                : t("addExchangeRate")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedExchangeRate
-                ? "Update exchange rate information."
-                : "Enter exchange rate information."}
+                ? t("updateExchangeRateInfo")
+                : t("enterExchangeRateInfo")}
             </DialogDescription>
           </DialogHeader>
 
@@ -462,9 +464,9 @@ export default function ExchangeRatePage() {
 
         loading={deleteLoading}
 
-        name={`Rate #${exchangeRateToDelete?.rate_id ?? ""}`}
+        name={`${t("exchangeRate")} #${exchangeRateToDelete?.rate_id ?? ""}`}
 
-        tableName="Exchange Rate"
+        tableName={t("exchangeRate")}
       />
     </div>
   );

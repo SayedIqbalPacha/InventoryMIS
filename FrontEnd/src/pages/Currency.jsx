@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   getCurrency,
@@ -31,6 +32,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function CurrencyPage() {
+  const { t } = useTranslation();
   // DATA
   const [currencies, setCurrencies] = useState([]);
 
@@ -66,7 +68,7 @@ export default function CurrencyPage() {
 
       setCurrencies(response.data || []);
     } catch (err) {
-      setError(err.message || "Failed to load currencies.");
+      setError(err.message || t("failedToLoadCurrencies"));
     } finally {
       setLoading(false);
     }
@@ -144,7 +146,7 @@ export default function CurrencyPage() {
       setDeleteOpen(false);
       setCurrencyToDelete(null);
     } catch (err) {
-      setError(err.message || "Failed to delete currency.");
+      setError(err.message || t("failedToDeleteCurrency"));
     } finally {
       setDeleteLoading(false);
     }
@@ -169,11 +171,11 @@ export default function CurrencyPage() {
   const columns = [
     {
       key: "currency_code",
-      label: "Currency Code",
+      label: t("currencyCode"),
     },
     {
       key: "currency_id",
-      label: "currency_id",
+      label: t("id"),
     },
   ];
 
@@ -199,7 +201,7 @@ export default function CurrencyPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* HEADER */}
 
-      <PageHeader title="Currencies" description="Manage your currencies">
+      <PageHeader title={t("currencies")} description={t("manageCurrencies")}>
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -209,7 +211,7 @@ export default function CurrencyPage() {
               setError("");
             }}
           >
-            Add Currency
+            {t("addCurrency")}
           </Button>
         )}
       </PageHeader>
@@ -218,7 +220,7 @@ export default function CurrencyPage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 sm:p-4 text-sm text-destructive">
-          {error}
+          {t(error, { defaultValue: error })}
         </div>
       )}
 
@@ -228,7 +230,7 @@ export default function CurrencyPage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search currency..."
+          placeholder={t("searchCurrencies")}
         />
       </div>
 
@@ -236,7 +238,7 @@ export default function CurrencyPage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading currencies...
+          {t("loadingCurrencies")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -297,13 +299,13 @@ export default function CurrencyPage() {
         >
           <DialogHeader>
             <DialogTitle>
-              {selectedCurrency ? "Edit Currency" : "Add Currency"}
+              {selectedCurrency ? t("editCurrency") : t("addCurrency")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedCurrency
-                ? "Update currency information."
-                : "Enter currency information."}
+                ? t("updateCurrencyInfo")
+                : t("enterCurrencyInfo")}
             </DialogDescription>
           </DialogHeader>
 
@@ -323,7 +325,7 @@ export default function CurrencyPage() {
         onConfirm={handleDelete}
         loading={deleteLoading}
         name={currencyToDelete?.currency_code}
-        tableName="Currency"
+        tableName={t("currency")}
       />
     </div>
   );

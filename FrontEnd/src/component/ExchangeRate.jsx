@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useForm } from "react-hook-form";
 
@@ -14,22 +15,22 @@ import { Button } from "@/components/ui/button";
 // VALIDATION
 // --------------------------------------------------
 
-const exchangeRateSchema = z.object({
-  from_currency_id: z.string().min(1, "Please select the source currency."),
+const createExchangeRateSchema = (t) => z.object({
+  from_currency_id: z.string().min(1, t("selectSourceCurrencyRequired")),
 
-  to_currency_id: z.string().min(1, "Please select the target currency."),
+  to_currency_id: z.string().min(1, t("selectTargetCurrencyRequired")),
 
   exchange_rate: z.preprocess(
     (value) => (value === "" ? undefined : Number(value)),
 
     z
       .number({
-        message: "Exchange rate must be a number.",
+        message: t("exchangeRateMustBeNumber"),
       })
-      .positive("Exchange rate must be greater than 0."),
+      .positive(t("exchangeRateMustBePositive")),
   ),
 
-  effective_date: z.string().min(1, "Please provide the effective date."),
+  effective_date: z.string().min(1, t("effectiveDateRequired")),
 });
 
 // --------------------------------------------------
@@ -60,6 +61,8 @@ export default function ExchangeRateForm({
   loading,
 }) {
   const [serverError, setServerError] = useState("");
+  const { t } = useTranslation();
+  const exchangeRateSchema = useMemo(() => createExchangeRateSchema(t), [t]);
 
   // --------------------------------------------------
   // FORM
@@ -114,11 +117,11 @@ export default function ExchangeRateForm({
     {
       name: "from_currency_id",
 
-      label: "From Currency",
+      label: t("fromCurrency"),
 
       type: "select",
 
-      placeholder: "Select source currency",
+      placeholder: t("selectSourceCurrency"),
 
       options: currencies.map((currency) => ({
         value: String(currency.currency_id),
@@ -130,11 +133,11 @@ export default function ExchangeRateForm({
     {
       name: "to_currency_id",
 
-      label: "To Currency",
+      label: t("toCurrency"),
 
       type: "select",
 
-      placeholder: "Select target currency",
+      placeholder: t("selectTargetCurrency"),
 
       options: currencies.map((currency) => ({
         value: String(currency.currency_id),
@@ -146,27 +149,27 @@ export default function ExchangeRateForm({
     {
       name: "exchange_rate",
 
-      label: "Exchange Rate",
+      label: t("exchangeRate"),
 
       type: "input",
 
       inputType: "number",
 
-      placeholder: "Enter exchange rate",
+      placeholder: t("enterExchangeRate"),
 
-      description: "Example: 1 USD = 64 AFG",
+      description: t("exchangeRateExample"),
     },
 
     {
       name: "effective_date",
 
-      label: "Effective Date",
+      label: t("effectiveDate"),
 
       type: "input",
 
       inputType: "date",
 
-      placeholder: "Select effective date",
+      placeholder: t("selectEffectiveDate"),
     },
   ];
 
@@ -192,7 +195,7 @@ export default function ExchangeRateForm({
 
       await onSubmit(exchangeRateData);
     } catch (err) {
-      const message = err?.message || "Something went wrong. Please try again.";
+      const message = err?.message || t("unexpectedError");
 
       setServerError(message);
 
@@ -292,7 +295,7 @@ export default function ExchangeRateForm({
 
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("reset")}
           </Button>
 
           <Button
@@ -303,10 +306,10 @@ export default function ExchangeRateForm({
             className="w-full sm:w-auto"
           >
             {loading
-              ? "Saving..."
+              ? t("saving")
               : exchangeRate
-                ? "Update Exchange Rate"
-                : "Add Exchange Rate"}
+                ? t("updateExchangeRate")
+                : t("addExchangeRate")}
           </Button>
         </div>
       </GeneralForm>

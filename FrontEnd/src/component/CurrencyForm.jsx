@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useForm } from "react-hook-form";
 
@@ -14,12 +15,12 @@ import { Button } from "@/components/ui/button";
 // CURRENCY SCHEMA
 // --------------------------------------------------
 
-const currencySchema = z.object({
+const createCurrencySchema = (t) => z.object({
   currency_code: z
     .string()
     .trim()
-    .min(1, "Currency code is required")
-    .max(10, "Currency code cannot exceed 10 characters"),
+    .min(1, t("currencyCodeRequired"))
+    .max(10, t("currencyCodeMaxLength")),
 });
 
 // --------------------------------------------------
@@ -35,6 +36,8 @@ const defaultValues = {
 // --------------------------------------------------
 
 export default function CurrencyForm({ currency, onSubmit, loading }) {
+  const { t } = useTranslation();
+  const currencySchema = useMemo(() => createCurrencySchema(t), [t]);
   const form = useForm({
     resolver: zodResolver(currencySchema),
 
@@ -70,7 +73,7 @@ export default function CurrencyForm({ currency, onSubmit, loading }) {
       form.setError("root.server", {
         type: "server",
 
-        message: error.message || "Something went wrong.",
+        message: error.message || t("unexpectedError"),
       });
     }
   }
@@ -83,11 +86,11 @@ export default function CurrencyForm({ currency, onSubmit, loading }) {
     {
       name: "currency_code",
 
-      label: "Currency Code",
+      label: t("currencyCode"),
 
       type: "input",
 
-      placeholder: "Enter currency code",
+      placeholder: t("enterCurrencyCode"),
     },
   ];
 
@@ -128,7 +131,7 @@ export default function CurrencyForm({ currency, onSubmit, loading }) {
 
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("reset")}
           </Button>
 
           <Button
@@ -139,10 +142,10 @@ export default function CurrencyForm({ currency, onSubmit, loading }) {
             className="w-full sm:w-auto my-2"
           >
             {loading
-              ? "Saving..."
+              ? t("saving")
               : currency
-                ? "Update Currency"
-                : "Add Currency"}
+                ? t("updateCurrency")
+                : t("addCurrency")}
           </Button>
         </div>
       </GeneralForm>
