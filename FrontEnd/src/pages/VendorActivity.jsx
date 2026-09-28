@@ -155,6 +155,7 @@ export default function VendorActivity() {
                 onClick={() => {
                   setVendorId(String(vendor.vendor_id));
                   setVendorName(vendor.vendor_name);
+                  searchVendor(vendor.vendor_id);
                 }}
               >
                 {vendor.vendor_name}
