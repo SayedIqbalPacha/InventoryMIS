@@ -1,9 +1,18 @@
+import { useTranslation } from "react-i18next";
+
 export default function ReportTable({
   title,
   columns = [],
   data = [],
   emptyMessage = "No data available.",
+  formatNumbers = false,
 }) {
+  const { i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
+  const numberFormatter = new Intl.NumberFormat(isDari ? "fa-AF" : undefined, {
+    maximumFractionDigits: 10,
+  });
+
   return (
     <section className="min-w-0 rounded-xl border bg-card shadow-sm">
       {/* HEADER */}
@@ -21,7 +30,7 @@ export default function ReportTable({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className="whitespace-nowrap px-4 py-3 font-medium"
+                  className="whitespace-nowrap px-4 py-3 font-medium rtl:text-right"
                 >
                   {column.label}
                 </th>
@@ -36,9 +45,17 @@ export default function ReportTable({
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className="whitespace-nowrap px-4 py-3"
+                      className="whitespace-nowrap px-4 py-3 rtl:text-right"
                     >
-                      {column.render ? column.render(row) : row[column.key]}
+                      {column.render
+                        ? column.render(row)
+                        : formatNumbers &&
+                            row[column.key] !== null &&
+                            row[column.key] !== undefined &&
+                            row[column.key] !== "" &&
+                            Number.isFinite(Number(row[column.key]))
+                          ? numberFormatter.format(Number(row[column.key]))
+                          : (row[column.key] ?? "-")}
                     </td>
                   ))}
                 </tr>

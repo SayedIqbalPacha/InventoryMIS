@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getCustomerActivity } from "@/services/Reports";
 import { getCustomers } from "@/services/Customer";
@@ -7,27 +8,31 @@ import PageHeader from "@/component/PageHeader";
 import ReportCard from "@/component/ReportCard";
 import ReportTable from "@/component/ReportTable";
 import PrintButton from "@/component/PrintButton";
+import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-function formatDate(value) {
+function formatDate(value, isDari) {
   if (!value) {
     return "-";
   }
 
-  return String(value).slice(0, 10);
+  const date = String(value).slice(0, 10);
+  return isDari ? date.replace(/[0-9]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[digit]) : date;
 }
 
-function formatMoney(value) {
-  return Number(value || 0).toLocaleString(undefined, {
+function formatMoney(value, isDari) {
+  return Number(value || 0).toLocaleString(isDari ? "fa-AF" : undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 }
 
 export default function CustomerActivity() {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const printRef = useRef(null);
   const printInvoiceItemsRef = useRef(null);
   const printInoivePaymentRef = useRef(null);
@@ -55,7 +60,7 @@ export default function CustomerActivity() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err.message || "Failed to load customers.");
+          setError(err.message || "failedToLoadCustomers");
         }
       }
     }
@@ -81,12 +86,12 @@ export default function CustomerActivity() {
 
   async function searchCustomer(customerId) {
     if (!fromDate || !toDate) {
-      setError("Please choose from date and to date.");
+      setError("activityDateRangeRequired");
       return;
     }
 
     if (!customerId && !name.trim()) {
-      setError("Please enter a customer name.");
+      setError("customerNameRequired");
       return;
     }
 
@@ -112,7 +117,7 @@ export default function CustomerActivity() {
     } catch (err) {
       setResult(null);
       setMatches([]);
-      setError(err.message || "Failed to load customer activity.");
+      setError(err.message || "failedToLoadCustomerActivity");
     } finally {
       setLoading(false);
     }
@@ -130,17 +135,17 @@ export default function CustomerActivity() {
 
   const customerTitle = useMemo(() => {
     if (!result?.customer) {
-      return "Customer Activity";
+      return t("customerActivity");
     }
 
     return `${result.customer.customer_name}`;
-  }, [result]);
+  }, [result, t]);
 
   return (
     <div className="min-w-0 space-y-5 sm:space-y-6">
       <PageHeader
-        title="Customer Activity"
-        description="View date-range sales and profit, complete payment history, and outstanding balance."
+        title={t("customerActivity")}
+        description={t("customerActivityDescription")}
       />
 
       <form
@@ -148,7 +153,7 @@ export default function CustomerActivity() {
         className="grid gap-4 rounded-xl border bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4"
       >
         <div className="space-y-2">
-          <Label htmlFor="from-date">From date</Label>
+          <Label htmlFor="from-date">{t("fromDate")}</Label>
           <Input
             id="from-date"
             type="date"
@@ -158,7 +163,7 @@ export default function CustomerActivity() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="to-date">To date</Label>
+          <Label htmlFor="to-date">{t("toDate")}</Label>
           <Input
             id="to-date"
             type="date"
@@ -168,11 +173,11 @@ export default function CustomerActivity() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="customer-name">Customer name</Label>
+          <Label htmlFor="customer-name">{t("customerName")}</Label>
           <Input
             id="customer-name"
             type="text"
-            placeholder="Search by name"
+            placeholder={t("searchByName")}
             value={name}
             onChange={(event) => {
               setName(event.target.value);
@@ -184,20 +189,20 @@ export default function CustomerActivity() {
 
         <div className="flex items-end">
           <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Searching..." : "Search"}
+            {loading ? t("searching") : t("search")}
           </Button>
         </div>
       </form>
 
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+          {t(error, { defaultValue: error })}
         </div>
       )}
 
       {(matches.length > 0 || suggestions.length > 0) && (
         <section className="rounded-xl border bg-card p-4 shadow-sm">
-          <h2 className="mb-3 text-base font-semibold">Choose a customer</h2>
+          <h2 className="mb-3 text-base font-semibold">{t("chooseCustomer")}</h2>
           <div className="space-y-2">
             {(matches.length > 0 ? matches : suggestions).map((customer) => (
               <Button
@@ -223,38 +228,42 @@ export default function CustomerActivity() {
           <section className="rounded-xl border bg-card p-4 shadow-sm">
             <h2 className="text-lg font-semibold">{customerTitle}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {result.period.fromDate} to {result.period.toDate}
+              {t("reportingPeriod", {
+                from: formatDate(result.period.fromDate, isDari),
+                to: formatDate(result.period.toDate, isDari),
+              })}
             </p>
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-              <p>Phone: {result.customer.phone || "-"}</p>
-              <p>Email: {result.customer.email || "-"}</p>
+              <p>{t("phone")}: {result.customer.phone || "-"}</p>
+              <p>{t("email")}: {result.customer.email || "-"}</p>
             </div>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold">Sold</h2>
+            <h2 className="text-lg font-semibold">{t("sold")}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <ReportCard
-                title="Total sold"
+                title={t("totalSold")}
                 value={result.sold.total_sold_afn}
-                suffix="AFN"
+                suffix={isDari ? t("currencyAFN") : "AFN"}
               />
               <ReportCard
-                title="Quantity sold"
+                title={t("quantitySold")}
                 value={result.sold.total_quantity}
                 decimals={0}
               />
             </div>
             <ReportTable
-              title="Items sold"
-              emptyMessage="No sales found in this date range."
+              title={t("itemsSold")}
+              emptyMessage={t("noSalesInDateRange")}
+              formatNumbers
               columns={[
-                { key: "item_name", label: "Item" },
-                { key: "quantity_sold", label: "Quantity" },
+                { key: "item_name", label: t("item"), render: (row) => localizeInventoryValue(row.item_name, isDari) },
+                { key: "quantity_sold", label: t("quantity") },
                 {
                   key: "sold_afn",
-                  label: "Sold AFN",
-                  render: (row) => formatMoney(row.sold_afn),
+                  label: t("soldAFN"),
+                  render: (row) => formatMoney(row.sold_afn, isDari),
                 },
               ]}
               data={soldItems}
@@ -262,22 +271,22 @@ export default function CustomerActivity() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold">Profit</h2>
+            <h2 className="text-lg font-semibold">{t("profit")}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <ReportCard
-                title="Revenue"
+                title={t("revenue")}
                 value={result.profit.revenue_afn}
-                suffix="AFN"
+                suffix={isDari ? t("currencyAFN") : "AFN"}
               />
               <ReportCard
-                title="Cost"
+                title={t("cost")}
                 value={result.profit.cost_afn}
-                suffix="AFN"
+                suffix={isDari ? t("currencyAFN") : "AFN"}
               />
               <ReportCard
-                title="Profit"
+                title={t("profit")}
                 value={result.profit.profit_afn}
-                suffix="AFN"
+                suffix={isDari ? t("currencyAFN") : "AFN"}
               />
             </div>
           </section>
@@ -285,31 +294,32 @@ export default function CustomerActivity() {
           <div>
             <PrintButton
               contentRef={printRef}
-              title="Print / save Invoices"
+              title={t("printSaveInvoices")}
               documentTitle={`Bills-Invoices-${customerTitle}`}
             />
             <div ref={printRef}>
               <ReportTable
-                title="Bills / Invoices"
-                emptyMessage="No invoices found in this date range."
+                title={t("billsInvoices")}
+                emptyMessage={t("noInvoicesInDateRange")}
+                formatNumbers
                 columns={[
-                  { key: "sales_id", label: "Invoice #" },
+                  { key: "sales_id", label: t("invoiceNumber") },
                   {
                     key: "sales_date",
-                    label: "Date",
-                    render: (row) => formatDate(row.sales_date),
+                    label: t("date"),
+                    render: (row) => formatDate(row.sales_date, isDari),
                   },
-                  { key: "currency_code", label: "Currency" },
-                  { key: "total_qty", label: "Quantity" },
+                  { key: "currency_code", label: t("currency") },
+                  { key: "total_qty", label: t("quantity") },
                   {
                     key: "total_original",
-                    label: "Bill total",
-                    render: (row) => formatMoney(row.total_original),
+                    label: t("billTotal"),
+                    render: (row) => formatMoney(row.total_original, isDari),
                   },
                   {
                     key: "total_afn",
-                    label: "Total AFN",
-                    render: (row) => formatMoney(row.total_afn),
+                    label: t("totalAFN"),
+                    render: (row) => formatMoney(row.total_afn, isDari),
                   },
                 ]}
                 data={invoices}
@@ -320,31 +330,32 @@ export default function CustomerActivity() {
           <div>
             <PrintButton
               contentRef={printInvoiceItemsRef}
-              title="Print / save Invoice Items"
+              title={t("printSaveInvoiceItems")}
               documentTitle={`Itmes-Invoices`}
             />
             <div ref={printInvoiceItemsRef}>
               <ReportTable
-                title="Invoice items"
-                emptyMessage="No invoice items found in this date range."
+                title={t("invoiceItems")}
+                emptyMessage={t("noInvoiceItemsInDateRange")}
+                formatNumbers
                 columns={[
-                  { key: "sales_id", label: "Invoice #" },
+                  { key: "sales_id", label: t("invoiceNumber") },
                   {
                     key: "sales_date",
-                    label: "Date",
-                    render: (row) => formatDate(row.sales_date),
+                    label: t("date"),
+                    render: (row) => formatDate(row.sales_date, isDari),
                   },
-                  { key: "item_name", label: "Item" },
-                  { key: "quantity", label: "Quantity" },
+                  { key: "item_name", label: t("item"), render: (row) => localizeInventoryValue(row.item_name, isDari) },
+                  { key: "quantity", label: t("quantity") },
                   {
                     key: "unit_price",
-                    label: "Unit price",
-                    render: (row) => formatMoney(row.unit_price),
+                    label: t("unitPrice"),
+                    render: (row) => formatMoney(row.unit_price, isDari),
                   },
                   {
                     key: "total_afn",
-                    label: "Total AFN",
-                    render: (row) => formatMoney(row.total_afn),
+                    label: t("totalAFN"),
+                    render: (row) => formatMoney(row.total_afn, isDari),
                   },
                 ]}
                 data={invoiceItems.map((item, index) => ({
@@ -358,31 +369,32 @@ export default function CustomerActivity() {
           <div>
             <PrintButton
               contentRef={printInoivePaymentRef}
-              title="Print / Save Payments"
-              documentTitle={"Payments"}
+              title={t("printSavePayments")}
+              documentTitle={t("payments")}
             />
             <div ref={printInoivePaymentRef}>
               <ReportTable
-                title="All Payments"
-                emptyMessage="No payments have been recorded for this customer."
+                title={t("allPayments")}
+                emptyMessage={t("noCustomerPayments")}
+                formatNumbers
                 columns={[
-                  { key: "cus_payment_id", label: "Payment #" },
-                  { key: "sale_id", label: "Invoice #" },
+                  { key: "cus_payment_id", label: t("paymentNumber") },
+                  { key: "sale_id", label: t("invoiceNumber") },
                   {
                     key: "date",
-                    label: "Date",
-                    render: (row) => formatDate(row.date),
+                    label: t("date"),
+                    render: (row) => formatDate(row.date, isDari),
                   },
-                  { key: "currency_code", label: "Currency" },
+                  { key: "currency_code", label: t("currency") },
                   {
                     key: "amount",
-                    label: "Amount",
-                    render: (row) => formatMoney(row.amount),
+                    label: t("amount"),
+                    render: (row) => formatMoney(row.amount, isDari),
                   },
                   {
                     key: "amount_afn",
-                    label: "Amount AFN",
-                    render: (row) => formatMoney(row.amount_afn),
+                    label: t("amountAFN"),
+                    render: (row) => formatMoney(row.amount_afn, isDari),
                   },
                 ]}
                 data={payments}
@@ -392,23 +404,23 @@ export default function CustomerActivity() {
 
           <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <ReportCard
-              title="All-time sales"
+              title={t("allTimeSales")}
               value={result.account.total_sold_afn}
-              suffix="AFN"
+              suffix={isDari ? t("currencyAFN") : "AFN"}
             />
             <ReportCard
-              title="All payments"
+              title={t("allPayments")}
               value={result.account.total_paid_afn}
-              suffix="AFN"
+              suffix={isDari ? t("currencyAFN") : "AFN"}
             />
             <ReportCard
               title={
                 result.account.status === "borrower"
-                  ? "Customer owes you"
-                  : "Outstanding balance"
+                  ? t("customerOwesYou")
+                  : t("outstandingBalance")
               }
               value={result.account.outstanding_afn}
-              suffix="AFN"
+              suffix={isDari ? t("currencyAFN") : "AFN"}
             />
           </section>
         </>
