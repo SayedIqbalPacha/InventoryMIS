@@ -246,11 +246,13 @@ export default function CustomerActivity() {
                 title={t("totalSold")}
                 value={result.sold.total_sold_afn}
                 suffix={isDari ? t("currencyAFN") : "AFN"}
+                formatDariNumbers={isDari}
               />
               <ReportCard
                 title={t("quantitySold")}
                 value={result.sold.total_quantity}
                 decimals={0}
+                formatDariNumbers={isDari}
               />
             </div>
             <ReportTable
@@ -277,16 +279,19 @@ export default function CustomerActivity() {
                 title={t("revenue")}
                 value={result.profit.revenue_afn}
                 suffix={isDari ? t("currencyAFN") : "AFN"}
+                formatDariNumbers={isDari}
               />
               <ReportCard
                 title={t("cost")}
                 value={result.profit.cost_afn}
                 suffix={isDari ? t("currencyAFN") : "AFN"}
+                formatDariNumbers={isDari}
               />
               <ReportCard
                 title={t("profit")}
                 value={result.profit.profit_afn}
                 suffix={isDari ? t("currencyAFN") : "AFN"}
+                formatDariNumbers={isDari}
               />
             </div>
           </section>
@@ -407,11 +412,13 @@ export default function CustomerActivity() {
               title={t("allTimeSales")}
               value={result.account.total_sold_afn}
               suffix={isDari ? t("currencyAFN") : "AFN"}
+              formatDariNumbers={isDari}
             />
             <ReportCard
               title={t("allPayments")}
               value={result.account.total_paid_afn}
               suffix={isDari ? t("currencyAFN") : "AFN"}
+              formatDariNumbers={isDari}
             />
             <ReportCard
               title={
@@ -421,6 +428,7 @@ export default function CustomerActivity() {
               }
               value={result.account.outstanding_afn}
               suffix={isDari ? t("currencyAFN") : "AFN"}
+              formatDariNumbers={isDari}
             />
           </section>
         </>
