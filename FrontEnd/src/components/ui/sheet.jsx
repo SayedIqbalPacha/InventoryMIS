@@ -1,9 +1,9 @@
-import * as React from "react"
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 function Sheet({
   ...props
@@ -51,6 +51,8 @@ function SheetContent({
   showCloseButton = true,
   ...props
 }) {
+  const { t } = useTranslation();
+
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -67,10 +69,10 @@ function SheetContent({
           <SheetPrimitive.Close
             data-slot="sheet-close"
             render={
-              <Button variant="ghost" className="absolute top-3 right-3" size="icon-sm" />
+              <Button variant="ghost" className="absolute top-3 end-3" size="icon-sm" />
             }>
             <XIcon />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("close")}</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Popup>

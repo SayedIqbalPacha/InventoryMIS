@@ -20,6 +20,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useTranslation } from "react-i18next";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
 
 // --------------------------------------------------
 // VALIDATION
@@ -201,7 +202,7 @@ export default function SalesForm({
 
       options: currencies.map((currency) => ({
         value: String(currency.currency_id),
-        label: currency.currency_code,
+        label: getCurrencyLabel(currency.currency_code, t),
       })),
     },
   ];

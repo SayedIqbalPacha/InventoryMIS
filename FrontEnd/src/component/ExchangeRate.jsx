@@ -8,6 +8,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import GeneralForm from "@/component/GeneralForm";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
 
 import { Button } from "@/components/ui/button";
 
@@ -126,7 +127,7 @@ export default function ExchangeRateForm({
       options: currencies.map((currency) => ({
         value: String(currency.currency_id),
 
-        label: currency.currency_code,
+        label: getCurrencyLabel(currency.currency_code, t),
       })),
     },
 
@@ -142,7 +143,7 @@ export default function ExchangeRateForm({
       options: currencies.map((currency) => ({
         value: String(currency.currency_id),
 
-        label: currency.currency_code,
+        label: getCurrencyLabel(currency.currency_code, t),
       })),
     },
 

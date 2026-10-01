@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
 
 const customerPaymentSchema = z.object({
   customer_id: z.string().optional(),
@@ -41,6 +43,7 @@ export default function CustomerPaymentForm({
   loading,
 }) {
   const [serverError, setServerError] = useState("");
+  const { t } = useTranslation();
 
   const form = useForm({
     resolver: zodResolver(customerPaymentSchema),
@@ -99,7 +102,7 @@ export default function CustomerPaymentForm({
       placeholder: "Select currency",
       options: currencies.map((currency) => ({
         value: String(currency.currency_id),
-        label: currency.currency_code,
+        label: getCurrencyLabel(currency.currency_code, t),
       })),
     },
 
