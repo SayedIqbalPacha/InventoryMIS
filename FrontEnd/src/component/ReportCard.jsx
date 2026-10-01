@@ -1,3 +1,5 @@
+import { formatLocaleNumber } from "@/lib/localeFormatters";
+
 export default function ReportCard({
   title,
   value = 0,
@@ -5,13 +7,11 @@ export default function ReportCard({
   decimals = 2,
   formatDariNumbers = false,
 }) {
-  const formattedValue = Number(value || 0).toLocaleString(
-    formatDariNumbers ? "fa-AF" : undefined,
-    {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    },
-  );
+  const formattedValue = formatLocaleNumber(value, formatDariNumbers, {
+    formatEnglish: true,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
   const displayedSuffix = suffix;
 
   return (

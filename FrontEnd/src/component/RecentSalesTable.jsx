@@ -10,21 +10,12 @@ import {
 } from "@/components/ui/table";
 
 import { useTranslation } from "react-i18next";
-
-function formatNumber(value, locale) {
-  return new Intl.NumberFormat(locale).format(value || 0);
-}
-
-function formatDate(date, locale) {
-  if (!date) return "";
-
-  return new Intl.DateTimeFormat(locale, {
-    calendar: "gregory",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(new Date(date));
-}
+import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
+import {
+  formatLocaleDate,
+  formatLocaleId,
+  formatLocaleNumber,
+} from "@/lib/localeFormatters";
 
 function getSaleKey(sale) {
   return `${sale.sales_id}-${sale.item_id}`;
@@ -33,7 +24,6 @@ function getSaleKey(sale) {
 export function SalesTable({ data = [] }) {
   const { t, i18n } = useTranslation();
   const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
-  const locale = isDari ? "fa-AF" : "en-US";
   const total = data.reduce(
     (sum, sale) => sum + Number(sale.total_sale_afn || 0),
     0,
@@ -73,7 +63,7 @@ export function SalesTable({ data = [] }) {
           data.map((sale) => (
             <TableRow key={getSaleKey(sale)}>
               <TableCell className="font-medium whitespace-nowrap rtl:text-right">
-                #{sale.sales_id}
+                #{formatLocaleId(sale.sales_id, isDari)}
               </TableCell>
 
               <TableCell className="whitespace-nowrap rtl:text-right">
@@ -81,15 +71,22 @@ export function SalesTable({ data = [] }) {
               </TableCell>
 
               <TableCell className="whitespace-nowrap rtl:text-right">
-                {sale.item_name}
+                {localizeInventoryValue(sale.item_name, isDari)}
               </TableCell>
 
               <TableCell className="whitespace-nowrap rtl:text-right">
-                {formatDate(sale.sales_date, locale)}
+                {formatLocaleDate(sale.sales_date, isDari, {
+                  formatEnglish: true,
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
               </TableCell>
 
               <TableCell className="whitespace-nowrap text-right rtl:text-right">
-                {formatNumber(sale.total_sale_afn, locale)} {t("currencyAFN")}
+                {formatLocaleNumber(sale.total_sale_afn, isDari, {
+                  formatEnglish: true,
+                })} {t("currencyAFN")}
               </TableCell>
             </TableRow>
           ))
@@ -106,7 +103,7 @@ export function SalesTable({ data = [] }) {
           </TableCell>
 
           <TableCell className="whitespace-nowrap text-right rtl:text-right">
-            {formatNumber(total, locale)} {t("currencyAFN")}
+            {formatLocaleNumber(total, isDari, { formatEnglish: true })} {t("currencyAFN")}
           </TableCell>
         </TableRow>
       </TableFooter>

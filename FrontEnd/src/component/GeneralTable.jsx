@@ -7,8 +7,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
+import {
+  formatLocaleId,
+  formatLocaleNumber,
+  isIdColumn,
+} from "@/lib/localeFormatters";
 export default function GeneralTable({ columns, data, actions, getRowId }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
 
   return (
     <div className=" w-full overflow-auto rounded-md border scrollbar-thin h-[calc(100vh-250px)]">
@@ -55,7 +61,13 @@ export default function GeneralTable({ columns, data, actions, getRowId }) {
                     className="whitespace-nowrap rtl:text-right"
                   >
                     {/* this structure is called bracket notation which take the specific value of an object */}
-                    {row[column.key] ?? "-"}
+                    {column.render
+                      ? column.render(row)
+                      : column.format === "id" || isIdColumn(column.key)
+                        ? formatLocaleId(row[column.key], isDari)
+                      : column.format === "number"
+                        ? formatLocaleNumber(row[column.key], isDari)
+                        : (row[column.key] ?? "-")}
                   </TableCell>
                 ))}
 

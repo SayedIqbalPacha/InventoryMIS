@@ -7,6 +7,8 @@ import ReportCard from "@/component/ReportCard";
 import ReportTable from "@/component/ReportTable";
 import PageHeader from "@/component/PageHeader";
 import PrintButton from "@/component/PrintButton";
+import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
+import { formatLocaleNumber } from "@/lib/localeFormatters";
 
 import {
   Bar,
@@ -116,7 +118,7 @@ export default function Reports() {
       // and we can then accumulate the revenue for that item as we iterate through the sales data.
       if (!map[itemId]) {
         map[itemId] = {
-          name: sale.item_name,
+          name: localizeInventoryValue(sale.item_name, isDari),
           revenue: 0,
         };
       }
@@ -125,7 +127,7 @@ export default function Reports() {
     });
 
     return Object.values(map);
-  }, [sales]);
+  }, [sales, isDari]);
 
   // --------------------------------------------------
   // PURCHASES BY ITEM
@@ -139,7 +141,7 @@ export default function Reports() {
 
       if (!map[itemId]) {
         map[itemId] = {
-          name: purchase.item_name,
+          name: localizeInventoryValue(purchase.item_name, isDari),
           quantity: 0,
         };
       }
@@ -148,7 +150,7 @@ export default function Reports() {
     });
 
     return Object.values(map);
-  }, [purchases]);
+  }, [purchases, isDari]);
 
   // --------------------------------------------------
   // STOCK BY ITEM
@@ -156,10 +158,10 @@ export default function Reports() {
 
   const stockChart = useMemo(() => {
     return stock.map((item) => ({
-      name: item.item_name,
+      name: localizeInventoryValue(item.item_name, isDari),
       stock: Number(item.current_stock || 0),
     }));
-  }, [stock]);
+  }, [stock, isDari]);
 
   // --------------------------------------------------
   // FINANCIAL SUMMARY
@@ -531,6 +533,7 @@ export default function Reports() {
               {
                 key: "item_name",
                 label: t("item"),
+                render: (row) => localizeInventoryValue(row.item_name, isDari),
               },
               {
                 key: "total_purchased",
@@ -572,6 +575,7 @@ export default function Reports() {
               {
                 key: "item_name",
                 label: t("item"),
+                render: (row) => localizeInventoryValue(row.item_name, isDari),
               },
               {
                 key: "sale_of_item",
@@ -614,6 +618,7 @@ export default function Reports() {
               {
                 key: "item_name",
                 label: t("item"),
+                render: (row) => localizeInventoryValue(row.item_name, isDari),
               },
               {
                 key: "total_qty",
@@ -659,6 +664,7 @@ export default function Reports() {
               {
                 key: "item_name",
                 label: t("item"),
+                render: (row) => localizeInventoryValue(row.item_name, isDari),
               },
               {
                 key: "cost_of_item_afn",
@@ -738,9 +744,11 @@ export default function Reports() {
 }
 
 function formatReportNumber(value, isDari, options = {}) {
-  return new Intl.NumberFormat(isDari ? "fa-AF" : undefined, options).format(
-    Number(value) || 0,
-  );
+  return formatLocaleNumber(value, isDari, {
+    formatEnglish: true,
+    minimumFractionDigits: 0,
+    ...options,
+  });
 }
 
 // ==================================================

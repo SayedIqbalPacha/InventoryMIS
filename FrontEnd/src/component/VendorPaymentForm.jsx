@@ -7,6 +7,7 @@ import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+import { formatLocaleId } from "@/lib/localeFormatters";
 
 const createVendorPaymentSchema = (t) => z.object({
   purchase_id: z.string().optional(),
@@ -43,7 +44,8 @@ export default function VendorPaymentForm({
   loading,
 }) {
   const [serverError, setServerError] = useState("");
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const vendorPaymentSchema = useMemo(
     () => createVendorPaymentSchema(t),
     [t],
@@ -103,7 +105,9 @@ export default function VendorPaymentForm({
       placeholder: t("selectPurchaseOptional"),
       options: purchases.map((purchase) => ({
         value: String(purchase.purchase_id),
-        label: t("purchaseNumberWithId", { id: purchase.purchase_id }),
+        label: t("purchaseNumberWithId", {
+          id: formatLocaleId(purchase.purchase_id, isDari),
+        }),
       })),
     },
 

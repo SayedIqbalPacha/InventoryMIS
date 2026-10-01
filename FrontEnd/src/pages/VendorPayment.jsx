@@ -32,26 +32,11 @@ import {
 
 import { Pencil, Trash2 } from "lucide-react";
 import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
-
-function formatPaymentDate(value, isDari) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-  if (isDari) {
-    return new Intl.DateTimeFormat("fa-AF-u-ca-gregory", {
-      timeZone: "UTC",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(date);
-  }
-  return date.toISOString().split("T")[0];
-}
-
-function formatPaymentAmount(value, isDari) {
-  if (!isDari || value == null || value === "") return value ?? "-";
-  return new Intl.NumberFormat("fa-AF").format(Number(value) || 0);
-}
+import {
+  formatLocaleDate,
+  formatLocaleId,
+  formatLocaleNumber,
+} from "@/lib/localeFormatters";
 
 export default function VendorPaymentPage() {
   const { t, i18n } = useTranslation();
@@ -235,7 +220,9 @@ export default function VendorPaymentPage() {
   const purchaseMap = Object.fromEntries(
     purchases.map((purchase) => [
       purchase.purchase_id,
-      t("purchaseNumberWithId", { id: purchase.purchase_id }),
+      t("purchaseNumberWithId", {
+        id: formatLocaleId(purchase.purchase_id, isDari),
+      }),
     ]),
   );
 
@@ -267,9 +254,9 @@ export default function VendorPaymentPage() {
     vendor_name_display:
       payment.vendor_id != null ? vendorMap[payment.vendor_id] || "-" : "-",
 
-    amount_display: formatPaymentAmount(payment.amount, isDari),
+    amount_display: formatLocaleNumber(payment.amount, isDari),
 
-    payment_date_display: formatPaymentDate(payment.payment_date, isDari),
+    payment_date_display: formatLocaleDate(payment.payment_date, isDari),
   }));
 
   // --------------------------------------------------
@@ -493,7 +480,7 @@ export default function VendorPaymentPage() {
         onConfirm={handleDelete}
         loading={deleteLoading}
         name={t("vendorPaymentNumber", {
-          id: paymentToDelete?.payment_id ?? "",
+          id: formatLocaleId(paymentToDelete?.payment_id, isDari, ""),
         })}
         tableName={t("vendorPayment")}
       />

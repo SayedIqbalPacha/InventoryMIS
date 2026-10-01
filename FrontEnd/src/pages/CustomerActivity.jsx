@@ -9,22 +9,20 @@ import ReportCard from "@/component/ReportCard";
 import ReportTable from "@/component/ReportTable";
 import PrintButton from "@/component/PrintButton";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+import { formatLocaleDate, formatLocaleNumber } from "@/lib/localeFormatters";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function formatDate(value, isDari) {
-  if (!value) {
-    return "-";
-  }
-
-  const date = String(value).slice(0, 10);
-  return isDari ? date.replace(/[0-9]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[digit]) : date;
+  return formatLocaleDate(value, isDari);
 }
 
 function formatMoney(value, isDari) {
-  return Number(value || 0).toLocaleString(isDari ? "fa-AF" : undefined, {
+  return formatLocaleNumber(value, isDari, {
+    formatEnglish: true,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -314,7 +312,7 @@ export default function CustomerActivity() {
                     label: t("date"),
                     render: (row) => formatDate(row.sales_date, isDari),
                   },
-                  { key: "currency_code", label: t("currency") },
+                  { key: "currency_code", label: t("currency"), render: (row) => getCurrencyLabel(row.currency_code, t) },
                   { key: "total_qty", label: t("quantity") },
                   {
                     key: "total_original",
@@ -390,7 +388,7 @@ export default function CustomerActivity() {
                     label: t("date"),
                     render: (row) => formatDate(row.date, isDari),
                   },
-                  { key: "currency_code", label: t("currency") },
+                  { key: "currency_code", label: t("currency"), render: (row) => getCurrencyLabel(row.currency_code, t) },
                   {
                     key: "amount",
                     label: t("amount"),

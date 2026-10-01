@@ -38,13 +38,16 @@ import {
 } from "@/components/ui/dialog";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+import { formatLocaleDate, formatLocaleId } from "@/lib/localeFormatters";
 
 // --------------------------------------------------
 // PURCHASE PAGE
 // --------------------------------------------------
 
 export default function PurchasePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -362,7 +365,7 @@ export default function PurchasePage() {
   const currencyMap = Object.fromEntries(
     currencies.map((currency) => [
       currency.currency_id,
-      currency.currency_code,
+      getCurrencyLabel(currency.currency_code, t),
     ]),
   );
 
@@ -391,9 +394,7 @@ export default function PurchasePage() {
   const tablePurchases = purchases.map((purchase) => ({
     ...purchase,
 
-    purchase_date_display: purchase.purchase_date
-      ? new Date(purchase.purchase_date).toISOString().split("T")[0]
-      : "-",
+    purchase_date_display: formatLocaleDate(purchase.purchase_date, isDari),
 
     currency_code_display: currencyMap[purchase.currency_id] || "-",
 
@@ -459,11 +460,13 @@ export default function PurchasePage() {
     {
       key: "item_count_display",
       label: t("items"),
+      format: "number",
     },
 
     {
       key: "total_amount",
       label: t("totalAmount"),
+      format: "number",
     },
 
     {
@@ -633,7 +636,7 @@ export default function PurchasePage() {
 
         loading={deleteLoading}
 
-        name={`${t("purchase")} #${purchaseToDelete?.purchase_id ?? ""}`}
+        name={`${t("purchase")} #${formatLocaleId(purchaseToDelete?.purchase_id, isDari, "")}`}
 
         tableName={t("purchase")}
       />

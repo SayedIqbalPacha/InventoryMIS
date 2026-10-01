@@ -33,13 +33,16 @@ import {
 } from "@/components/ui/dialog";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+import { formatLocaleDate, formatLocaleId } from "@/lib/localeFormatters";
 
 // --------------------------------------------------
 // EXCHANGE RATE PAGE
 // --------------------------------------------------
 
 export default function ExchangeRatePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -205,7 +208,7 @@ export default function ExchangeRatePage() {
     currencies.map((currency) => [
       currency.currency_id,
 
-      currency.currency_code,
+      getCurrencyLabel(currency.currency_code, t),
     ]),
   );
 
@@ -220,9 +223,7 @@ export default function ExchangeRatePage() {
 
     to_currency_display: currencyMap[exchangeRate.to_currency_id] || "-",
 
-    effective_date_display: exchangeRate.effective_date
-      ? new Date(exchangeRate.effective_date).toISOString().split("T")[0]
-      : "-",
+    effective_date_display: formatLocaleDate(exchangeRate.effective_date, isDari),
   }));
 
   // --------------------------------------------------
@@ -274,6 +275,7 @@ export default function ExchangeRatePage() {
     {
       key: "exchange_rate",
       label: t("exchangeRate"),
+      format: "number",
     },
 
     {
@@ -464,7 +466,7 @@ export default function ExchangeRatePage() {
 
         loading={deleteLoading}
 
-        name={`${t("exchangeRate")} #${exchangeRateToDelete?.rate_id ?? ""}`}
+        name={`${t("exchangeRate")} #${formatLocaleId(exchangeRateToDelete?.rate_id, isDari, "")}`}
 
         tableName={t("exchangeRate")}
       />

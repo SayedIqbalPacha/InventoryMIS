@@ -7,6 +7,7 @@ import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+import { formatLocaleId } from "@/lib/localeFormatters";
 
 const createCustomerPaymentSchema = (t) => z.object({
   customer_id: z.string().optional(),
@@ -43,7 +44,8 @@ export default function CustomerPaymentForm({
   loading,
 }) {
   const [serverError, setServerError] = useState("");
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const customerPaymentSchema = useMemo(
     () => createCustomerPaymentSchema(t),
     [t],
@@ -133,7 +135,7 @@ export default function CustomerPaymentForm({
       placeholder: t("selectSaleOptional"),
       options: sales.map((sale) => ({
         value: String(sale.sales_id),
-        label: t("saleNumber", { id: sale.sales_id }),
+        label: t("saleNumber", { id: formatLocaleId(sale.sales_id, isDari) }),
       })),
     },
   ];

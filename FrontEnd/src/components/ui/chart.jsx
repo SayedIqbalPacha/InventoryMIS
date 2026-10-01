@@ -1,7 +1,9 @@
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
+import { formatLocaleNumber } from "@/lib/localeFormatters"
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = {
@@ -104,6 +106,8 @@ function ChartTooltipContent({
   nameKey,
   labelKey
 }) {
+  const { i18n } = useTranslation()
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs")
   const { config } = useChart()
 
   const tooltipLabel = React.useMemo(() => {
@@ -208,7 +212,7 @@ function ChartTooltipContent({
                       {item.value != null && (
                         <span className="font-mono font-medium text-foreground tabular-nums">
                           {typeof item.value === "number"
-                            ? item.value.toLocaleString()
+                            ? formatLocaleNumber(item.value, isDari, { formatEnglish: true })
                             : String(item.value)}
                         </span>
                       )}

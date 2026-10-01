@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Pencil, Trash2 } from "lucide-react";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
 
 // --------------------------------------------------
 // CURRENCY PAGE
@@ -158,11 +159,16 @@ export default function CurrencyPage() {
 
   const searchValue = search.toLowerCase().trim();
 
-  const filteredCurrencies = currencies.filter((currency) => {
-    return String(currency.currency_code || "")
-      .toLowerCase()
-      .includes(searchValue);
-  });
+  const tableCurrencies = currencies.map((currency) => ({
+    ...currency,
+    currency_code_display: getCurrencyLabel(currency.currency_code, t),
+  }));
+
+  const filteredCurrencies = tableCurrencies.filter((currency) =>
+    [currency.currency_code, currency.currency_code_display].some((value) =>
+      String(value || "").toLowerCase().includes(searchValue),
+    ),
+  );
 
   // --------------------------------------------------
   // TABLE COLUMNS
@@ -170,7 +176,7 @@ export default function CurrencyPage() {
 
   const columns = [
     {
-      key: "currency_code",
+      key: "currency_code_display",
       label: t("currencyCode"),
     },
     {
@@ -324,7 +330,7 @@ export default function CurrencyPage() {
         onOpenChange={setDeleteOpen}
         onConfirm={handleDelete}
         loading={deleteLoading}
-        name={currencyToDelete?.currency_code}
+        name={getCurrencyLabel(currencyToDelete?.currency_code, t)}
         tableName={t("currency")}
       />
     </div>

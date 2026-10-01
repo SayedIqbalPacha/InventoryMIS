@@ -34,13 +34,16 @@ import {
 } from "@/components/ui/dialog";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+import { formatLocaleDate, formatLocaleId } from "@/lib/localeFormatters";
 
 // --------------------------------------------------
 // SALES PAGE
 // --------------------------------------------------
 
 export default function SalesPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -304,7 +307,7 @@ export default function SalesPage() {
     currencies.map((currency) => [
       currency.currency_id,
 
-      currency.currency_code,
+      getCurrencyLabel(currency.currency_code, t),
     ]),
   );
 
@@ -331,9 +334,7 @@ export default function SalesPage() {
 
     currency_code_display: currencyMap[sale.currency_id] || "-",
 
-    sales_date_display: sale.sales_date
-      ? new Date(sale.sales_date).toISOString().split("T")[0]
-      : "-",
+    sales_date_display: formatLocaleDate(sale.sales_date, isDari),
 
     item_count_display: salesItemCountMap[Number(sale.sales_id)] || 0,
   }));
@@ -389,6 +390,7 @@ export default function SalesPage() {
     {
       key: "item_count_display",
       label: t("items"),
+      format: "number",
     },
   ];
 
@@ -556,7 +558,7 @@ export default function SalesPage() {
 
         loading={deleteLoading}
 
-        name={`${t("sale")} #${salesToDelete?.sales_id ?? ""}`}
+        name={`${t("sale")} #${formatLocaleId(salesToDelete?.sales_id, isDari, "")}`}
 
         tableName={t("sale")}
       />

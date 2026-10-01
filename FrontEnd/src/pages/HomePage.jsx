@@ -10,13 +10,14 @@ import {
 } from "lucide-react";
 import { getDashboard } from "@/services/apiDashboard";
 import { useTranslation } from "react-i18next";
+import { formatLocaleNumber } from "@/lib/localeFormatters";
 
-function formatNumber(value, locale) {
-  return new Intl.NumberFormat(locale).format(value || 0);
+function formatNumber(value, isDari) {
+  return formatLocaleNumber(value, isDari, { formatEnglish: true });
 }
 
-function formatAfn(value, locale, currencyLabel) {
-  return `${formatNumber(value, locale)} ${currencyLabel}`;
+function formatAfn(value, isDari, currencyLabel) {
+  return `${formatNumber(value, isDari)} ${currencyLabel}`;
 }
 
 function DashboardCard({ title, value, icon: Icon }) {
@@ -40,7 +41,6 @@ function DashboardCard({ title, value, icon: Icon }) {
 function Homepage() {
   const { t, i18n } = useTranslation();
   const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
-  const locale = isDari ? "fa-AF" : "en-US";
   const currencyLabel = t("currencyAFN");
   const [dashboard, setDashboard] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,25 +84,25 @@ function Homepage() {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-4">
       <DashboardCard
         title={t("totalCustomers")}
-        value={formatNumber(summary.totalCustomers, locale)}
+        value={formatNumber(summary.totalCustomers, isDari)}
         icon={UsersRoundIcon}
       />
 
       <DashboardCard
         title={t("totalItems")}
-        value={formatNumber(summary.totalItems, locale)}
+        value={formatNumber(summary.totalItems, isDari)}
         icon={PackageIcon}
       />
 
       <DashboardCard
         title={t("totalSales")}
-        value={formatAfn(summary.totalSalesAfn, locale, currencyLabel)}
+        value={formatAfn(summary.totalSalesAfn, isDari, currencyLabel)}
         icon={ShoppingCart}
       />
 
       <DashboardCard
         title={t("totalProfit")}
-        value={formatAfn(summary.totalProfitAfn, locale, currencyLabel)}
+        value={formatAfn(summary.totalProfitAfn, isDari, currencyLabel)}
         icon={TrendingUp}
       />
 

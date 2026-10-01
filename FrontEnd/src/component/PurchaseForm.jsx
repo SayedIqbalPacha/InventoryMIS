@@ -20,6 +20,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useTranslation } from "react-i18next";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+import { formatLocaleNumber } from "@/lib/localeFormatters";
 
 // --------------------------------------------------
 // VALIDATION
@@ -530,7 +531,12 @@ export default function PurchaseForm({
                         <FieldLabel>{t("lineTotal")}</FieldLabel>
 
                         <Input
-                          value={lineTotal.toFixed(2)}
+                          value={isDari
+                            ? formatLocaleNumber(lineTotal, isDari, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })
+                            : lineTotal.toFixed(2)}
                           readOnly
                           className="bg-muted"
                         />
@@ -566,7 +572,12 @@ export default function PurchaseForm({
                 <span className="font-medium">{t("grandTotal")}</span>
 
                 <span className="text-lg font-bold">
-                  {grandTotal.toFixed(2)}
+                  {isDari
+                    ? formatLocaleNumber(grandTotal, isDari, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : grandTotal.toFixed(2)}
                 </span>
               </div>
             </div>

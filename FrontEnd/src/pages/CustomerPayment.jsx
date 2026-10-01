@@ -31,26 +31,11 @@ import {
 } from "@/components/ui/dialog";
 import { Pencil, Trash2 } from "lucide-react";
 import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
-
-function formatPaymentDate(value, isDari) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-  if (isDari) {
-    return new Intl.DateTimeFormat("fa-AF-u-ca-gregory", {
-      timeZone: "UTC",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(date);
-  }
-  return date.toISOString().split("T")[0];
-}
-
-function formatPaymentAmount(value, isDari) {
-  if (!isDari || value == null || value === "") return value ?? "-";
-  return new Intl.NumberFormat("fa-AF").format(Number(value) || 0);
-}
+import {
+  formatLocaleDate,
+  formatLocaleId,
+  formatLocaleNumber,
+} from "@/lib/localeFormatters";
 
 export default function CustomerPaymentPage() {
   const { t, i18n } = useTranslation();
@@ -246,12 +231,14 @@ export default function CustomerPaymentPage() {
 
     currency_code_display: currencyMap[payment.currency_id] || "-",
 
-    amount_display: formatPaymentAmount(payment.amount, isDari),
+    amount_display: formatLocaleNumber(payment.amount, isDari),
 
-    date_display: formatPaymentDate(payment.date, isDari),
+    date_display: formatLocaleDate(payment.date, isDari),
 
     sale_display:
-      payment.sale_id != null ? t("saleNumber", { id: payment.sale_id }) : "-",
+      payment.sale_id != null
+        ? t("saleNumber", { id: formatLocaleId(payment.sale_id, isDari) })
+        : "-",
   }));
 
   // --------------------------------------------------
@@ -475,7 +462,7 @@ export default function CustomerPaymentPage() {
         onConfirm={handleDelete}
         loading={deleteLoading}
         name={t("customerPaymentNumber", {
-          id: paymentToDelete?.cus_payment_id ?? "",
+          id: formatLocaleId(paymentToDelete?.cus_payment_id, isDari, ""),
         })}
         tableName={t("customerPayment")}
       />

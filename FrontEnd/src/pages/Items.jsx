@@ -239,9 +239,9 @@ export default function ItemsPage() {
     { key: "item_id", label: t("id") },
     { key: "item_name_display", label: t("itemName") },
     { key: "description_display", label: t("itemDescription") },
-    { key: "sell_price", label: t("sellPrice") },
-    { key: "cost_price", label: t("costPrice") },
-    { key: "stock_quantity", label: t("stockQuantity") },
+    { key: "sell_price", label: t("sellPrice"), format: "number" },
+    { key: "cost_price", label: t("costPrice"), format: "number" },
+    { key: "stock_quantity", label: t("stockQuantity"), format: "number" },
     { key: "unit_name_display", label: t("unit") },
     { key: "catagory_name_display", label: t("category") },
   ];
@@ -396,7 +396,7 @@ export default function ItemsPage() {
         onOpenChange={setDeleteOpen}
         onConfirm={handleDelete}
         loading={deleteLoading}
-        name={itemToDelete?.item_name}
+        name={localizeInventoryValue(itemToDelete?.item_name, isDari)}
         tableName={t("item")}
       />
     </div>

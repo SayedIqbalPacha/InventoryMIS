@@ -1,4 +1,9 @@
 import { useTranslation } from "react-i18next";
+import {
+  formatLocaleId,
+  formatLocaleNumber,
+  isIdColumn,
+} from "@/lib/localeFormatters";
 
 export default function ReportTable({
   title,
@@ -9,9 +14,6 @@ export default function ReportTable({
 }) {
   const { i18n } = useTranslation();
   const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
-  const numberFormatter = new Intl.NumberFormat(isDari ? "fa-AF" : undefined, {
-    maximumFractionDigits: 10,
-  });
 
   return (
     <section className="min-w-0 rounded-xl border bg-card shadow-sm">
@@ -49,12 +51,17 @@ export default function ReportTable({
                     >
                       {column.render
                         ? column.render(row)
+                        : column.format === "id" || isIdColumn(column.key)
+                          ? formatLocaleId(row[column.key], isDari)
                         : formatNumbers &&
                             row[column.key] !== null &&
                             row[column.key] !== undefined &&
                             row[column.key] !== "" &&
                             Number.isFinite(Number(row[column.key]))
-                          ? numberFormatter.format(Number(row[column.key]))
+                          ? formatLocaleNumber(row[column.key], isDari, {
+                              formatEnglish: true,
+                              maximumFractionDigits: 10,
+                            })
                           : (row[column.key] ?? "-")}
                     </td>
                   ))}

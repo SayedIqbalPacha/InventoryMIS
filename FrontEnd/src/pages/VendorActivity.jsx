@@ -9,23 +9,21 @@ import PrintButton from "@/component/PrintButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+import { formatLocaleDate, formatLocaleNumber } from "@/lib/localeFormatters";
 
 const money = (value, isDari) =>
-  Number(value || 0).toLocaleString(isDari ? "fa-AF" : undefined, {
+  formatLocaleNumber(value, isDari, {
+    formatEnglish: true,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 const number = (value, isDari) =>
-  Number(value || 0).toLocaleString(isDari ? "fa-AF" : undefined, {
+  formatLocaleNumber(value, isDari, {
+    formatEnglish: true,
     maximumFractionDigits: 10,
   });
-const date = (value, isDari) => {
-  if (!value) return "-";
-  const formatted = String(value).slice(0, 10);
-  return isDari
-    ? formatted.replace(/[0-9]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[digit])
-    : formatted;
-};
+const date = (value, isDari) => formatLocaleDate(value, isDari);
 
 export default function VendorActivity() {
   const { t, i18n } = useTranslation();
@@ -243,7 +241,7 @@ export default function VendorActivity() {
                   label: t("date"),
                   render: (row) => date(row.purchase_date, isDari),
                 },
-                { key: "currency_code", label: t("currency") },
+                { key: "currency_code", label: t("currency"), render: (row) => getCurrencyLabel(row.currency_code, t) },
                 {
                   key: "total_original",
                   label: t("purchaseTotal"),
@@ -276,7 +274,7 @@ export default function VendorActivity() {
                       ? t("unallocated")
                       : number(row.purchase_id, isDari),
                 },
-                { key: "currency_code", label: t("currency") },
+                { key: "currency_code", label: t("currency"), render: (row) => getCurrencyLabel(row.currency_code, t) },
                 {
                   key: "amount_original",
                   label: t("payment"),

@@ -8,41 +8,10 @@ import {
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { useTranslation } from "react-i18next";
-// ==================================================
-// CHART CONFIG
-// ==================================================
-
-const chartConfig = {
-  sales: {
-    label: "Sales",
-    color: "#2563eb",
-  },
-
-  purchases: {
-    label: "Purchases",
-    color: "#f97316",
-  },
-};
-
+import { formatLocaleDate, formatLocaleNumber } from "@/lib/localeFormatters";
 // ==================================================
 // FORMAT DATE
 // ==================================================
-
-function formatDate(date, locale) {
-  if (!date) return "";
-
-  return new Intl.DateTimeFormat(locale, {
-    calendar: "gregory",
-    month: "short",
-    day: "numeric",
-  }).format(new Date(date));
-}
-
-// format value
-
-function formatValue(value, locale) {
-  return new Intl.NumberFormat(locale).format(value || 0);
-}
 
 // ==================================================
 // SALES & PURCHASES
@@ -51,7 +20,6 @@ function formatValue(value, locale) {
 export function SalesPurchase({ data = [] }) {
   const { t, i18n } = useTranslation();
   const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
-  const locale = isDari ? "fa-AF" : "en-US";
 
   const chartConfig = {
     sales: {
@@ -70,7 +38,11 @@ export function SalesPurchase({ data = [] }) {
   const chartData = data.map((row) => ({
     date: row.transaction_date,
 
-    dateLabel: formatDate(row.transaction_date, locale),
+    dateLabel: formatLocaleDate(row.transaction_date, isDari, {
+      formatEnglish: true,
+      month: "short",
+      day: "numeric",
+    }),
 
     sales: Number(row.total_sales_afn) || 0,
 
@@ -122,7 +94,9 @@ export function SalesPurchase({ data = [] }) {
             <YAxis
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => formatValue(value, locale)}
+              tickFormatter={(value) =>
+                formatLocaleNumber(value, isDari, { formatEnglish: true })
+              }
               tick={{ fontSize: 11 }}
               width={80}
             />
@@ -131,7 +105,7 @@ export function SalesPurchase({ data = [] }) {
               content={
                 <ChartTooltipContent
                   formatter={(value) =>
-                    `${formatValue(value, locale)} ${t("currencyAFN")}`
+                    `${formatLocaleNumber(value, isDari, { formatEnglish: true })} ${t("currencyAFN")}`
                   }
                 />
               }
