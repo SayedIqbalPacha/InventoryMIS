@@ -13,6 +13,8 @@
   "loginTitle": "ورود به حساب",
   "loginDescription": "برای ورود به حساب خود ایمیل‌تان را وارد کنید",
   "signUp": "ثبت نام",
+  "login": "ورود",
+  "resetPassword": "بازنشانی رمز عبور",
   "forgotYourPassword": "رمز عبور را فراموش کرده‌اید؟",
   "loggingIn": "در حال ورود...",
   "loginWithGoogle": "ورود با گوگل",

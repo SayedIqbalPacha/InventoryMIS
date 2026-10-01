@@ -214,10 +214,7 @@ export default function SalesPage() {
       setFormOpen(false);
       setSelectedSales(null);
     } catch (err) {
-      setError(
-        err?.message ||
-          t("failedToSaveSale"),
-      );
+      setError(translateApiError(err, t, "failedToSaveSale"));
 
       // Re-throw so SalesForm can also display
       // the server error inside the form.

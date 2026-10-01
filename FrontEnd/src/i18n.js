@@ -4,10 +4,13 @@ import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";
 import prs from "./locales/prs.json";
 
-const savedLanguage = localStorage.getItem("inventory-language") || "en";
+const storedLanguage = localStorage.getItem("inventory-language") || "en";
+const savedLanguage = storedLanguage.toLowerCase().startsWith("prs")
+  ? "prs"
+  : "en";
 
 function updateDocumentLanguage(language) {
-  const isDari = language === "prs";
+  const isDari = language.toLowerCase().startsWith("prs");
 
   document.documentElement.lang = language;
   document.documentElement.dir = isDari ? "rtl" : "ltr";

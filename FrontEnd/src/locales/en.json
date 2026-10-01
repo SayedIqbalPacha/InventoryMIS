@@ -13,6 +13,8 @@
   "loginTitle": "Login to your account",
   "loginDescription": "Enter your email below to login to your account",
   "signUp": "Sign Up",
+  "login": "Login",
+  "resetPassword": "Reset password",
   "forgotYourPassword": "Forgot your password?",
   "loggingIn": "Logging in...",
   "loginWithGoogle": "Login with Google",
