@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/card";
 
 function Profile() {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const { user, loading, updateMe, updateMyPassword } = useAuth();
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -34,6 +37,14 @@ function Profile() {
   const [successMessage, setSuccessMessage] = useState("");
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  function translateRequestError(error, fallbackKey) {
+    if (error?.message && i18n.exists(error.message)) {
+      return t(error.message);
+    }
+
+    return !isDari && error?.message ? error.message : t(fallbackKey);
+  }
 
   useEffect(() => {
     if (user) {
@@ -93,12 +104,12 @@ function Profile() {
     clearMessages();
 
     if (!name.trim()) {
-      setErrorMessage("Please provide your name.");
+      setErrorMessage(t("provideName"));
       return;
     }
 
     if (!email.trim()) {
-      setErrorMessage("Please provide your email.");
+      setErrorMessage(t("provideEmail"));
       return;
     }
 
@@ -110,11 +121,11 @@ function Profile() {
         email: email.trim(),
       });
 
-      setSuccessMessage("Your profile was updated successfully.");
+      setSuccessMessage(t("profileUpdated"));
 
       setIsEditingProfile(false);
     } catch (error) {
-      setErrorMessage(error.message || "Unable to update your profile.");
+      setErrorMessage(translateRequestError(error, "profileUpdateFailed"));
     } finally {
       setProfileLoading(false);
     }
@@ -126,28 +137,28 @@ function Profile() {
     clearMessages();
 
     if (!currentPassword) {
-      setErrorMessage("Please provide your current password.");
+      setErrorMessage(t("provideCurrentPassword"));
       return;
     }
 
     if (!password) {
-      setErrorMessage("Please provide a new password.");
+      setErrorMessage(t("provideNewPassword"));
       return;
     }
 
     if (!passwordConfirm) {
-      setErrorMessage("Please confirm your new password.");
+      setErrorMessage(t("confirmNewPasswordRequired"));
       return;
     }
 
     if (password !== passwordConfirm) {
-      setErrorMessage("New passwords are not the same.");
+      setErrorMessage(t("passwordsDoNotMatch"));
       return;
     }
 
     if (currentPassword === password) {
       setErrorMessage(
-        "The new password must be different from the current password.",
+        t("newPasswordDifferent"),
       );
       return;
     }
@@ -161,14 +172,14 @@ function Profile() {
         passwordConfirm,
       });
 
-      setSuccessMessage("Password changed successfully.");
+      setSuccessMessage(t("passwordChanged"));
 
       setCurrentPassword("");
       setPassword("");
       setPasswordConfirm("");
       setIsChangingPassword(false);
     } catch (error) {
-      setErrorMessage(error.message || "Unable to change your password.");
+      setErrorMessage(translateRequestError(error, "passwordChangeFailed"));
     } finally {
       setPasswordLoading(false);
     }
@@ -181,7 +192,7 @@ function Profile() {
           <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
 
           <p className="text-sm text-muted-foreground">
-            Loading your profile...
+            {t("loadingProfile")}
           </p>
         </div>
       </div>
@@ -191,7 +202,7 @@ function Profile() {
   if (!user) {
     return (
       <div className="p-6 text-center">
-        <p className="text-muted-foreground">No user profile found.</p>
+        <p className="text-muted-foreground">{t("noUserProfile")}</p>
       </div>
     );
   }
@@ -200,10 +211,10 @@ function Profile() {
     <div className="mx-auto w-full max-w-2xl p-4 sm:p-6">
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
+          <CardTitle>{t("profile")}</CardTitle>
 
           <CardDescription>
-            Manage your personal information and password.
+            {t("profileDescription")}
           </CardDescription>
         </CardHeader>
 
@@ -224,13 +235,13 @@ function Profile() {
             <div className="space-y-6">
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Name</p>
+                  <p className="text-sm text-muted-foreground">{t("name")}</p>
 
                   <p className="break-words font-medium">{user.name}</p>
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="text-sm text-muted-foreground">{t("email")}</p>
 
                   <p className="break-all font-medium">{user.email}</p>
                 </div>
@@ -238,7 +249,7 @@ function Profile() {
 
               <div className="flex flex-col gap-3 border-t pt-5 sm:flex-row">
                 <Button type="button" onClick={handleEditProfile}>
-                  Edit Profile
+                  {t("editProfile")}
                 </Button>
 
                 <Button
@@ -246,7 +257,7 @@ function Profile() {
                   variant="outline"
                   onClick={handleOpenPasswordForm}
                 >
-                  Change Password
+                  {t("changePassword")}
                 </Button>
               </div>
             </div>
@@ -255,7 +266,7 @@ function Profile() {
           {isEditingProfile && (
             <form onSubmit={handleProfileSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="profile-name">Name</Label>
+                <Label htmlFor="profile-name">{t("name")}</Label>
 
                 <Input
                   id="profile-name"
@@ -268,7 +279,7 @@ function Profile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="profile-email">Email</Label>
+                <Label htmlFor="profile-email">{t("email")}</Label>
 
                 <Input
                   id="profile-email"
@@ -282,7 +293,7 @@ function Profile() {
 
               <div className="flex flex-col gap-3 border-t pt-5 sm:flex-row">
                 <Button type="submit" disabled={profileLoading}>
-                  {profileLoading ? "Saving..." : "Save Changes"}
+                  {profileLoading ? t("saving") : t("saveChanges")}
                 </Button>
 
                 <Button
@@ -291,7 +302,7 @@ function Profile() {
                   onClick={handleCancelProfile}
                   disabled={profileLoading}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
               </div>
             </form>
@@ -300,7 +311,7 @@ function Profile() {
           {isChangingPassword && (
             <form onSubmit={handlePasswordSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="current-password">Current Password</Label>
+                <Label htmlFor="current-password">{t("currentPassword")}</Label>
 
                 <Input
                   id="current-password"
@@ -313,7 +324,7 @@ function Profile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="new-password">New Password</Label>
+                <Label htmlFor="new-password">{t("newPassword")}</Label>
 
                 <Input
                   id="new-password"
@@ -326,7 +337,7 @@ function Profile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Label htmlFor="confirm-password">{t("confirmNewPassword")}</Label>
 
                 <Input
                   id="confirm-password"
@@ -340,7 +351,7 @@ function Profile() {
 
               <div className="flex flex-col gap-3 border-t pt-5 sm:flex-row">
                 <Button type="submit" disabled={passwordLoading}>
-                  {passwordLoading ? "Changing Password..." : "Change Password"}
+                  {passwordLoading ? t("changingPassword") : t("changePassword")}
                 </Button>
 
                 <Button
@@ -349,7 +360,7 @@ function Profile() {
                   onClick={handleCancelPassword}
                   disabled={passwordLoading}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
               </div>
             </form>

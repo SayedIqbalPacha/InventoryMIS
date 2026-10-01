@@ -200,7 +200,9 @@ export default function CustomerActivity() {
 
       {(matches.length > 0 || suggestions.length > 0) && (
         <section className="rounded-xl border bg-card p-4 shadow-sm">
-          <h2 className="mb-3 text-base font-semibold">{t("chooseCustomer")}</h2>
+          <h2 className="mb-3 text-base font-semibold">
+            {t("chooseCustomer")}
+          </h2>
           <div className="space-y-2">
             {(matches.length > 0 ? matches : suggestions).map((customer) => (
               <Button
@@ -232,8 +234,12 @@ export default function CustomerActivity() {
               })}
             </p>
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-              <p>{t("phone")}: {result.customer.phone || "-"}</p>
-              <p>{t("email")}: {result.customer.email || "-"}</p>
+              <p>
+                {t("phone")}: {result.customer.phone || "-"}
+              </p>
+              <p>
+                {t("email")}: {result.customer.email || "-"}
+              </p>
             </div>
           </section>
 
@@ -258,7 +264,12 @@ export default function CustomerActivity() {
               emptyMessage={t("noSalesInDateRange")}
               formatNumbers
               columns={[
-                { key: "item_name", label: t("item"), render: (row) => localizeInventoryValue(row.item_name, isDari) },
+                {
+                  key: "item_name",
+                  label: t("item"),
+                  render: (row) =>
+                    localizeInventoryValue(row.item_name, isDari),
+                },
                 { key: "quantity_sold", label: t("quantity") },
                 {
                   key: "sold_afn",
@@ -312,7 +323,11 @@ export default function CustomerActivity() {
                     label: t("date"),
                     render: (row) => formatDate(row.sales_date, isDari),
                   },
-                  { key: "currency_code", label: t("currency"), render: (row) => getCurrencyLabel(row.currency_code, t) },
+                  {
+                    key: "currency_code",
+                    label: t("currency"),
+                    render: (row) => getCurrencyLabel(row.currency_code, t),
+                  },
                   { key: "total_qty", label: t("quantity") },
                   {
                     key: "total_original",
@@ -348,7 +363,12 @@ export default function CustomerActivity() {
                     label: t("date"),
                     render: (row) => formatDate(row.sales_date, isDari),
                   },
-                  { key: "item_name", label: t("item"), render: (row) => localizeInventoryValue(row.item_name, isDari) },
+                  {
+                    key: "item_name",
+                    label: t("item"),
+                    render: (row) =>
+                      localizeInventoryValue(row.item_name, isDari),
+                  },
                   { key: "quantity", label: t("quantity") },
                   {
                     key: "unit_price",
@@ -388,7 +408,11 @@ export default function CustomerActivity() {
                     label: t("date"),
                     render: (row) => formatDate(row.date, isDari),
                   },
-                  { key: "currency_code", label: t("currency"), render: (row) => getCurrencyLabel(row.currency_code, t) },
+                  {
+                    key: "currency_code",
+                    label: t("currency"),
+                    render: (row) => getCurrencyLabel(row.currency_code, t),
+                  },
                   {
                     key: "amount",
                     label: t("amount"),

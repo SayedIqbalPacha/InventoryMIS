@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/ThemProvider";
 import PageHeader from "@/component/PageHeader";
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/card";
 
 function Settings() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -24,15 +26,15 @@ function Settings() {
   return (
     <div className="mx-auto w-full max-w-3xl">
       <PageHeader
-        title="Settings"
-        description="Change app appearance and account options."
+        title={t("settings")}
+        description={t("settingsDescription")}
       />
 
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Appearance</CardTitle>
-            <CardDescription>Choose how the app looks.</CardDescription>
+            <CardTitle>{t("appearance")}</CardTitle>
+            <CardDescription>{t("appearanceDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Button
@@ -40,47 +42,47 @@ function Settings() {
               variant={theme === "light" ? "default" : "outline"}
               onClick={() => setTheme("light")}
             >
-              Light
+              {t("lightTheme")}
             </Button>
             <Button
               type="button"
               variant={theme === "dark" ? "default" : "outline"}
               onClick={() => setTheme("dark")}
             >
-              Dark
+              {t("darkTheme")}
             </Button>
             <Button
               type="button"
               variant={theme === "system" ? "default" : "outline"}
               onClick={() => setTheme("system")}
             >
-              System
+              {t("system")}
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Account</CardTitle>
+            <CardTitle>{t("account")}</CardTitle>
             <CardDescription>
-              Name, email, and password are on your profile page.
+              {t("accountDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button type="button" onClick={() => navigate("/profile")}>
-              Go to profile
+              {t("goToProfile")}
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Session</CardTitle>
-            <CardDescription>Sign out of this device.</CardDescription>
+            <CardTitle>{t("session")}</CardTitle>
+            <CardDescription>{t("sessionDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button type="button" variant="outline" onClick={handleLogout}>
-              Logout
+              {t("signOut")}
             </Button>
           </CardContent>
         </Card>
