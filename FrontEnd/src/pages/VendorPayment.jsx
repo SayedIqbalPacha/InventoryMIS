@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   getVendorPayments,
@@ -30,8 +31,31 @@ import {
 } from "@/components/ui/dialog";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+
+function formatPaymentDate(value, isDari) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  if (isDari) {
+    return new Intl.DateTimeFormat("fa-AF-u-ca-gregory", {
+      timeZone: "UTC",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(date);
+  }
+  return date.toISOString().split("T")[0];
+}
+
+function formatPaymentAmount(value, isDari) {
+  if (!isDari || value == null || value === "") return value ?? "-";
+  return new Intl.NumberFormat("fa-AF").format(Number(value) || 0);
+}
 
 export default function VendorPaymentPage() {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -121,8 +145,8 @@ export default function VendorPaymentPage() {
       setCurrencies(currenciesResponse?.data || []);
 
       setVendors(vendorsResponse?.data || []);
-    } catch (err) {
-      setError(err?.message || "Failed to load vendor payments.");
+    } catch {
+      setError("failedToLoadVendorPayments");
     } finally {
       setLoading(false);
     }
@@ -155,8 +179,6 @@ export default function VendorPaymentPage() {
 
       setFormOpen(false);
       setSelectedVendorPayment(null);
-    } catch (err) {
-      throw err;
     } finally {
       setFormLoading(false);
     }
@@ -199,8 +221,8 @@ export default function VendorPaymentPage() {
 
       setDeleteOpen(false);
       setPaymentToDelete(null);
-    } catch (err) {
-      setError(err?.message || "Failed to delete vendor payment.");
+    } catch {
+      setError("failedToDeleteVendorPayment");
     } finally {
       setDeleteLoading(false);
     }
@@ -213,14 +235,14 @@ export default function VendorPaymentPage() {
   const purchaseMap = Object.fromEntries(
     purchases.map((purchase) => [
       purchase.purchase_id,
-      `Purchase #${purchase.purchase_id}`,
+      t("purchaseNumberWithId", { id: purchase.purchase_id }),
     ]),
   );
 
   const currencyMap = Object.fromEntries(
     currencies.map((currency) => [
       currency.currency_id,
-      currency.currency_code,
+      getCurrencyLabel(currency.currency_code, t),
     ]),
   );
 
@@ -245,9 +267,9 @@ export default function VendorPaymentPage() {
     vendor_name_display:
       payment.vendor_id != null ? vendorMap[payment.vendor_id] || "-" : "-",
 
-    payment_date_display: payment.payment_date
-      ? new Date(payment.payment_date).toISOString().split("T")[0]
-      : "-",
+    amount_display: formatPaymentAmount(payment.amount, isDari),
+
+    payment_date_display: formatPaymentDate(payment.payment_date, isDari),
   }));
 
   // --------------------------------------------------
@@ -267,7 +289,7 @@ export default function VendorPaymentPage() {
       String(payment.currency_code_display || "")
         .toLowerCase()
         .includes(searchValue) ||
-      String(payment.amount || "")
+      String(payment.amount_display || "")
         .toLowerCase()
         .includes(searchValue) ||
       String(payment.payment_date_display || "")
@@ -286,32 +308,32 @@ export default function VendorPaymentPage() {
   const columns = [
     {
       key: "payment_id",
-      label: "ID",
+      label: t("id"),
     },
 
     {
       key: "purchase_display",
-      label: "Purchase",
+      label: t("purchase"),
     },
 
     {
       key: "currency_code_display",
-      label: "Currency",
+      label: t("currency"),
     },
 
     {
-      key: "amount",
-      label: "Amount",
+      key: "amount_display",
+      label: t("amount"),
     },
 
     {
       key: "payment_date_display",
-      label: "Payment Date",
+      label: t("paymentDate"),
     },
 
     {
       key: "vendor_name_display",
-      label: "Vendor",
+      label: t("vendor"),
     },
   ];
 
@@ -337,7 +359,10 @@ export default function VendorPaymentPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* HEADER */}
 
-      <PageHeader title="Vendor Payments" description="Manage vendor payments">
+      <PageHeader
+        title={t("vendorPayments")}
+        description={t("manageVendorPayments")}
+      >
         {canCreate && (
           <Button
             className="w-full sm:w-auto"
@@ -347,7 +372,7 @@ export default function VendorPaymentPage() {
               setError("");
             }}
           >
-            Add Payment
+            {t("addVendorPayment")}
           </Button>
         )}
       </PageHeader>
@@ -356,7 +381,7 @@ export default function VendorPaymentPage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive sm:p-4">
-          {error}
+          {t(error)}
         </div>
       )}
 
@@ -366,7 +391,7 @@ export default function VendorPaymentPage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search vendor payments..."
+          placeholder={t("searchVendorPayments")}
         />
       </div>
 
@@ -374,7 +399,7 @@ export default function VendorPaymentPage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading vendor payments...
+          {t("loadingVendorPayments")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -390,6 +415,7 @@ export default function VendorPaymentPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    aria-label={t("editPayment")}
                     onClick={() => handleEdit(payment)}
                   >
                     <Pencil className="h-4 w-4" />
@@ -402,6 +428,7 @@ export default function VendorPaymentPage() {
                   <Button
                     variant="destructive"
                     size="sm"
+                    aria-label={t("deletePayment")}
                     onClick={() => handleDeleteClick(payment)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -436,14 +463,14 @@ export default function VendorPaymentPage() {
           <DialogHeader>
             <DialogTitle>
               {selectedVendorPayment
-                ? "Edit Vendor Payment"
-                : "Add Vendor Payment"}
+                ? t("editVendorPayment")
+                : t("addVendorPayment")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedVendorPayment
-                ? "Update vendor payment information."
-                : "Enter vendor payment information."}
+                ? t("updateVendorPaymentInfo")
+                : t("enterVendorPaymentInfo")}
             </DialogDescription>
           </DialogHeader>
 
@@ -465,8 +492,10 @@ export default function VendorPaymentPage() {
         onOpenChange={setDeleteOpen}
         onConfirm={handleDelete}
         loading={deleteLoading}
-        name={`Vendor Payment #${paymentToDelete?.payment_id ?? ""}`}
-        tableName="Vendor Payment"
+        name={t("vendorPaymentNumber", {
+          id: paymentToDelete?.payment_id ?? "",
+        })}
+        tableName={t("vendorPayment")}
       />
     </div>
   );

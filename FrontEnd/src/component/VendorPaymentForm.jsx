@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,17 +8,17 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
 
-const vendorPaymentSchema = z.object({
+const createVendorPaymentSchema = (t) => z.object({
   purchase_id: z.string().optional(),
 
-  currency_id: z.string().min(1, "Please select a currency."),
+  currency_id: z.string().min(1, t("selectCurrencyRequired")),
 
   amount: z
     .string()
     .optional()
     .refine(
       (value) => value === "" || !isNaN(Number(value)),
-      "Amount must be a number.",
+      t("amountMustBeNumber"),
     ),
 
   payment_date: z.string().optional(),
@@ -44,6 +44,10 @@ export default function VendorPaymentForm({
 }) {
   const [serverError, setServerError] = useState("");
   const { t } = useTranslation();
+  const vendorPaymentSchema = useMemo(
+    () => createVendorPaymentSchema(t),
+    [t],
+  );
 
   const form = useForm({
     resolver: zodResolver(vendorPaymentSchema),
@@ -94,20 +98,20 @@ export default function VendorPaymentForm({
   const fields = [
     {
       name: "purchase_id",
-      label: "Purchase",
+      label: t("purchase"),
       type: "select",
-      placeholder: "Select purchase (optional)",
+      placeholder: t("selectPurchaseOptional"),
       options: purchases.map((purchase) => ({
         value: String(purchase.purchase_id),
-        label: `Purchase #${purchase.purchase_id}`,
+        label: t("purchaseNumberWithId", { id: purchase.purchase_id }),
       })),
     },
 
     {
       name: "currency_id",
-      label: "Currency",
+      label: t("currency"),
       type: "select",
-      placeholder: "Select currency",
+      placeholder: t("selectCurrency"),
       options: currencies.map((currency) => ({
         value: String(currency.currency_id),
         label: getCurrencyLabel(currency.currency_code, t),
@@ -116,25 +120,25 @@ export default function VendorPaymentForm({
 
     {
       name: "amount",
-      label: "Amount",
+      label: t("amount"),
       type: "input",
       inputType: "number",
-      placeholder: "Enter amount (optional)",
+      placeholder: t("enterAmountOptional"),
     },
 
     {
       name: "payment_date",
-      label: "Payment Date",
+      label: t("paymentDate"),
       type: "input",
       inputType: "date",
-      placeholder: "Select payment date (optional)",
+      placeholder: t("selectPaymentDateOptional"),
     },
 
     {
       name: "vendor_id",
-      label: "Vendor",
+      label: t("vendor"),
       type: "select",
-      placeholder: "Select vendor (optional)",
+      placeholder: t("selectVendorOptional"),
       options: vendors.map((vendor) => ({
         value: String(vendor.vendor_id),
         label: vendor.vendor_name,
@@ -164,8 +168,8 @@ export default function VendorPaymentForm({
       };
 
       await onSubmit(vendorPaymentData);
-    } catch (err) {
-      const message = err?.message || "Something went wrong. Please try again.";
+    } catch {
+      const message = t("unexpectedError");
 
       setServerError(message);
 
@@ -236,15 +240,15 @@ export default function VendorPaymentForm({
             onClick={handleReset}
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("reset")}
           </Button>
 
           <Button type="submit" disabled={loading} className="w-full sm:w-auto">
             {loading
-              ? "Saving..."
+              ? t("saving")
               : vendorPayment
-                ? "Update Payment"
-                : "Add Payment"}
+                ? t("updatePayment")
+                : t("addPayment")}
           </Button>
         </div>
       </GeneralForm>

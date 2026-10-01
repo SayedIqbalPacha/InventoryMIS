@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   getCustomerPayments,
@@ -29,8 +30,31 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Pencil, Trash2 } from "lucide-react";
+import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
+
+function formatPaymentDate(value, isDari) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  if (isDari) {
+    return new Intl.DateTimeFormat("fa-AF-u-ca-gregory", {
+      timeZone: "UTC",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(date);
+  }
+  return date.toISOString().split("T")[0];
+}
+
+function formatPaymentAmount(value, isDari) {
+  if (!isDari || value == null || value === "") return value ?? "-";
+  return new Intl.NumberFormat("fa-AF").format(Number(value) || 0);
+}
 
 export default function CustomerPaymentPage() {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -109,8 +133,8 @@ export default function CustomerPaymentPage() {
       setCurrencies(currenciesResponse?.data || []);
 
       setSales(salesResponse?.data || []);
-    } catch (err) {
-      setError(err?.message || "Failed to load customer payments.");
+    } catch {
+      setError("failedToLoadCustomerPayments");
     } finally {
       setLoading(false);
     }
@@ -146,8 +170,6 @@ export default function CustomerPaymentPage() {
 
       setFormOpen(false);
       setSelectedCustomerPayment(null);
-    } catch (err) {
-      throw err;
     } finally {
       setFormLoading(false);
     }
@@ -190,8 +212,8 @@ export default function CustomerPaymentPage() {
 
       setDeleteOpen(false);
       setPaymentToDelete(null);
-    } catch (err) {
-      setError(err?.message || "Failed to delete customer payment.");
+    } catch {
+      setError("failedToDeleteCustomerPayment");
     } finally {
       setDeleteLoading(false);
     }
@@ -208,7 +230,7 @@ export default function CustomerPaymentPage() {
   const currencyMap = Object.fromEntries(
     currencies.map((currency) => [
       currency.currency_id,
-      currency.currency_code,
+      getCurrencyLabel(currency.currency_code, t),
     ]),
   );
 
@@ -224,11 +246,12 @@ export default function CustomerPaymentPage() {
 
     currency_code_display: currencyMap[payment.currency_id] || "-",
 
-    date_display: payment.date
-      ? new Date(payment.date).toISOString().split("T")[0]
-      : "-",
+    amount_display: formatPaymentAmount(payment.amount, isDari),
 
-    sale_display: payment.sale_id != null ? `Sale #${payment.sale_id}` : "-",
+    date_display: formatPaymentDate(payment.date, isDari),
+
+    sale_display:
+      payment.sale_id != null ? t("saleNumber", { id: payment.sale_id }) : "-",
   }));
 
   // --------------------------------------------------
@@ -248,7 +271,7 @@ export default function CustomerPaymentPage() {
       String(payment.currency_code_display || "")
         .toLowerCase()
         .includes(searchValue) ||
-      String(payment.amount || "")
+      String(payment.amount_display || "")
         .toLowerCase()
         .includes(searchValue) ||
       String(payment.date_display || "")
@@ -267,32 +290,32 @@ export default function CustomerPaymentPage() {
   const columns = [
     {
       key: "cus_payment_id",
-      label: "ID",
+      label: t("id"),
     },
 
     {
       key: "customer_name_display",
-      label: "Customer",
+      label: t("customer"),
     },
 
     {
       key: "currency_code_display",
-      label: "Currency",
+      label: t("currency"),
     },
 
     {
-      key: "amount",
-      label: "Amount",
+      key: "amount_display",
+      label: t("amount"),
     },
 
     {
       key: "date_display",
-      label: "Date",
+      label: t("date"),
     },
 
     {
       key: "sale_display",
-      label: "Sale",
+      label: t("sale"),
     },
   ];
 
@@ -319,8 +342,8 @@ export default function CustomerPaymentPage() {
       {/* HEADER */}
 
       <PageHeader
-        title="Customer Payments"
-        description="Manage customer payments"
+        title={t("customerPayments")}
+        description={t("manageCustomerPayments")}
       >
         {canCreate && (
           <Button
@@ -331,7 +354,7 @@ export default function CustomerPaymentPage() {
               setError("");
             }}
           >
-            Add Payment
+            {t("addCustomerPayment")}
           </Button>
         )}
       </PageHeader>
@@ -340,7 +363,7 @@ export default function CustomerPaymentPage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive sm:p-4">
-          {error}
+          {t(error)}
         </div>
       )}
 
@@ -350,7 +373,7 @@ export default function CustomerPaymentPage() {
         <Input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search customer payments..."
+          placeholder={t("searchCustomerPayments")}
         />
       </div>
 
@@ -358,7 +381,7 @@ export default function CustomerPaymentPage() {
 
       {loading ? (
         <div className="py-10 text-center text-muted-foreground">
-          Loading customer payments...
+          {t("loadingCustomerPayments")}
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
@@ -374,6 +397,7 @@ export default function CustomerPaymentPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    aria-label={t("editPayment")}
                     onClick={() => handleEdit(payment)}
                   >
                     <Pencil className="h-4 w-4" />
@@ -386,6 +410,7 @@ export default function CustomerPaymentPage() {
                   <Button
                     variant="destructive"
                     size="sm"
+                    aria-label={t("deletePayment")}
                     onClick={() => handleDeleteClick(payment)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -420,14 +445,14 @@ export default function CustomerPaymentPage() {
           <DialogHeader>
             <DialogTitle>
               {selectedCustomerPayment
-                ? "Edit Customer Payment"
-                : "Add Customer Payment"}
+                ? t("editCustomerPayment")
+                : t("addCustomerPayment")}
             </DialogTitle>
 
             <DialogDescription>
               {selectedCustomerPayment
-                ? "Update customer payment information."
-                : "Enter customer payment information."}
+                ? t("updateCustomerPaymentInfo")
+                : t("enterCustomerPaymentInfo")}
             </DialogDescription>
           </DialogHeader>
 
@@ -449,8 +474,10 @@ export default function CustomerPaymentPage() {
         onOpenChange={setDeleteOpen}
         onConfirm={handleDelete}
         loading={deleteLoading}
-        name={`Customer Payment #${paymentToDelete?.cus_payment_id ?? ""}`}
-        tableName="Customer Payment"
+        name={t("customerPaymentNumber", {
+          id: paymentToDelete?.cus_payment_id ?? "",
+        })}
+        tableName={t("customerPayment")}
       />
     </div>
   );

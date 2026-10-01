@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getReports } from "@/services/Reports";
 
@@ -23,6 +24,8 @@ import {
 // ==================================================
 
 export default function Reports() {
+  const { t, i18n } = useTranslation();
+  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const printStockReport = useRef(null);
   const printSalesReport = useRef(null);
   const printPurchaseReport = useRef(null);
@@ -78,8 +81,8 @@ export default function Reports() {
       setCosts(response?.data?.costs || []);
 
       setLoss(response?.data?.loss || []);
-    } catch (err) {
-      setError(err?.message || "Failed to load reports.");
+    } catch {
+      setError("failedToLoadReports");
     } finally {
       setLoading(false);
     }
@@ -169,13 +172,13 @@ export default function Reports() {
 
     return [
       {
-        name: "Financial",
+        name: t("financialSummary"),
         Revenue: Number(summary.total_revenue_afn || 0),
         Cost: Number(summary.total_cost_afn || 0),
         Profit: Number(summary.total_profit_afn || 0),
       },
     ];
-  }, [summary]);
+  }, [summary, t]);
 
   // --------------------------------------------------
   // LOADING
@@ -184,7 +187,7 @@ export default function Reports() {
   if (loading) {
     return (
       <div className="flex min-h-[240px] items-center justify-center text-sm text-muted-foreground">
-        Loading reports...
+        {t("loadingReports")}
       </div>
     );
   }
@@ -200,8 +203,8 @@ export default function Reports() {
       ================================================== */}
 
       <PageHeader
-        title="Reports"
-        description="View inventory, sales, purchase, and financial reports"
+        title={t("reports")}
+        description={t("reportsDescription")}
       />
 
       {/* ==================================================
@@ -210,7 +213,7 @@ export default function Reports() {
 
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+          {t(error)}
         </div>
       )}
 
@@ -220,35 +223,56 @@ export default function Reports() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <ReportCard
-          title="Revenue"
+          title={t("revenue")}
           value={summary?.total_revenue_afn}
-          suffix="AFN"
+          suffix={t("currencyAFN")}
+          formatDariNumbers={isDari}
         />
 
-        <ReportCard title="Cost" value={summary?.total_cost_afn} suffix="AFN" />
+        <ReportCard
+          title={t("cost")}
+          value={summary?.total_cost_afn}
+          suffix={t("currencyAFN")}
+          formatDariNumbers={isDari}
+        />
 
         <ReportCard
-          title="Profit"
+          title={t("profit")}
           value={summary?.total_profit_afn}
-          suffix="AFN"
+          suffix={t("currencyAFN")}
+          formatDariNumbers={isDari}
         />
 
-        <ReportCard title="Loss" value={summary?.total_loss_afn} suffix="AFN" />
+        <ReportCard
+          title={t("loss")}
+          value={summary?.total_loss_afn}
+          suffix={t("currencyAFN")}
+          formatDariNumbers={isDari}
+        />
 
         <ReportCard
-          title="Total Items"
+          title={t("totalItems")}
           value={summary?.total_items}
-          decimals={0}
+          formatDariNumbers={isDari}
         />
 
         <ReportCard
-          title="Purchased Quantity"
+          title={t("purchasedQuantity")}
           value={summary?.total_purchased}
+          formatDariNumbers={isDari}
         />
 
-        <ReportCard title="Sold Quantity" value={summary?.total_sold} />
+        <ReportCard
+          title={t("soldQuantity")}
+          value={summary?.total_sold}
+          formatDariNumbers={isDari}
+        />
 
-        <ReportCard title="Current Stock" value={summary?.current_stock} />
+        <ReportCard
+          title={t("currentStock")}
+          value={summary?.current_stock}
+          formatDariNumbers={isDari}
+        />
       </div>
 
       {/* ==================================================
@@ -258,7 +282,7 @@ export default function Reports() {
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         {/* SALES */}
 
-        <ReportChartCard title="Sales by Item">
+        <ReportChartCard title={t("salesByItem")}>
           <ResponsiveContainer
             width="100%"
             height="100%"
@@ -286,18 +310,22 @@ export default function Reports() {
                 tickFormatter={formatChartName}
               />
 
-              <YAxis tick={{ fontSize: 11 }} width={48} />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(value) => formatReportNumber(value, isDari)}
+                width={48}
+              />
 
               <Tooltip
                 formatter={(value) => [
-                  Number(value).toLocaleString(),
-                  "Revenue",
+                  formatReportNumber(value, isDari),
+                  t("revenue"),
                 ]}
               />
 
               <Bar
                 dataKey="revenue"
-                name="Revenue"
+                name={t("revenue")}
                 fill="#2563eb"
                 radius={[5, 5, 0, 0]}
                 maxBarSize={45}
@@ -308,7 +336,7 @@ export default function Reports() {
 
         {/* PURCHASES */}
 
-        <ReportChartCard title="Purchases by Item">
+        <ReportChartCard title={t("purchasesByItem")}>
           <ResponsiveContainer
             width="100%"
             height="100%"
@@ -336,18 +364,22 @@ export default function Reports() {
                 tickFormatter={formatChartName}
               />
 
-              <YAxis tick={{ fontSize: 9 }} width={48} />
+              <YAxis
+                tick={{ fontSize: 9 }}
+                tickFormatter={(value) => formatReportNumber(value, isDari)}
+                width={48}
+              />
 
               <Tooltip
                 formatter={(value) => [
-                  Number(value).toLocaleString(),
-                  "Quantity",
+                  formatReportNumber(value, isDari),
+                  t("quantity"),
                 ]}
               />
 
               <Bar
                 dataKey="quantity"
-                name="Quantity"
+                name={t("quantity")}
                 fill="#7c3aed"
                 radius={[5, 5, 0, 0]}
                 maxBarSize={45}
@@ -358,7 +390,7 @@ export default function Reports() {
 
         {/* STOCK */}
 
-        <ReportChartCard title="Current Stock by Item">
+        <ReportChartCard title={t("currentStockByItem")}>
           <ResponsiveContainer
             width="100%"
             height="100%"
@@ -386,15 +418,22 @@ export default function Reports() {
                 tickFormatter={formatChartName}
               />
 
-              <YAxis tick={{ fontSize: 11 }} width={50} />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(value) => formatReportNumber(value, isDari)}
+                width={50}
+              />
 
               <Tooltip
-                formatter={(value) => [Number(value).toLocaleString(), "Stock"]}
+                formatter={(value) => [
+                  formatReportNumber(value, isDari),
+                  t("currentStock"),
+                ]}
               />
 
               <Bar
                 dataKey="stock"
-                name="Current Stock"
+                name={t("currentStock")}
                 fill="#16a34a"
                 radius={[5, 5, 0, 0]}
                 maxBarSize={45}
@@ -405,7 +444,7 @@ export default function Reports() {
 
         {/* FINANCIAL */}
 
-        <ReportChartCard title="Revenue vs Cost vs Profit">
+        <ReportChartCard title={t("revenueVsCostVsProfit")}>
           <ResponsiveContainer
             width="100%"
             height="100%"
@@ -430,11 +469,15 @@ export default function Reports() {
                 tickLine={false}
               />
 
-              <YAxis tick={{ fontSize: 11 }} width={60} />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(value) => formatReportNumber(value, isDari)}
+                width={60}
+              />
 
               <Tooltip
                 formatter={(value, name) => [
-                  `${Number(value).toLocaleString()} AFN`,
+                  `${formatReportNumber(value, isDari)} ${t("currencyAFN")}`,
                   name,
                 ]}
               />
@@ -443,6 +486,7 @@ export default function Reports() {
 
               <Bar
                 dataKey="Revenue"
+                name={t("revenue")}
                 fill="#2563eb"
                 radius={[5, 5, 0, 0]}
                 maxBarSize={45}
@@ -450,6 +494,7 @@ export default function Reports() {
 
               <Bar
                 dataKey="Cost"
+                name={t("cost")}
                 fill="#f59e0b"
                 radius={[5, 5, 0, 0]}
                 maxBarSize={45}
@@ -457,6 +502,7 @@ export default function Reports() {
 
               <Bar
                 dataKey="Profit"
+                name={t("profit")}
                 fill="#16a34a"
                 radius={[5, 5, 0, 0]}
                 maxBarSize={45}
@@ -473,28 +519,30 @@ export default function Reports() {
       <div>
         <PrintButton
           contentRef={printStockReport}
-          title="print/save report"
-          documentTitle="Available Stock"
+          title={t("printSaveReport")}
+          documentTitle={t("availableStockReport")}
         />
         <div ref={printStockReport}>
           <ReportTable
-            title="Stock Report"
+            title={t("stockReport")}
+            emptyMessage={t("noReportData")}
+            formatNumbers={isDari}
             columns={[
               {
                 key: "item_name",
-                label: "Item",
+                label: t("item"),
               },
               {
                 key: "total_purchased",
-                label: "Purchased",
+                label: t("purchasedQuantity"),
               },
               {
                 key: "total_sold",
-                label: "Sold",
+                label: t("soldQuantity"),
               },
               {
                 key: "current_stock",
-                label: "Current Stock",
+                label: t("currentStock"),
               },
             ]}
             data={stock}
@@ -508,26 +556,28 @@ export default function Reports() {
       <div>
         <PrintButton
           contentRef={printSalesReport}
-          title="print/save report"
-          documentTitle="All Sales"
+          title={t("printSaveReport")}
+          documentTitle={t("allSalesReport")}
         />
         <div ref={printSalesReport}>
           <ReportTable
-            title="Sales Report"
+            title={t("salesReport")}
+            emptyMessage={t("noReportData")}
+            formatNumbers={isDari}
             columns={[
               {
                 key: "sales_id",
-                label: "Sale ID",
+                label: t("saleId"),
               },
               {
                 key: "item_name",
-                label: "Item",
+                label: t("item"),
               },
               {
                 key: "sale_of_item",
-                label: "Revenue AFN",
+                label: t("revenueAFN"),
                 render: (row) =>
-                  Number(row.sale_of_item || 0).toLocaleString(undefined, {
+                  formatReportNumber(row.sale_of_item || 0, isDari, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   }),
@@ -548,30 +598,32 @@ export default function Reports() {
       <div>
         <PrintButton
           contentRef={printPurchaseReport}
-          title="print/save report"
-          documentTitle="All Purchases"
+          title={t("printSaveReport")}
+          documentTitle={t("allPurchasesReport")}
         />
         <div ref={printPurchaseReport}>
           <ReportTable
-            title="Purchase Report"
+            title={t("purchaseReport")}
+            emptyMessage={t("noReportData")}
+            formatNumbers={isDari}
             columns={[
               {
                 key: "purchase_id",
-                label: "Purchase ID",
+                label: t("purchaseId"),
               },
               {
                 key: "item_name",
-                label: "Item",
+                label: t("item"),
               },
               {
                 key: "total_qty",
-                label: "Quantity",
+                label: t("quantity"),
               },
               {
                 key: "cost_to_afn",
-                label: "Cost / Unit AFN",
+                label: t("costPerUnitAFN"),
                 render: (row) =>
-                  Number(row.cost_to_afn || 0).toLocaleString(undefined, {
+                  formatReportNumber(row.cost_to_afn || 0, isDari, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   }),
@@ -591,26 +643,28 @@ export default function Reports() {
       <div>
         <PrintButton
           contentRef={printPurchaseReport}
-          title="print/save report"
-          documentTitle="All Costs"
+          title={t("printSaveReport")}
+          documentTitle={t("allCostsReport")}
         />
         <div ref={printCostReport}>
           <ReportTable
-            title="Cost Report"
+            title={t("costReport")}
+            emptyMessage={t("noReportData")}
+            formatNumbers={isDari}
             columns={[
               {
                 key: "purchase_id",
-                label: "Purchase ID",
+                label: t("purchaseId"),
               },
               {
                 key: "item_name",
-                label: "Item",
+                label: t("item"),
               },
               {
                 key: "cost_of_item_afn",
-                label: "Total Cost AFN",
+                label: t("totalCostAFN"),
                 render: (row) =>
-                  Number(row.cost_of_item_afn || 0).toLocaleString(undefined, {
+                  formatReportNumber(row.cost_of_item_afn || 0, isDari, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   }),
@@ -630,44 +684,46 @@ export default function Reports() {
       <div>
         <PrintButton
           contentRef={printLossReport}
-          title="print/save report"
-          documentTitle="All Loss"
+          title={t("printSaveReport")}
+          documentTitle={t("allLossReport")}
         />
         <div ref={printLossReport}>
           <ReportTable
-            title="Loss Report"
+            title={t("lossReport")}
+            emptyMessage={t("noReportData")}
+            formatNumbers={isDari}
             columns={[
               {
                 key: "allocation_id",
-                label: "Allocation ID",
+                label: t("allocationId"),
               },
               {
                 key: "allocated_qty",
-                label: "Quantity",
+                label: t("quantity"),
               },
               {
                 key: "total_cost_afn",
-                label: "Cost AFN",
+                label: t("costAFN"),
                 render: (row) =>
-                  Number(row.total_cost_afn || 0).toLocaleString(undefined, {
+                  formatReportNumber(row.total_cost_afn || 0, isDari, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   }),
               },
               {
                 key: "total_revenue_afn",
-                label: "Revenue AFN",
+                label: t("revenueAFN"),
                 render: (row) =>
-                  Number(row.total_revenue_afn || 0).toLocaleString(undefined, {
+                  formatReportNumber(row.total_revenue_afn || 0, isDari, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   }),
               },
               {
                 key: "total_loss_afn",
-                label: "Loss AFN",
+                label: t("lossAFN"),
                 render: (row) =>
-                  Number(row.total_loss_afn || 0).toLocaleString(undefined, {
+                  formatReportNumber(row.total_loss_afn || 0, isDari, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   }),
@@ -678,6 +734,12 @@ export default function Reports() {
         </div>
       </div>
     </div>
+  );
+}
+
+function formatReportNumber(value, isDari, options = {}) {
+  return new Intl.NumberFormat(isDari ? "fa-AF" : undefined, options).format(
+    Number(value) || 0,
   );
 }
 
