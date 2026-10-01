@@ -1,21 +1,18 @@
-import { useTranslation } from "react-i18next";
-
 export default function ReportCard({
   title,
   value = 0,
   suffix = "",
   decimals = 2,
+  formatDariNumbers = false,
 }) {
-  const { t, i18n } = useTranslation();
-  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const formattedValue = Number(value || 0).toLocaleString(
-    isDari ? "fa-AF" : undefined,
+    formatDariNumbers ? "fa-AF" : undefined,
     {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
     },
   );
-  const displayedSuffix = suffix === "AFN" && isDari ? t("currencyAFN") : suffix;
+  const displayedSuffix = suffix;
 
   return (
     <div className="min-w-0 rounded-xl border bg-card p-4 shadow-sm sm:p-5">

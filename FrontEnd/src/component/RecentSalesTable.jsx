@@ -44,11 +44,21 @@ export function SalesTable({ data = [] }) {
       <TableCaption>{t("recentSales")}</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>{t("sale")}</TableHead>
-          <TableHead>{t("customer")}</TableHead>
-          <TableHead>{t("item")}</TableHead>
-          <TableHead>{t("date")}</TableHead>
-          <TableHead className="text-end">{t("amount")}</TableHead>
+          <TableHead className="whitespace-nowrap rtl:text-right">
+            {t("sale")}
+          </TableHead>
+          <TableHead className="whitespace-nowrap rtl:text-right">
+            {t("customer")}
+          </TableHead>
+          <TableHead className="whitespace-nowrap rtl:text-right">
+            {t("item")}
+          </TableHead>
+          <TableHead className="whitespace-nowrap rtl:text-right">
+            {t("date")}
+          </TableHead>
+          <TableHead className="whitespace-nowrap text-end rtl:text-right">
+            {t("amount")}
+          </TableHead>
         </TableRow>
       </TableHeader>
 
@@ -62,15 +72,23 @@ export function SalesTable({ data = [] }) {
         ) : (
           data.map((sale) => (
             <TableRow key={getSaleKey(sale)}>
-              <TableCell className="font-medium">#{sale.sales_id}</TableCell>
+              <TableCell className="font-medium whitespace-nowrap rtl:text-right">
+                #{sale.sales_id}
+              </TableCell>
 
-              <TableCell>{sale.customer_name}</TableCell>
+              <TableCell className="whitespace-nowrap rtl:text-right">
+                {sale.customer_name}
+              </TableCell>
 
-              <TableCell>{sale.item_name}</TableCell>
+              <TableCell className="whitespace-nowrap rtl:text-right">
+                {sale.item_name}
+              </TableCell>
 
-              <TableCell>{formatDate(sale.sales_date, locale)}</TableCell>
+              <TableCell className="whitespace-nowrap rtl:text-right">
+                {formatDate(sale.sales_date, locale)}
+              </TableCell>
 
-              <TableCell className="text-right">
+              <TableCell className="whitespace-nowrap text-right rtl:text-right">
                 {formatNumber(sale.total_sale_afn, locale)} {t("currencyAFN")}
               </TableCell>
             </TableRow>
@@ -80,9 +98,14 @@ export function SalesTable({ data = [] }) {
 
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={4}>{t("totalShown")}</TableCell>
+          <TableCell
+            colSpan={4}
+            className="whitespace-nowrap rtl:text-right"
+          >
+            {t("totalShown")}
+          </TableCell>
 
-          <TableCell className="text-right">
+          <TableCell className="whitespace-nowrap text-right rtl:text-right">
             {formatNumber(total, locale)} {t("currencyAFN")}
           </TableCell>
         </TableRow>

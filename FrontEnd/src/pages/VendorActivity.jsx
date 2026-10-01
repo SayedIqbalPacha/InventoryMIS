@@ -9,7 +9,6 @@ import PrintButton from "@/component/PrintButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 const money = (value, isDari) =>
   Number(value || 0).toLocaleString(isDari ? "fa-AF" : undefined, {
@@ -205,16 +204,19 @@ export default function VendorActivity() {
               title={t("purchasesInPeriod")}
               value={result.purchases.total_afn}
               suffix={isDari ? t("currencyAFN") : "AFN"}
+              formatDariNumbers={isDari}
             />
             <ReportCard
               title={t("allPayments")}
               value={result.payments.total_afn}
               suffix={isDari ? t("currencyAFN") : "AFN"}
+              formatDariNumbers={isDari}
             />
             <ReportCard
               title={t("totalPurchases")}
               value={account.total_purchases_afn}
               suffix={isDari ? t("currencyAFN") : "AFN"}
+              formatDariNumbers={isDari}
             />
             <ReportCard
               title={
@@ -226,6 +228,7 @@ export default function VendorActivity() {
               }
               value={Math.abs(account.outstanding_afn)}
               suffix={isDari ? t("currencyAFN") : "AFN"}
+              formatDariNumbers={isDari}
             />
           </div>
           <div ref={printRef} className="space-y-5">
