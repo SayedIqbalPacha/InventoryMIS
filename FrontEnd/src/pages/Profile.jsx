@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,6 @@ import {
 
 function Profile() {
   const { t, i18n } = useTranslation();
-  const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
   const { user, loading, updateMe, updateMyPassword } = useAuth();
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -39,11 +39,7 @@ function Profile() {
   const [errorMessage, setErrorMessage] = useState("");
 
   function translateRequestError(error, fallbackKey) {
-    if (error?.message && i18n.exists(error.message)) {
-      return t(error.message);
-    }
-
-    return !isDari && error?.message ? error.message : t(fallbackKey);
+    return translateApiError(error, t, i18n, fallbackKey);
   }
 
   useEffect(() => {

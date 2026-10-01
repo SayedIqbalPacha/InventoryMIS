@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -49,6 +51,7 @@ const resetPasswordSchema = z
 // --------------------------------------------------
 
 export function ResetPasswordForm() {
+  const { t, i18n } = useTranslation();
 
   const { token } = useParams();
 
@@ -96,13 +99,13 @@ export function ResetPasswordForm() {
         replace: true,
         state: {
           message:
-            "Password reset successfully. Please login.",
+            t("passwordResetSuccess"),
         },
       });
 
     } catch (error) {
 
-      setServerError( error.message ||"Unable to reset password.");
+      setServerError(translateApiError(error, t, i18n, "unableToResetPassword"));
 
     } finally {
 
@@ -118,11 +121,11 @@ export function ResetPasswordForm() {
       <CardHeader>
 
         <CardTitle>
-          Reset your password
+          {t("resetPasswordTitle")}
         </CardTitle>
 
         <CardDescription>
-          Enter your new password below.
+          {t("resetPasswordDescription")}
         </CardDescription>
 
       </CardHeader>
@@ -143,7 +146,7 @@ export function ResetPasswordForm() {
             <div className="grid gap-2">
 
               <Label htmlFor="password">
-                New Password
+                {t("newPassword")}
               </Label>
 
               <Input
@@ -159,7 +162,7 @@ export function ResetPasswordForm() {
               {form.formState.errors.password && (
                 <p className="text-sm text-destructive">
                   {
-                    form.formState.errors.password.message
+                  t(form.formState.errors.password.message)
                   }
                 </p>
               )}
@@ -172,7 +175,7 @@ export function ResetPasswordForm() {
             <div className="grid gap-2">
 
               <Label htmlFor="passwordConfirm">
-                Confirm New Password
+                {t("confirmNewPassword")}
               </Label>
 
               <Input
@@ -188,7 +191,7 @@ export function ResetPasswordForm() {
               {form.formState.errors.passwordConfirm && (
                 <p className="text-sm text-destructive">
                   {
-                    form.formState.errors.passwordConfirm.message
+                  t(form.formState.errors.passwordConfirm.message)
                   }
                 </p>
               )}
@@ -217,8 +220,8 @@ export function ResetPasswordForm() {
             disabled={loading}
           >
             {loading
-              ? "Resetting..."
-              : "Reset password"}
+              ? t("resetting")
+              : t("resetPassword")}
           </Button>
 
 
@@ -226,7 +229,7 @@ export function ResetPasswordForm() {
             to="/login"
             className="text-sm underline-offset-4 hover:underline"
           >
-            Back to login
+            {t("backToLogin")}
           </Link>
 
         </CardFooter>

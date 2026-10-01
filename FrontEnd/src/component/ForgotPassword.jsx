@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -41,6 +43,7 @@ const forgotPasswordSchema = z.object({
 // --------------------------------------------------
 
 export function ForgotPasswordForm() {
+  const { t, i18n } = useTranslation();
 
   const { forgotPassword } = useAuth();
 
@@ -84,16 +87,13 @@ export function ForgotPasswordForm() {
       await forgotPassword(data.email);
 
 
-      setSuccessMessage("If an account exists with this email, a password reset link has been sent.");
+      setSuccessMessage(t("resetLinkSent"));
 
       form.reset();
 
     } catch (error) {
 
-      setServerError(
-        error.message ||
-        "Unable to process your request."
-      );
+      setServerError(translateApiError(error, t, i18n, "unableToProcessRequest"));
 
     } finally {
 
@@ -112,12 +112,11 @@ export function ForgotPasswordForm() {
       <CardHeader>
 
         <CardTitle>
-          Forgot your password?
+          {t("forgotPasswordTitle")}
         </CardTitle>
 
         <CardDescription>
-          Enter your email and we will send you a
-          password reset link.
+          {t("forgotPasswordDescription")}
         </CardDescription>
 
       </CardHeader>
@@ -135,7 +134,7 @@ export function ForgotPasswordForm() {
           <div className="grid gap-2">
 
             <Label htmlFor="email">
-              Email
+              {t("email")}
             </Label>
 
             <Input
@@ -152,7 +151,7 @@ export function ForgotPasswordForm() {
             {form.formState.errors.email && (
               <p className="text-sm text-destructive">
                 {
-                  form.formState.errors.email.message
+                  t(form.formState.errors.email.message)
                 }
               </p>
             )}
@@ -194,8 +193,8 @@ export function ForgotPasswordForm() {
             disabled={loading}
           >
             {loading
-              ? "Sending..."
-              : "Send reset link"}
+              ? t("sending")
+              : t("sendResetLink")}
           </Button>
 
 
@@ -203,7 +202,7 @@ export function ForgotPasswordForm() {
             to="/login"
             className="text-sm underline-offset-4 hover:underline"
           >
-            Back to login
+            {t("backToLogin")}
           </Link>
 
         </CardFooter>

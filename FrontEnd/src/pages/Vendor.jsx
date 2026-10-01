@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import {
   getVendors,
@@ -33,7 +34,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function VendorPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   // --------------------------------------------------
   // DATA
   // --------------------------------------------------
@@ -258,7 +259,7 @@ export default function VendorPage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 sm:p-4 text-sm text-destructive">
-          {error}
+          {translateApiError(error, t, i18n, "failedToLoadVendors")}
         </div>
       )}
 

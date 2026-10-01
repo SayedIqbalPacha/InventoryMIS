@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import PageHeader from "@/component/PageHeader";
 import GeneralTable from "@/component/GeneralTable";
@@ -16,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getUsers, deleteUser } from "@/services/users";
 
 export default function Users() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
 
   const [users, setUsers] = useState([]);
@@ -173,7 +174,7 @@ export default function Users() {
       <div className="space-y-4">
         {error && (
           <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-            {error}
+            {translateApiError(error, t, i18n, "failedToLoadUsers")}
           </div>
         )}
 

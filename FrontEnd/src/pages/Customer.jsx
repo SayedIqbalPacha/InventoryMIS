@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import {
   getCustomers,
@@ -36,7 +37,7 @@ import { Pencil, Trash2 } from "lucide-react";
 // --------------------------------------------------
 
 export default function CustomerPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   // DATA
 
   const [customers, setCustomers] = useState([]);
@@ -268,7 +269,7 @@ export default function CustomerPage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
-          {error}
+          {translateApiError(error, t, i18n, "failedToLoadCustomers")}
         </div>
       )}
 

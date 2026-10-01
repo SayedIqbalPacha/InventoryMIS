@@ -7,6 +7,7 @@ import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 // --------------------------------------------------
 // VALIDATION
@@ -228,7 +229,7 @@ export default function ItemForm({
 
       await onSubmit(itemData);
     } catch (err) {
-      const message = err?.message || "unexpectedError";
+      const message = translateApiError(err, t, i18n, "unexpectedError");
 
       setServerError(message);
 

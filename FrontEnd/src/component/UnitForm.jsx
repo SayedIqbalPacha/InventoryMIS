@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -132,9 +133,7 @@ export default function UnitForm({
 
     } catch (err) {
 
-      const message =
-        err?.message ||
-        t("unexpectedError");
+      const message = translateApiError(err, t, "unexpectedError");
 
       setServerError(message);
 

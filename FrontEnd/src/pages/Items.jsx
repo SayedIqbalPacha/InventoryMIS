@@ -25,6 +25,7 @@ import {
 
 import { Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 // --------------------------------------------------
@@ -289,7 +290,7 @@ export default function ItemsPage() {
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
           {error === "failedToLoadItems" || error === "failedToDeleteItem"
             ? t(error)
-            : error}
+            : translateApiError(error, t, i18n, "failedToLoadItems")}
         </div>
       )}
 

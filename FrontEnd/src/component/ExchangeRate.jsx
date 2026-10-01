@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import { useForm } from "react-hook-form";
 
@@ -196,7 +197,7 @@ export default function ExchangeRateForm({
 
       await onSubmit(exchangeRateData);
     } catch (err) {
-      const message = err?.message || t("unexpectedError");
+      const message = translateApiError(err, t, "unexpectedError");
 
       setServerError(message);
 

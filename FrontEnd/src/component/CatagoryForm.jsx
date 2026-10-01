@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 
 // --------------------------------------------------
@@ -124,7 +125,7 @@ export default function CatagoryForm({
 
     } catch (err) {
 
-      const message = err?.message || "unexpectedError";
+      const message = translateApiError(err, t, "unexpectedError");
 
       setServerError(message);
 

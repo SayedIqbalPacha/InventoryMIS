@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import GeneralForm from "@/component/GeneralForm";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
 import { formatLocaleId } from "@/lib/localeFormatters";
 
@@ -172,8 +173,8 @@ export default function VendorPaymentForm({
       };
 
       await onSubmit(vendorPaymentData);
-    } catch {
-      const message = t("unexpectedError");
+    } catch (error) {
+      const message = translateApiError(error, t, i18n, "unexpectedError");
 
       setServerError(message);
 

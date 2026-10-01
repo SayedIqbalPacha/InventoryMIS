@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import {
   getSales,
@@ -139,7 +140,7 @@ export default function SalesPage() {
 
       setAvailableStock(stockResponse?.data || []);
     } catch (err) {
-      setError(err?.message || t("failedToLoadSales"));
+      setError(translateApiError(err, t, "failedToLoadSales"));
     } finally {
       setLoading(false);
     }
@@ -289,7 +290,7 @@ export default function SalesPage() {
 
       setSalesToDelete(null);
     } catch (err) {
-      setError(err?.message || t("failedToDeleteSale"));
+      setError(translateApiError(err, t, "failedToDeleteSale"));
     } finally {
       setDeleteLoading(false);
     }

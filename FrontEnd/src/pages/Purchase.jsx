@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import {
   getPurchases,
@@ -137,7 +138,7 @@ export default function PurchasePage() {
 
       setPurchaseDetails(purchaseDetailsResponse?.data || []);
     } catch (err) {
-      setError(err?.message || t("failedToLoadPurchases"));
+      setError(translateApiError(err, t, "failedToLoadPurchases"));
     } finally {
       setLoading(false);
     }
@@ -352,7 +353,7 @@ export default function PurchasePage() {
 
       setPurchaseToDelete(null);
     } catch (err) {
-      setError(err?.message || t("failedToDeletePurchase"));
+      setError(translateApiError(err, t, "failedToDeletePurchase"));
     } finally {
       setDeleteLoading(false);
     }

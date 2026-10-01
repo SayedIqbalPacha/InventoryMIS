@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { getVendorActivity } from "@/services/Reports";
 import { getVendors } from "@/services/Vendor";
 import PageHeader from "@/component/PageHeader";
@@ -42,7 +43,7 @@ export default function VendorActivity() {
   useEffect(() => {
     getVendors()
       .then((response) => setVendors(response?.data || []))
-      .catch((err) => setError(err.message || "failedToLoadVendors"));
+      .catch((err) => setError(translateApiError(err, t, "failedToLoadVendors")));
   }, []);
 
   const suggestions = useMemo(() => {
@@ -78,7 +79,7 @@ export default function VendorActivity() {
       setResult(response?.data || null);
     } catch (err) {
       setResult(null);
-      setError(err.message || "failedToLoadVendorActivity");
+      setError(translateApiError(err, t, "failedToLoadVendorActivity"));
     } finally {
       setLoading(false);
     }

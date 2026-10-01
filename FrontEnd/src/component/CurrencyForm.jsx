@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import { useForm } from "react-hook-form";
 
@@ -73,7 +74,7 @@ export default function CurrencyForm({ currency, onSubmit, loading }) {
       form.setError("root.server", {
         type: "server",
 
-        message: error.message || t("unexpectedError"),
+        message: translateApiError(error, t, "unexpectedError"),
       });
     }
   }

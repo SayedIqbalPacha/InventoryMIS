@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import { getCustomerActivity } from "@/services/Reports";
 import { getCustomers } from "@/services/Customer";
@@ -58,7 +59,7 @@ export default function CustomerActivity() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err.message || "failedToLoadCustomers");
+          setError(translateApiError(err, t, "failedToLoadCustomers"));
         }
       }
     }
@@ -115,7 +116,7 @@ export default function CustomerActivity() {
     } catch (err) {
       setResult(null);
       setMatches([]);
-      setError(err.message || "failedToLoadCustomerActivity");
+      setError(translateApiError(err, t, "failedToLoadCustomerActivity"));
     } finally {
       setLoading(false);
     }

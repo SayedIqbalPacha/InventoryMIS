@@ -1,7 +1,9 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function ProtectedRoute() {
+  const { t } = useTranslation();
   const {isAuthenticated,loading,} = useAuth();
 
   const location = useLocation();
@@ -10,7 +12,7 @@ export default function ProtectedRoute() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>Checking authentication...</p>
+        <p>{t("checkingAuthentication")}</p>
       </div>
     );
   }

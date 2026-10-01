@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -44,6 +46,7 @@ const loginSchema = z.object({
 // --------------------------------------------------
 
 export function LoginSignup() {
+  const { t, i18n } = useTranslation();
 
   const navigate = useNavigate();
 
@@ -96,9 +99,7 @@ export function LoginSignup() {
 
     } catch (error) {
 
-      setServerError(
-        error.message || "Unable to login."
-      );
+      setServerError(translateApiError(error, t, i18n, "unableToLogin"));
 
     } finally {
 
@@ -119,12 +120,11 @@ export function LoginSignup() {
       <CardHeader>
 
         <CardTitle>
-          Login to your account
+          {t("loginTitle")}
         </CardTitle>
 
         <CardDescription>
-          Enter your email below to login to your
-          account
+          {t("loginDescription")}
         </CardDescription>
 
         <CardAction>
@@ -135,7 +135,7 @@ export function LoginSignup() {
               type="button"
               variant="link"
             >
-              Sign Up
+              {t("signUp")}
             </Button>
 
           </Link>
@@ -164,7 +164,7 @@ export function LoginSignup() {
             <div className="grid gap-2">
 
               <Label htmlFor="email">
-                Email
+                {t("email")}
               </Label>
 
               <Input
@@ -185,7 +185,7 @@ export function LoginSignup() {
                 <p className="text-sm text-destructive">
 
                   {
-                    form.formState.errors.email.message
+                    t(form.formState.errors.email.message)
                   }
 
                 </p>
@@ -202,14 +202,14 @@ export function LoginSignup() {
               <div className="flex items-center">
 
                 <Label htmlFor="password">
-                  Password
+                  {t("password")}
                 </Label>
 
                 <Link
                   to="/forgot-password"
                   className="ml-auto text-sm underline-offset-4 hover:underline"
                 >
-                  Forgot your password?
+                  {t("forgotYourPassword")}
                 </Link>
 
               </div>
@@ -232,7 +232,7 @@ export function LoginSignup() {
                 <p className="text-sm text-destructive">
 
                   {
-                    form.formState.errors.password.message
+                    t(form.formState.errors.password.message)
                   }
 
                 </p>
@@ -272,8 +272,8 @@ export function LoginSignup() {
           >
 
             {loading
-              ? "Logging in..."
-              : "Login"}
+              ? t("loggingIn")
+              : t("login")}
 
           </Button>
 
@@ -284,7 +284,7 @@ export function LoginSignup() {
             className="w-full"
             disabled
           >
-            Login with Google
+            {t("loginWithGoogle")}
           </Button>
 
         </CardFooter>

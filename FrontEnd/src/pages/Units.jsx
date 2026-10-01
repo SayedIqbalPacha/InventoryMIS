@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 import { getUnits, updateUnit, createUnit, deleteUnit } from "@/services/Units";
@@ -255,7 +256,7 @@ export default function UnitsPage() {
 
       {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+          {translateApiError(error, t, i18n, "failedToLoadUnits")}
         </div>
       )}
 

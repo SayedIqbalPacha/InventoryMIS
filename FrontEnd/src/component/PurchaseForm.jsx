@@ -18,6 +18,7 @@ import {
 
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 import { getCurrencyLabel } from "@/lib/getCurrencyLabel";
 import { formatLocaleNumber } from "@/lib/localeFormatters";
@@ -318,7 +319,7 @@ export default function PurchaseForm({
         details,
       });
     } catch (err) {
-      const message = err?.message || t("unexpectedError");
+      const message = translateApiError(err, t, i18n, "unexpectedError");
 
       setServerError(message);
 

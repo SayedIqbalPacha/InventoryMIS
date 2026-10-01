@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -62,6 +64,7 @@ const signupSchema = z
 // --------------------------------------------------
 
 export function SignupForm() {
+  const { t, i18n } = useTranslation();
 
   const navigate = useNavigate();
 
@@ -103,13 +106,13 @@ export function SignupForm() {
         replace: true,
         state: {
           message:
-            "Account created successfully. Please login.",
+            t("accountCreatedSuccess"),
         },
       });
 
     } catch (error) {
 
-      setServerError(error.message || "Unable to create account.");
+      setServerError(translateApiError(error, t, i18n, "unableToCreateAccount"));
 
     } finally {
 
@@ -127,11 +130,11 @@ export function SignupForm() {
       <CardHeader>
 
         <CardTitle>
-          Create an account
+          {t("signupTitle")}
         </CardTitle>
 
         <CardDescription>
-          Enter your information to create your account
+          {t("signupDescription")}
         </CardDescription>
 
         <CardAction>
@@ -143,7 +146,7 @@ export function SignupForm() {
               variant="link"
               
             >
-              Login
+              {t("login")}
             </Button>
 
           </Link>
@@ -169,13 +172,13 @@ export function SignupForm() {
             <div className="grid gap-2">
 
               <Label htmlFor="name">
-                Name
+                {t("name")}
               </Label>
 
               <Input
                 id="name"
                 type="text"
-                placeholder="Your name"
+                placeholder={t("yourName")}
                 autoComplete="name"
                 {...form.register("name")}
                 aria-invalid={
@@ -186,7 +189,7 @@ export function SignupForm() {
               {form.formState.errors.name && (
                 <p className="text-sm text-destructive">
                   {
-                    form.formState.errors.name.message
+                  t(form.formState.errors.name.message)
                   }
                 </p>
               )}
@@ -199,7 +202,7 @@ export function SignupForm() {
             <div className="grid gap-2">
 
               <Label htmlFor="email">
-                Email
+                {t("email")}
               </Label>
 
               <Input
@@ -216,7 +219,7 @@ export function SignupForm() {
               {form.formState.errors.email && (
                 <p className="text-sm text-destructive">
                   {
-                    form.formState.errors.email.message
+                  t(form.formState.errors.email.message)
                   }
                 </p>
               )}
@@ -229,7 +232,7 @@ export function SignupForm() {
             <div className="grid gap-2">
 
               <Label htmlFor="password">
-                Password
+                {t("password")}
               </Label>
 
               <Input
@@ -245,7 +248,7 @@ export function SignupForm() {
               {form.formState.errors.password && (
                 <p className="text-sm text-destructive">
                   {
-                    form.formState.errors.password.message
+                  t(form.formState.errors.password.message)
                   }
                 </p>
               )}
@@ -258,7 +261,7 @@ export function SignupForm() {
             <div className="grid gap-2">
 
               <Label htmlFor="passwordConfirm">
-                Confirm Password
+                {t("confirmPassword")}
               </Label>
 
               <Input
@@ -275,7 +278,7 @@ export function SignupForm() {
               {form.formState.errors.passwordConfirm && (
                 <p className="text-sm text-destructive">
                   {
-                    form.formState.errors.passwordConfirm.message
+                  t(form.formState.errors.passwordConfirm.message)
                   }
                 </p>
               )}
@@ -306,8 +309,8 @@ export function SignupForm() {
             disabled={loading}
           >
             {loading
-              ? "Creating account..."
-              : "Create account"}
+              ? t("creatingAccount")
+              : t("createAccount")}
           </Button>
 
         </CardFooter>

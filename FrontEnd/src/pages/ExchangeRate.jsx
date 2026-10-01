@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import {
   getExchangeRates,
@@ -108,7 +109,7 @@ export default function ExchangeRatePage() {
 
       setCurrencies(currenciesResponse?.data || []);
     } catch (err) {
-      setError(err?.message || t("failedToLoadExchangeRates"));
+      setError(translateApiError(err, t, "failedToLoadExchangeRates"));
     } finally {
       setLoading(false);
     }
@@ -194,7 +195,7 @@ export default function ExchangeRatePage() {
 
       setExchangeRateToDelete(null);
     } catch (err) {
-      setError(err?.message || t("failedToDeleteExchangeRate"));
+      setError(translateApiError(err, t, "failedToDeleteExchangeRate"));
     } finally {
       setDeleteLoading(false);
     }

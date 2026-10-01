@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import {
   getCatagories,
@@ -25,7 +27,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Pencil, Trash2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 
 // --------------------------------------------------
@@ -250,7 +251,7 @@ export default function Catagory() {
           {error === "failedToLoadCategories" ||
           error === "failedToDeleteCategory"
             ? t(error)
-            : error}
+            : translateApiError(error, t, i18n, "failedToLoadCategories")}
         </div>
       )}
 

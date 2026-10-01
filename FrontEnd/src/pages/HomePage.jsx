@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { getDashboard } from "@/services/apiDashboard";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 import { formatLocaleNumber } from "@/lib/localeFormatters";
 
 function formatNumber(value, isDari) {
@@ -69,7 +70,7 @@ function Homepage() {
   if (error) {
     return (
       <div className="p-6 text-destructive">
-        {error === "dashboardLoadFailed" ? t(error) : error}
+        {error === "dashboardLoadFailed" ? t(error) : translateApiError(error, t, i18n, "dashboardLoadFailed")}
       </div>
     );
   }

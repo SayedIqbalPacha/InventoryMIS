@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateApiError } from "@/lib/translateApiError";
 
 import {
   getCurrency,
@@ -69,7 +70,7 @@ export default function CurrencyPage() {
 
       setCurrencies(response.data || []);
     } catch (err) {
-      setError(err.message || t("failedToLoadCurrencies"));
+      setError(translateApiError(err, t, "failedToLoadCurrencies"));
     } finally {
       setLoading(false);
     }
@@ -147,7 +148,7 @@ export default function CurrencyPage() {
       setDeleteOpen(false);
       setCurrencyToDelete(null);
     } catch (err) {
-      setError(err.message || t("failedToDeleteCurrency"));
+      setError(translateApiError(err, t, "failedToDeleteCurrency"));
     } finally {
       setDeleteLoading(false);
     }

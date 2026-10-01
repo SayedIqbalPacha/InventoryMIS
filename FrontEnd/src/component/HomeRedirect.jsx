@@ -1,14 +1,16 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function HomeRedirect() {
+  const { t } = useTranslation();
   const {isAuthenticated,loading,} = useAuth();
 
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
+        <p>{t("loading")}</p>
       </div>
     );
   }
