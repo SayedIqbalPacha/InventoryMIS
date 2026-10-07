@@ -9,6 +9,7 @@ import PageHeader from "@/component/PageHeader";
 import PrintButton from "@/component/PrintButton";
 import { localizeInventoryValue } from "@/lib/localizeInventoryValue";
 import { formatLocaleNumber } from "@/lib/localeFormatters";
+import { useCompactLayout } from "@/hooks/use-compact-layout";
 
 import {
   Bar,
@@ -28,6 +29,10 @@ import {
 export default function Reports() {
   const { t, i18n } = useTranslation();
   const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
+  const compactLayout = useCompactLayout();
+  const formatAxisNumber = (value) => formatReportNumber(value, isDari,
+    compactLayout ? { notation: "compact", maximumFractionDigits: 1 } : {},
+  );
   const printStockReport = useRef(null);
   const printSalesReport = useRef(null);
   const printPurchaseReport = useRef(null);
@@ -284,7 +289,7 @@ export default function Reports() {
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         {/* SALES */}
 
-        <ReportChartCard title={t("salesByItem")}>
+        <ReportChartCard title={t("salesByItem")} itemCount={salesChart.length}>
           <ResponsiveContainer
             width="100%"
             height="100%"
@@ -314,8 +319,8 @@ export default function Reports() {
 
               <YAxis
                 tick={{ fontSize: 11 }}
-                tickFormatter={(value) => formatReportNumber(value, isDari)}
-                width={48}
+                tickFormatter={formatAxisNumber}
+                width={compactLayout ? 80 : 48}
               />
 
               <Tooltip
@@ -338,7 +343,7 @@ export default function Reports() {
 
         {/* PURCHASES */}
 
-        <ReportChartCard title={t("purchasesByItem")}>
+        <ReportChartCard title={t("purchasesByItem")} itemCount={purchaseChart.length}>
           <ResponsiveContainer
             width="100%"
             height="100%"
@@ -368,8 +373,8 @@ export default function Reports() {
 
               <YAxis
                 tick={{ fontSize: 9 }}
-                tickFormatter={(value) => formatReportNumber(value, isDari)}
-                width={48}
+                tickFormatter={formatAxisNumber}
+                width={compactLayout ? 80 : 48}
               />
 
               <Tooltip
@@ -392,7 +397,7 @@ export default function Reports() {
 
         {/* STOCK */}
 
-        <ReportChartCard title={t("currentStockByItem")}>
+        <ReportChartCard title={t("currentStockByItem")} itemCount={stockChart.length}>
           <ResponsiveContainer
             width="100%"
             height="100%"
@@ -422,8 +427,8 @@ export default function Reports() {
 
               <YAxis
                 tick={{ fontSize: 11 }}
-                tickFormatter={(value) => formatReportNumber(value, isDari)}
-                width={50}
+                tickFormatter={formatAxisNumber}
+                width={compactLayout ? 80 : 50}
               />
 
               <Tooltip
@@ -473,8 +478,8 @@ export default function Reports() {
 
               <YAxis
                 tick={{ fontSize: 11 }}
-                tickFormatter={(value) => formatReportNumber(value, isDari)}
-                width={60}
+                tickFormatter={formatAxisNumber}
+                width={compactLayout ? 80 : 60}
               />
 
               <Tooltip
@@ -755,14 +760,21 @@ function formatReportNumber(value, isDari, options = {}) {
 // CHART CARD
 // ==================================================
 
-function ReportChartCard({ title, children }) {
+function ReportChartCard({ title, children, itemCount = 0 }) {
   return (
     <section className="min-w-0 overflow-hidden rounded-xl border bg-card p-4 shadow-sm sm:p-5">
       <div className="mb-4">
-        <h2 className="truncate text-base font-semibold sm:text-lg">{title}</h2>
+        <h2 className="text-base font-semibold max-xl:break-words xl:truncate sm:text-lg">{title}</h2>
       </div>
 
-      <div className="h-[280px] min-w-0 w-full sm:h-[320px]">{children}</div>
+      <div className="min-w-0 w-full overflow-x-auto max-xl:[direction:ltr] xl:overflow-visible">
+        <div
+          className="h-[280px] min-w-0 w-full max-xl:min-w-(--chart-min-width) sm:h-[320px]"
+          style={{ "--chart-min-width": `${itemCount ? itemCount * 40 + 80 : 0}px` }}
+        >
+          {children}
+        </div>
+      </div>
     </section>
   );
 }

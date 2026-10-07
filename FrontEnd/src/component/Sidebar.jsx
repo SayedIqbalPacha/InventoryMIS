@@ -155,12 +155,12 @@ export function AppSidebar() {
             <SidebarMenu>
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.key} className="py-2">
-                  <SidebarMenuButton tooltip={t(item.key)}>
-                    <Link to={item.link} className="flex justify-between ">
+                  <Link to={item.link} className="flex justify-between ">
+                    <SidebarMenuButton tooltip={t(item.key)}>
                       <item.icon />
                       <span className="ms-2">{t(item.key)}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                    </SidebarMenuButton>
+                  </Link>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -181,7 +181,9 @@ export function AppSidebar() {
                 >
                   <Search />
                   <span className="flex-1">{t("searchActivities")}</span>
-                  <ChevronDown className={`ms-auto transition-transform ${activitiesOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown
+                    className={`ms-auto transition-transform ${activitiesOpen ? "rotate-180" : ""}`}
+                  />
                 </SidebarMenuButton>
                 {activitiesOpen && (
                   <SidebarMenuSub>
@@ -208,12 +210,12 @@ export function AppSidebar() {
               </SidebarMenuItem>
               {transactionItems.map((item) => (
                 <SidebarMenuItem key={item.key} className="py-2">
-                  <SidebarMenuButton tooltip={t(item.key)}>
-                    <Link to={item.link} className="flex justify-between">
+                  <Link to={item.link} className="flex justify-between">
+                    <SidebarMenuButton tooltip={t(item.key)}>
                       <item.icon />
                       <span className="ms-2">{t(item.key)}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                    </SidebarMenuButton>
+                  </Link>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -226,12 +228,12 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip={t("settings")}>
-                  <Link to="/settings" className="flex justify-between">
+                <Link to="/settings" className="flex justify-between">
+                  <SidebarMenuButton tooltip={t("settings")}>
                     <Settings />
                     <span className="ms-2">{t("settings")}</span>
-                  </Link>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -241,12 +243,12 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip={t("profile")}>
-              <Link to="/profile" className="flex justify-between">
+            <Link to="/profile" className="flex justify-between">
+              <SidebarMenuButton tooltip={t("profile")}>
                 <Users />
                 <span className="ms-2">{t("profile")}</span>
-              </Link>
-            </SidebarMenuButton>
+              </SidebarMenuButton>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

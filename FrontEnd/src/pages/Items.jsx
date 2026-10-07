@@ -220,15 +220,17 @@ export default function ItemsPage() {
   // --------------------------------------------------
 
   const filteredItems = tableItems.filter((item) => {
-    return (
-      [
-        item.item_name,
-        item.item_name_display,
-        item.description,
-        item.description_display,
-        item.unit_name_display,
-        item.catagory_name_display,
-      ].some((value) => String(value || "").toLowerCase().includes(searchValue))
+    return [
+      item.item_name,
+      item.item_name_display,
+      item.description,
+      item.description_display,
+      item.unit_name_display,
+      item.catagory_name_display,
+    ].some((value) =>
+      String(value || "")
+        .toLowerCase()
+        .includes(searchValue),
     );
   });
 
@@ -365,8 +367,8 @@ export default function ItemsPage() {
           className="
            w-[calc(100%-2rem)]
             max-w-4xl
-            max-h-[90vh]
-            overflow-y-auto
+            max-h-[90dvh]
+            flex flex-col overflow-hidden
             sm:max-w-5xl
             "
         >
@@ -380,13 +382,18 @@ export default function ItemsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <ItemForm
-            item={selectedItem}
-            units={units}
-            catagories={catagories}
-            onSubmit={handleItemSubmit}
-            loading={formLoading}
-          />
+          <div
+            data-item-form-scroll
+            className="min-h-0 overflow-y-auto overscroll-contain"
+          >
+            <ItemForm
+              item={selectedItem}
+              units={units}
+              catagories={catagories}
+              onSubmit={handleItemSubmit}
+              loading={formLoading}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 

@@ -17,7 +17,7 @@ export default function GeneralTable({ columns, data, actions, getRowId }) {
   const isDari = (i18n.resolvedLanguage || i18n.language).startsWith("prs");
 
   return (
-    <div className=" w-full overflow-auto rounded-md border scrollbar-thin h-[calc(100vh-250px)]">
+    <div className="min-w-0 w-full overflow-auto rounded-md border scrollbar-thin h-[max(16rem,calc(100dvh-250px))] lg:h-[calc(100vh-250px)]">
       <Table className="min-w-[800px]">
         <TableHeader>
           <TableRow>

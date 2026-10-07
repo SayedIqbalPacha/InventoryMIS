@@ -23,16 +23,16 @@ function formatAfn(value, isDari, currencyLabel) {
 
 function DashboardCard({ title, value, icon: Icon }) {
   return (
-    <div className="rounded-lg bg-primary-foreground p-4">
+    <div className="min-w-0 rounded-lg bg-primary-foreground p-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{title}</CardTitle>
 
-          <Icon className="h-5 w-5 text-muted-foreground" />
+          <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
         </CardHeader>
 
         <CardContent>
-          <p className="text-2xl font-bold">{value}</p>
+          <p className="text-2xl font-bold max-xl:break-words">{value}</p>
         </CardContent>
       </Card>
     </div>
@@ -107,11 +107,11 @@ function Homepage() {
         icon={TrendingUp}
       />
 
-      <div className="rounded-lg bg-primary-foreground p-4 lg:col-span-2 2xl:col-span-4">
+      <div className="min-w-0 rounded-lg bg-primary-foreground p-4 lg:col-span-2 2xl:col-span-4">
         <SalesPurchase data={chartData} />
       </div>
 
-      <div className="rounded-lg bg-primary-foreground p-4 lg:col-span-2 2xl:col-span-4">
+      <div className="min-w-0 rounded-lg bg-primary-foreground p-4 lg:col-span-2 2xl:col-span-4">
         <SalesTable data={recentSales} />
       </div>
     </div>

@@ -43,7 +43,9 @@ export default function VendorActivity() {
   useEffect(() => {
     getVendors()
       .then((response) => setVendors(response?.data || []))
-      .catch((err) => setError(translateApiError(err, t, "failedToLoadVendors")));
+      .catch((err) =>
+        setError(translateApiError(err, t, "failedToLoadVendors")),
+      );
   }, []);
 
   const suggestions = useMemo(() => {
@@ -242,7 +244,11 @@ export default function VendorActivity() {
                   label: t("date"),
                   render: (row) => date(row.purchase_date, isDari),
                 },
-                { key: "currency_code", label: t("currency"), render: (row) => getCurrencyLabel(row.currency_code, t) },
+                {
+                  key: "currency_code",
+                  label: t("currency"),
+                  render: (row) => getCurrencyLabel(row.currency_code, t),
+                },
                 {
                   key: "total_original",
                   label: t("purchaseTotal"),
@@ -275,7 +281,11 @@ export default function VendorActivity() {
                       ? t("unallocated")
                       : number(row.purchase_id, isDari),
                 },
-                { key: "currency_code", label: t("currency"), render: (row) => getCurrencyLabel(row.currency_code, t) },
+                {
+                  key: "currency_code",
+                  label: t("currency"),
+                  render: (row) => getCurrencyLabel(row.currency_code, t),
+                },
                 {
                   key: "amount_original",
                   label: t("payment"),

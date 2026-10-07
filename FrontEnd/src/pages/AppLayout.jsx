@@ -26,10 +26,10 @@ export default function AppLayout() {
     <SidebarProvider>
       <AppSidebar />
 
-      <main className="flex min-h-screen w-full flex-col">
+      <main className="flex min-h-screen min-w-0 w-full flex-col">
         <NavBar />
 
-        <div className="flex-1 p-4">
+        <div className="min-w-0 flex-1 p-4">
           <Outlet />
         </div>
       </main>
